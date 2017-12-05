@@ -1,5 +1,10 @@
 # CrakenRedis
 
+
+Craken을 사용하다보니 좀더 단순한 API만 있어도 되지 않을까 해서 redis 기반으로 좀더 심플하게 만들어 보고 있음. 
+
+
+
 ```java
 
   public class TestInterface extends TestCase {

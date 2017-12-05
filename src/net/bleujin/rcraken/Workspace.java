@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -25,7 +26,7 @@ public class Workspace {
 		this.rclient = rclient ;
 		this.mapOption = LocalCachedMapOptions.<String, String>defaults()
 			      // LFU, LRU, SOFT, WEAK and NONE policies are available
-			     .evictionPolicy(EvictionPolicy.LFU)
+			     .evictionPolicy(EvictionPolicy.LRU)
 			      // If cache size is 0 then local cache is unbounded.
 			     .cacheSize(1000)
 			      // if value is `ON_CHANGE`, `ON_CHANGE_WITH_CLEAR_ON_RECONNECT` or `ON_CHANGE_WITH_LOAD_ON_RECONNECT` 
@@ -33,21 +34,21 @@ public class Workspace {
 			      // during every invalidation message sent on each map entry update/remove operation
 			     .invalidationPolicy(InvalidationPolicy.ON_CHANGE)
 			      // time to live for each map entry in local cache
-			     .timeToLive(10000)
-			      // or
 			     .timeToLive(10, TimeUnit.SECONDS)
 			      // max idle time for each map entry in local cache
-			     .maxIdle(10000)
-			      // or
 			     .maxIdle(10, TimeUnit.SECONDS);
 	}
 
 	public Fqn fqnBy(String path) {
-		return new Fqn(path) ;
+		return Fqn.from(path) ;
 	}
 
 	public String name() {
 		return wname;
+	}
+	
+	String struMapName() {
+		return "_" + wname;
 	}
 	
 	public LocalCachedMapOptions<String, String> mapOption(){
@@ -82,6 +83,7 @@ public class Workspace {
 					T result = tjob.handle(wsession) ;
 					wsession.endBatch() ;
 					
+					wsession.readSession().reload(); 
 					return result ;
 				} catch(Exception ex) {
 					if (ehandler == null)
@@ -98,9 +100,11 @@ public class Workspace {
 
 	
 	public boolean flushAll() {
-		return rclient.getMap(wname).delete() ;
+		rclient.getMap(wname).delete();
+		rclient.getSetMultimap(struMapName()).delete();
+		
+		return true ;
 	}
-	
 
 	
 }

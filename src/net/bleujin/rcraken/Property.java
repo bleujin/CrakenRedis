@@ -24,5 +24,9 @@ public class Property {
 	public String asString() {
 		return json.asString("value");
 	}
+	
+	public boolean isExist() {
+		return fqn != null ;
+	}
 
 }
