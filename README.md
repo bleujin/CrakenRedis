@@ -1,7 +1,8 @@
 # CrakenRedis
 
-  public class TestInterface extends TestCase {
+```java
 
+  public class TestInterface extends TestCase {
 
 	protected Craken c;
 	protected ReadSession rsession;
@@ -21,12 +22,10 @@
 		super.tearDown();
 	}
 
-  public void testFirst() throws Exception {
-		
+  	public void testFirst() throws Exception {
 		rsession.workspace().flushAll() ;
 		long start = System.currentTimeMillis() ;
 
-		
 		ReadNode root = rsession.pathBy("/") ;
 		assertEquals(true, rsession.exist("/"));
 		assertEquals(false, root.hasProperty("not"));
@@ -47,3 +46,4 @@
 	}
 
 }
+```
