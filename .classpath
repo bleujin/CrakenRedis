@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/common_apache_fat.jar"/>
+	<classpathentry kind="lib" path="lib/guava-jdk5-13.0.jar"/>
+	<classpathentry kind="lib" path="lib/iframework_2.7.jar"/>
+	<classpathentry kind="lib" path="lib/redisson-all-3.5.5.jar" sourcepath="C:/Users/bleujin/AppData/Local/Temp/.org.sf.feeling.decompiler1512368384881/source/redisson-all-3.5.5-sources.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
