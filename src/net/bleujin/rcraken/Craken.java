@@ -11,36 +11,32 @@ public class Craken {
 
 	private Config config;
 	private RedissonClient rclient;
-	
-	private ConcurrentMap<String, Workspace> wss = new ConcurrentHashMap<>() ;
+
+	private ConcurrentMap<String, Workspace> wss = new ConcurrentHashMap<>();
 
 	public Craken(Config config) {
-		this.config = config ;
+		this.config = config;
 	}
 
-	
 	public Craken start() {
-		this.rclient =  Redisson.create(config);
-		return this ;
+		this.rclient = Redisson.create(config);
+		return this;
 	}
-
 
 	public ReadSession login(String wname) {
 		return findWorkspace(wname).readSession();
 	}
 
-
 	private Workspace findWorkspace(String wname) {
-		if (wname.startsWith("_")) throw new IllegalAccessError("illegal worksapce name") ;
-		
-		wss.putIfAbsent(wname, new Workspace(wname, rclient).init()) ;
-		return wss.get(wname) ;
-	}
+		if (wname.startsWith("_"))
+			throw new IllegalAccessError("illegal worksapce name");
 
+		wss.putIfAbsent(wname, new Workspace(wname, rclient).init());
+		return wss.get(wname);
+	}
 
 	public void destroySelf() {
-		rclient.shutdown(); 
+		rclient.shutdown();
 	}
-
 
 }

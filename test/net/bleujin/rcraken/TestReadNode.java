@@ -7,8 +7,6 @@ import net.ion.framework.util.Debug;
 public class TestReadNode extends TestBaseCrakenRedis{
 
 	public void testParentExist() throws Exception {
-		rsession.workspace().destorySelf() ;
-		
 		rsession.tran(SAMPLE) ;
 		assertEquals(true, rsession.exist("/emp"));
 		assertEquals(false, rsession.pathBy("/emp").property("name").isExist()) ;
@@ -28,7 +26,6 @@ public class TestReadNode extends TestBaseCrakenRedis{
 	
 
 	public void testChildrenNames() throws Exception {
-		rsession.workspace().destorySelf() ;
 		rsession.tran(SAMPLE) ;
 		
 		Debug.line(rsession.pathBy("/").childrenNames()) ;

@@ -22,7 +22,7 @@ public class TestBaseCrakenRedis extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.c = CrakenConfig.redis().singleServer().build() ;
+		this.c = CrakenConfig.redisSingle().build() ;
 		c.start() ;
 		
 		this.rsession = c.login("testworkspace") ;

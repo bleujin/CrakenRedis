@@ -4,24 +4,28 @@ import org.redisson.config.Config;
 
 public class CrakenConfig {
 
-	private Config config;
+	private final Config config;
 
-	private CrakenConfig() {
-		this.config = new Config() ;
-	}
-	
-	public static CrakenConfig redis() {
-		return new CrakenConfig();
+	private CrakenConfig(Config config) {
+		this.config = config;
 	}
 
-	public CrakenConfig singleServer() {
-		config.useSingleServer().setAddress("redis://127.0.0.1:6379") ;
-		return this;
+	public static CrakenConfig redisSingle() {
+		Config config = new Config();
+		config.useSingleServer().setAddress("redis://127.0.0.1:6379");
+		return new CrakenConfig(config);
 	}
+
+	public static CrakenConfig redisSingle(String address) {
+		Config config = new Config();
+		config.useSingleServer().setAddress(address);
+		return new CrakenConfig(config);
+	}
+
 	
-	public CrakenConfig setAddress(String address) {
-		config.useSingleServer().setAddress(address) ;
-		return this ;
+	public static CrakenConfig redis(Config config) {
+		CrakenConfig result = new CrakenConfig(config) ;
+		return result ;
 	}
 
 	public Craken build() {

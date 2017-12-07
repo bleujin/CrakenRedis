@@ -7,17 +7,6 @@ import net.ion.framework.util.Debug;
 
 public class TestWriteNode extends TestBaseCrakenRedis {
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-	}
-	
-	@Override
-	protected void tearDown() throws Exception {
-		rsession.workspace().destorySelf() ;
-		super.tearDown();
-	}
-	
 	public void testRefTo() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero").merge();
@@ -32,7 +21,7 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 
 	public void testSpeed() throws Exception {
 		long start = System.currentTimeMillis() ;
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			final int age = i ;
 			rsession.tran(wsession -> {
 				wsession.pathBy("/emp/bleujin").property("age", age).merge(); ;
@@ -45,7 +34,6 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 	}
 	
 	public void testOverwrite() throws Exception {
-		rsession.workspace().destorySelf() ;
 		long start = System.currentTimeMillis() ;
 		rsession.tran(SAMPLE) ;
 		Debug.line(System.currentTimeMillis() - start);
@@ -60,5 +48,26 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 		rsession.pathBy("/emp/bleujin").debugPrint();
 		rsession.pathBy("/emp/hero").debugPrint();
 	}
+	
+	
+	public void testDelete() throws Exception {
+		rsession.tran(wsession -> {
+			for (int i = 0; i < 10; i++) {
+				wsession.pathBy("/emp/num/" + i).property("num", i).merge();
+			}
+			wsession.pathBy("/emp").property("name", "dd") ;
+			wsession.pathBy("/bleujin").property("num", 0).merge();
+			return null ;
+		}) ;
+		
+		rsession.tran(wsesion ->{
+			wsesion.pathBy("/emp").removeSelf() ;
+			return null ;
+		}) ;
+		
+		
+		rsession.pathBy("/").children().debugPrint(); 
+	}
+	
 
 }

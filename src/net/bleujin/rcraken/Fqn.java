@@ -66,17 +66,20 @@ public class Fqn {
 	}
 
 	public static Fqn from(String paths) {
-		return fromString(paths) ;
+		return fromString(paths);
 	}
-	
+
 	public static Fqn fromString(String stringRepresentation) {
-		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR) || stringRepresentation.length() == 0)
+		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR)
+				|| stringRepresentation.length() == 0)
 			return root();
 
-		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1) : stringRepresentation;
+		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1)
+				: stringRepresentation;
 		String[] el = toMatch.split(SEPARATOR);
 		// return new Fqn(el) ;
-		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch), String.class));
+		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch),
+				String.class));
 	}
 
 	public Fqn getAncestor(int generation) {
@@ -99,7 +102,8 @@ public class Fqn {
 	}
 
 	public Object get(int n) {
-		if (n < 0) return elements[size() + n] ;
+		if (n < 0)
+			return elements[size() + n];
 		return elements[n];
 	}
 
@@ -107,7 +111,6 @@ public class Fqn {
 		return toString();
 	}
 
-	
 	public JsonPrimitive toJson() {
 		return new JsonPrimitive(toString());
 	}
@@ -149,16 +152,12 @@ public class Fqn {
 		if (elements.length != other.elements.length)
 			return false;
 		for (int i = elements.length - 1; i >= 0; i--) {
-			if (! ArrayUtil.isEquals(elements[i], other.elements[i]))
+			if (!ArrayUtil.isEquals(elements[i], other.elements[i]))
 				return false;
 		}
-		
-		
-		
+
 		return true;
 	}
-	
-	
 
 	@Override
 	public int hashCode() {
@@ -180,7 +179,6 @@ public class Fqn {
 		return parentFqn.elements.length != elements.length && isChildOrEquals(parentFqn);
 	}
 
-	
 	public boolean isChildOrEquals(Fqn parentFqn) {
 		Object[] parentEl = parentFqn.elements;
 		if (parentEl.length > elements.length) {
@@ -193,7 +191,6 @@ public class Fqn {
 		return true;
 	}
 
-	
 	/**
 	 * Returns true if this Fqn is a <i>direct</i> child of a given Fqn.
 	 * 
@@ -217,7 +214,8 @@ public class Fqn {
 	protected String getStringRepresentation(Object[] elements) {
 		StringBuilder builder = new StringBuilder();
 		for (Object e : elements) {
-			// incase user element 'e' does not implement equals() properly, don't rely on their implementation.
+			// incase user element 'e' does not implement equals() properly, don't rely on
+			// their implementation.
 			if (!SEPARATOR.equals(e) && !"".equals(e)) {
 				builder.append(SEPARATOR);
 				builder.append(e);
@@ -274,6 +272,5 @@ public class Fqn {
 	public String startWith() {
 		return isRoot() ? "/*" : toString() + "/*";
 	}
-
 
 }

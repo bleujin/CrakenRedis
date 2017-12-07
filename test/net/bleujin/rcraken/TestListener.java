@@ -8,8 +8,6 @@ public class TestListener extends TestBaseCrakenRedis {
 
 	
 	public void testConfirm() throws Exception {
-		rsession.workspace().destorySelf() ;
-		
 		rsession.workspace().addListener(new NodeListener() {
 			@Override
 			public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {

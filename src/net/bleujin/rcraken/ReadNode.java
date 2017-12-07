@@ -1,7 +1,11 @@
 package net.bleujin.rcraken;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.collections.list.SetUniqueList;
 
@@ -28,7 +32,7 @@ public class ReadNode {
 	}
 
 	public Property property(String name) {
-		return Property.create(fqn, name, data.asJsonObject(name));
+		return Property.create(rsession, fqn, name, data.asJsonObject(name));
 	}
 
 	public String asString(String name) {
@@ -56,57 +60,72 @@ public class ReadNode {
 	}
 
 	public int keySize() {
-		return data.keySet().size() ;
+		return data.keySet().size();
 	};
 
-	public Set<String> keys(){ // all 
-		return data.keySet() ;
+	public Set<String> keys() { // all
+		return data.keySet();
+	}
+	
+	public Stream<Property> properties() {
+		Iterator<String> keyIter = keys().iterator() ;
+		return StreamSupport.stream(Spliterators.spliterator(new Iterator<Property>() {
+			@Override
+			public boolean hasNext() {
+				return keyIter.hasNext();
+			}
+
+			@Override
+			public Property next() {
+				return property(keyIter.next());
+			}
+		}, keySize(), 0), false);
 	}
 
-	
+
 	public boolean hasChild(String name) {
-		return data.has(name) ;
+		return data.has(name);
 	};
 
 	public ReadNode child(String name) {
-		return rsession.pathBy(Fqn.from(fqn, name)) ;
+		return rsession.pathBy(Fqn.from(fqn, name));
 	};
 
-	public ReadChildren children(){
-		return new ReadChildren(rsession, fqn, childrenNames()) ;
+	public ReadChildren children() {
+		return new ReadChildren(rsession, fqn, childrenNames());
 	}
-//
-//	public Map<String, Property> propertyMap(){
-//		
-//	}
-//
+
+	//
+	// public Map<String, Property> propertyMap(){
+	//
+	// }
+	//
 	public ReadNode ref(String refName) {
-		return rsession.pathBy(asString(refName)) ;
+		return rsession.pathBy(asString(refName));
 	};
-//
-//	public IteratorList<ReadNode> refs(String refName){
-//		
-//	}
-//
-//	public boolean hasRef(String refName) {
-//		
-//	};
-//
-//	public boolean hasRef(String refName, Fqn fqn) {
-//		
-//	};
-//
-//	public <R> R transformer(Function<ReadNode, R> transformer) {
-//		
-//	};
+	//
+	// public IteratorList<ReadNode> refs(String refName){
+	//
+	// }
+	//
+	// public boolean hasRef(String refName) {
+	//
+	// };
+	//
+	// public boolean hasRef(String refName, Fqn fqn) {
+	//
+	// };
+	//
+	// public <R> R transformer(Function<ReadNode, R> transformer) {
+	//
+	// };
 
 	public void debugPrint() {
 		Debug.line(this);
 	}
 
 	public String toString() {
-		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]" ; 
+		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]";
 	}
-
 
 }
