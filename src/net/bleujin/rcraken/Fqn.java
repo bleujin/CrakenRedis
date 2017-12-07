@@ -57,8 +57,12 @@ public class Fqn {
 		return new Fqn(base, relativeElements.toArray());
 	}
 
-	public static Fqn fromRelativeElements(Fqn base, Object... relativeElements) {
+	public static Fqn fromRelative(Fqn base, Object... relativeElements) {
 		return new Fqn(base, relativeElements);
+	}
+
+	public static Fqn from(Fqn base, String paths) {
+		return fromRelative(base, paths);
 	}
 
 	public static Fqn from(String paths) {

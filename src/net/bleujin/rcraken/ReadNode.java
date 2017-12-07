@@ -59,12 +59,8 @@ public class ReadNode {
 		return data.keySet().size() ;
 	};
 
-	public Set<PropertyId> keys(){ // all 
-		Set<PropertyId> result = SetUtil.newSet();
-		for(String pid :data.keySet()) {
-			result.add(PropertyId.fromIdString(pid)) ;
-		}
-		return result ;
+	public Set<String> keys(){ // all 
+		return data.keySet() ;
 	}
 
 	
@@ -73,20 +69,20 @@ public class ReadNode {
 	};
 
 	public ReadNode child(String name) {
-		return rsession.pathBy(Fqn.fromRelativeElements(fqn, name)) ;
+		return rsession.pathBy(Fqn.from(fqn, name)) ;
 	};
 
-//	public Iterable<ReadNode> children(){
+	public ReadChildren children(){
+		return new ReadChildren(rsession, fqn, childrenNames()) ;
+	}
+//
+//	public Map<String, Property> propertyMap(){
 //		
 //	}
 //
-//	public Map<PropertyId, Property> propertyMap(){
-//		
-//	}
-//
-//	public ReadNode ref(String refName) {
-//		
-//	};
+	public ReadNode ref(String refName) {
+		return rsession.pathBy(asString(refName)) ;
+	};
 //
 //	public IteratorList<ReadNode> refs(String refName){
 //		
@@ -105,7 +101,12 @@ public class ReadNode {
 //	};
 
 	public void debugPrint() {
-		Debug.line(data.toString());
-	};
+		Debug.line(this);
+	}
+
+	public String toString() {
+		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]" ; 
+	}
+
 
 }

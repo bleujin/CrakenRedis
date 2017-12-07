@@ -9,12 +9,11 @@ public class TestBaseCrakenRedis extends TestCase {
 	protected ReadSession rsession;
 
 	protected static TransactionJob<Void> SAMPLE = new TransactionJob<Void>() {
-		
 		@Override
 		public Void handle(WriteSession wsession) throws Exception {
-			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("age", 20).property("address", "seoul") ;
-			wsession.pathBy("/emp/jin").property("name", "jin").property("age", 25) ;
-			wsession.pathBy("/emp/hero").property("name", "hero").property("age", 20) ;
+			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("age", 20).property("address", "seoul").merge() ;
+			wsession.pathBy("/emp/jin").property("name", "jin").property("age", 25).merge() ;
+			wsession.pathBy("/emp/hero").property("name", "hero").property("age", 30).merge() ;
 			return null;
 		}
 	};
@@ -27,6 +26,7 @@ public class TestBaseCrakenRedis extends TestCase {
 		c.start() ;
 		
 		this.rsession = c.login("testworkspace") ;
+		this.rsession.workspace().destorySelf() ;
 	}
 	
 	@Override

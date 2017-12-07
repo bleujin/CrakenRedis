@@ -26,7 +26,7 @@ public class ReadSession {
 	ReadSession(Workspace wspace, RedissonClient rclient) {
 		this.wspace = wspace ;
 		this.rclient = rclient ;
-		this.dataMap = rclient.getLocalCachedMap(wspace.name(), wspace.mapOption()) ;
+		this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption()) ;
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName()) ;
 	}
 
@@ -45,11 +45,11 @@ public class ReadSession {
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob) {
-		
 		WriteSession wsession = wspace.writeSession(this) ;
-
 		return wspace.tran(wsession, tjob, ehandler) ;
 	}
+
+	
 
 	private JsonObject readDataBy(Fqn fqn) {
 		String jsonString = dataMap.get(fqn.absPath()) ;
@@ -67,7 +67,13 @@ public class ReadSession {
 	
 	void reload(){
 //		this.cmap.destroy();
-//		this.cmap = rclient.getLocalCachedMap(wspace.name(), wspace.mapOption()) ; 
+//		this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption()) ; 
 	}
 
+	
+	@Deprecated
+	RMap<String, String> dataMap(){
+		return dataMap ;
+	}
+	
 }

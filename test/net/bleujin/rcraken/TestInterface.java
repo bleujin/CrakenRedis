@@ -7,7 +7,7 @@ public class TestInterface extends TestBaseCrakenRedis {
 
 	public void testFirst() throws Exception {
 		
-		rsession.workspace().flushAll() ;
+		rsession.workspace().destorySelf() ;
 		long start = System.currentTimeMillis() ;
 
 		
@@ -15,13 +15,9 @@ public class TestInterface extends TestBaseCrakenRedis {
 		assertEquals(true, rsession.exist("/"));
 		assertEquals(false, root.hasProperty("not"));
 		
-		rsession.tran(new TransactionJob<Void>() {
-			@Override
-			public Void handle(WriteSession wsession) throws Exception {
-				WriteNode node = wsession.pathBy("/test");
-				node.property("name", "bleujin");
-				return null;
-			}
+		rsession.tran(wsession ->{
+			wsession.pathBy("/test").property("name", "bleujin").merge();
+			return null;
 		}) ;
 		
 		

@@ -1,50 +1,74 @@
 package net.bleujin.rcraken;
 
+import java.io.File;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Set;
+
 import org.redisson.api.RMap;
 
+import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 
 public class WriteNode {
 
 	private WriteSession wsession;
 	private Fqn fqn;
-	private RMap<String, String> dataMap;
+	private JsonObject data ;
 
-	WriteNode(WriteSession wsession, Fqn fqn, RMap<String, String> dataMap) {
+	WriteNode(WriteSession wsession, Fqn fqn, JsonObject data) {
 		this.wsession = wsession ;
 		this.fqn = fqn ;
-		this.dataMap = dataMap ;
+		this.data = data;
 	}
 
+	// property 
 	public WriteNode property(String name, String value) {
-		JsonObject jvalue = new JsonObject().put("type", "String").put("value", value) ;
-		property(name, jvalue);
-		
-		return this ;
+		JsonObject jvalue = new JsonObject().put("type", PType.String.toString()).put("value", value) ;
+		return property(name, jvalue);
 	}
 
 	public WriteNode property(String name, long value) {
-		JsonObject jvalue = new JsonObject().put("type", "Long").put("value", value) ;
-		property(name, jvalue);
-		
-		return this;
+		JsonObject jvalue = new JsonObject().put("type", PType.Long.toString()).put("value", value) ;
+		return property(name, jvalue);
 	}
 
-	private void property(String name, JsonObject jvalue) {
-		JsonObject json = dataBy() ;
-		json.put(name, jvalue) ; // overwrite
-		
-		dataMap.fastPut(fqn.absPath(), json.toString()) ;
+	public WriteNode property(String name, boolean value) {
+		JsonObject jvalue = new JsonObject().put("type", PType.Boolean.toString()).put("value", value) ;
+		return property(name, jvalue);
+	}
+
+	public WriteNode property(String name, Calendar value) {
+		JsonObject jvalue = new JsonObject().put("type", PType.Boolean.toString()).put("value", value.getTimeInMillis()) ;
+		return property(name, jvalue);
+	}
+
+	public WriteNode property(String name, InputStream value) {
+		JsonObject jvalue = new JsonObject().put("type", PType.Lob.toString()).put("value", Fqn.from(fqn, "$" + name)) ;
+		return property(name, jvalue);
 	}
 	
+	public WriteNode refTo(String name, String fqn) {
+		JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn) ;
+		return property(name, jvalue);
+	}
+	// property 
 	
+	
+	
+	private WriteNode property(String name, JsonObject jvalue) {
+		data.put(name, jvalue) ; // overwrite
+		
+		return this ;
+	}
 	
 	public boolean hasProperty(String name) {
-		return dataBy().has(name) ;
+		return data.has(name) ;
 	}
 	
 	public Property property(String name) {
-		return Property.create(fqn, name, dataBy().asJsonObject(name)) ;
+		return Property.create(fqn, name, data.asJsonObject(name)) ;
 	}
 
 	public String asString(String name) {
@@ -54,12 +78,65 @@ public class WriteNode {
 	public Fqn fqn() {
 		return fqn;
 	}
-	
-	private JsonObject dataBy() {
-		String jsonString = dataMap.get(fqn.absPath()) ;
-		return JsonObject.fromString(jsonString) ;	
+
+
+	public WriteNode clear() {
+		data = new JsonObject() ;
+		return this;
 	}
 
+
+	public void merge() {
+		wsession.merge(fqn, data) ;
+	}
+
+	
+	
+	public WriteChildren children() {
+		return new WriteChildren(wsession, fqn, childrenNames()) ;
+	}
+
+
+	public WriteNode parent() {
+		return wsession.pathBy(fqn.getParent());
+	}
+
+	public boolean isRoot() {
+		return fqn.isRoot();
+	}
+
+	public Set<String> childrenNames() {
+		return wsession.readSession().readStruBy(fqn);
+	}
+
+	public WriteSession session() {
+		return wsession ;
+	}
+
+	public int keySize() {
+		return data.keySet().size() ;
+	};
+
+	public Set<String> keys(){ // all 
+		return data.keySet() ;
+	}
+
+	
+	public boolean hasChild(String name) {
+		return data.has(name) ;
+	};
+
+	public WriteNode child(String name) {
+		return wsession.pathBy(Fqn.from(fqn, name)) ;
+	}
+
+	public void debugPrint() {
+		Debug.line(this);
+	}
+
+	public String toString() {
+		return "WriteNode:[fqn:" + fqn + ", props:" + data + "]" ; 
+	}
 
 
 }

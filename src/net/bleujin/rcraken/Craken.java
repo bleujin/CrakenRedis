@@ -33,7 +33,7 @@ public class Craken {
 	private Workspace findWorkspace(String wname) {
 		if (wname.startsWith("_")) throw new IllegalAccessError("illegal worksapce name") ;
 		
-		wss.putIfAbsent(wname, new Workspace(wname, rclient)) ;
+		wss.putIfAbsent(wname, new Workspace(wname, rclient).init()) ;
 		return wss.get(wname) ;
 	}
 
