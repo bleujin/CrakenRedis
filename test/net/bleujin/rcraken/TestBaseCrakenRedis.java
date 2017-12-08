@@ -32,6 +32,7 @@ public class TestBaseCrakenRedis extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		c.destroySelf();
+		
 		super.tearDown();
 	}
 	

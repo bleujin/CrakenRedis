@@ -2,8 +2,11 @@ package net.bleujin.rcraken;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -14,17 +17,18 @@ import org.redisson.api.RMap;
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
 
 public class WriteNode {
 
 	private WriteSession wsession;
 	private Fqn fqn;
-	private JsonObject data;
+	private JsonObject jsonData;
 
-	WriteNode(WriteSession wsession, Fqn fqn, JsonObject data) {
+	WriteNode(WriteSession wsession, Fqn fqn, JsonObject jsonData) {
 		this.wsession = wsession;
 		this.fqn = fqn;
-		this.data = data;
+		this.jsonData = jsonData;
 	}
 
 	// property
@@ -55,24 +59,38 @@ public class WriteNode {
 		return property(name, jvalue);
 	}
 
-	public WriteNode refTo(String name, String fqn) {
+	public WriteNode refTo(String name, String fqn, String... fqns) {
 		JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn);
+		jvalue.accumulate("values", fqns) ;
+		for (String fv : fqns) {
+			jvalue.accumulate("values", fv) ;	
+		}
 		return property(name, jvalue);
 	}
+	
+	public WriteNode property(String name, String value, String... values) {
+		JsonObject jvalue = new JsonObject().put("type", PType.String.toString()).put("value", value) ;
+		jvalue.accumulate("values", value) ;
+		for (String v : values) {
+			jvalue.accumulate("values", v) ;	
+		}
+		return property(name, jvalue);
+	}
+
 	// property
 
 	private WriteNode property(String name, JsonObject jvalue) {
-		data.put(name, jvalue); // overwrite
+		jsonData.put(name, jvalue); // overwrite
 
 		return this;
 	}
 
 	public boolean hasProperty(String name) {
-		return data.has(name);
+		return jsonData.has(name);
 	}
 
 	public Property property(String name) {
-		return Property.create(wsession.readSession(), fqn, name, data.asJsonObject(name));
+		return Property.create(wsession.readSession(), fqn, name, jsonData.asJsonObject(name));
 	}
 
 	public Stream<Property> properties() {
@@ -99,20 +117,20 @@ public class WriteNode {
 	}
 
 	public WriteNode clear() {
-		data = new JsonObject();
+		jsonData = new JsonObject();
 		return this;
 	}
 
 	public void merge() {
-		wsession.merge(this, fqn, data);
+		wsession.merge(this, fqn, jsonData);
 	}
 	
 	public void removeChild() {
-		wsession.removeChild(this, fqn, data) ;
+		wsession.removeChild(this, fqn, jsonData) ;
 	}
 
 	public void removeSelf() {
-		wsession.removeSelf(this, fqn, data) ;
+		wsession.removeSelf(this, fqn, jsonData) ;
 	}
 
 
@@ -137,15 +155,15 @@ public class WriteNode {
 	}
 
 	public int keySize() {
-		return data.keySet().size();
+		return jsonData.keySet().size();
 	};
 
 	public Set<String> keys() { // all
-		return data.keySet();
+		return jsonData.keySet();
 	}
 
 	public boolean hasChild(String name) {
-		return data.has(name);
+		return jsonData.has(name);
 	};
 
 	public WriteNode child(String name) {
@@ -157,8 +175,9 @@ public class WriteNode {
 	}
 
 	public String toString() {
-		return "WriteNode:[fqn:" + fqn + ", props:" + data + "]";
+		return "WriteNode:[fqn:" + fqn + ", props:" + jsonData + "]";
 	}
+
 
 
 

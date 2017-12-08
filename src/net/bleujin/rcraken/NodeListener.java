@@ -8,6 +8,6 @@ public interface NodeListener {
 		CREATED, UPDATED, REMOVED
 	}
 
-	public void onMerged(EventType removed, Fqn fqn, JsonObject value, JsonObject oldValue);
+	public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue);
 
 }

@@ -21,7 +21,7 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 
 	public void testSpeed() throws Exception {
 		long start = System.currentTimeMillis() ;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100 ; i++) {
 			final int age = i ;
 			rsession.tran(wsession -> {
 				wsession.pathBy("/emp/bleujin").property("age", age).merge(); ;
@@ -70,4 +70,12 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 	}
 	
 
+	public void testMove() throws Exception {
+		
+	}
+	
+	public void testCopy() throws Exception {
+		
+	}
+	
 }

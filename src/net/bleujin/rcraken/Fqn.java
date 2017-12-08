@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,16 +11,16 @@ import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ObjectUtil;
 
-public class Fqn {
+public class Fqn implements Serializable{
 
-	private static final long serialVersionUID = 7459897811324670392L;
+	private static final long serialVersionUID = 8600966614365198424L;
+
 	public static final String SEPARATOR = "/";
 
 	private final String[] elements;
 	private transient int hash_code = 0;
 
 	public static final Fqn ROOT = new Fqn();
-	public static final Fqn TRANSACTIONS = Fqn.fromString("/__transactions");
 
 	protected String stringRepresentation;
 	private static final String[] EMPTY_ARRAY = new String[0];

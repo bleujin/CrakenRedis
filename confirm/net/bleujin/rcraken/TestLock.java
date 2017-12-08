@@ -17,20 +17,23 @@ import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 
 import junit.framework.TestCase;
+import net.ion.framework.util.Debug;
 
 public class TestLock extends TestCase {
 
 	public void testLock() throws Exception {
 		RedissonClient redisson = Redisson.create();
 
+		redisson.getMap("mymap").put("key", "value") ;
+		
 		ExecutorService epool = Executors.newFixedThreadPool(10) ;
 		AtomicInteger ai = new AtomicInteger() ;
-		RReadWriteLock rwlock = redisson.getReadWriteLock("lock");
 		
 		Runnable r = () -> {
+			RReadWriteLock rwlock = redisson.getReadWriteLock("mymap");
 			RLock lock = rwlock.writeLock();
 			try {
-				lock.lock(1, TimeUnit.SECONDS);
+				lock.tryLock(1, TimeUnit.SECONDS);
 				Thread.sleep(new Random().nextInt(100));
 				ai.incrementAndGet(); // do something
 			} catch (Exception ex) {
@@ -45,9 +48,11 @@ public class TestLock extends TestCase {
 			list.add(epool.submit(r)) ;
 		}
 		
+		long start = System.currentTimeMillis() ;
 		for (Future f : list) {
 			f.get() ;
 		}
+		Debug.line(System.currentTimeMillis() - start);
 		
 		System.out.println(ai.get()) ;
 		redisson.shutdown();
@@ -79,12 +84,43 @@ public class TestLock extends TestCase {
 			list.add(epool.submit(r)) ;
 		}
 		
+		long start = System.currentTimeMillis() ;
 		for (Future f : list) {
 			f.get() ;
 		}
+		Debug.line(System.currentTimeMillis() - start);
 		
 		System.out.println(ai.get()) ;
 		redisson.shutdown();
 	}
+	
+	
+	public void testLock3() throws Exception {
+		RedissonClient redisson = Redisson.create();
+
+		ExecutorService epool = Executors.newFixedThreadPool(10) ;
+		AtomicInteger ai = new AtomicInteger() ;
+		RReadWriteLock rwlock = redisson.getReadWriteLock("lock");
+		
+		Runnable r = () -> {
+			RLock lock = rwlock.writeLock();
+			try {
+				lock.lock(10, TimeUnit.SECONDS);
+				Thread.sleep(new Random().nextInt(100));
+				ai.incrementAndGet(); // do something
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			} finally {
+				lock.unlock();
+			}
+		};
+		
+		long start = System.currentTimeMillis() ;
+		epool.submit(r).get() ;
+
+		System.out.println(ai.get()) ;
+		redisson.shutdown();
+	}
+
 
 }

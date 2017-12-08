@@ -26,7 +26,7 @@ public class ReadSession {
 	ReadSession(Workspace wspace, RedissonClient rclient) {
 		this.wspace = wspace;
 		this.rclient = rclient;
-		this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption());
+		this.dataMap = rclient.getMapCache(wspace.nodeMapName(), wspace.mapOption());
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 	}
 
@@ -45,10 +45,15 @@ public class ReadSession {
 	}
 
 	public <T> Future<T> tran(TransactionJob<T> tjob) {
+		return tran(tjob, ehandler);
+	}
+
+	public <T> Future<T> tran(TransactionJob<T> tjob, ExceptionHandler ehandler) {
 		WriteSession wsession = wspace.writeSession(this);
 		return wspace.tran(wsession, tjob, ehandler);
 	}
 
+	
 	private JsonObject readDataBy(Fqn fqn) {
 		String jsonString = dataMap.get(fqn.absPath());
 		return JsonObject.fromString(jsonString);
@@ -63,7 +68,6 @@ public class ReadSession {
 	}
 
 	void reload() {
-		// this.cmap.destroy();
 		// this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption()) ;
 	}
 

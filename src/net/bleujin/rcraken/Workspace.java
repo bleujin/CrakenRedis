@@ -21,6 +21,7 @@ import org.redisson.api.map.event.EntryEvent;
 import org.redisson.api.map.event.EntryRemovedListener;
 import org.redisson.api.map.event.EntryUpdatedListener;
 import org.redisson.api.RLock;
+import org.redisson.api.RMapCache;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 
@@ -40,6 +41,7 @@ public class Workspace {
 	private List<NodeListener> listeners = ListUtil.newList();
 	private AtomicBoolean inited = new AtomicBoolean(false);
 	private ExecutorService es = new WithinThreadExecutor();
+	private RReadWriteLock rwlock;
 
 	Workspace(String wname, RedissonClient rclient) {
 		this.wname = wname;
@@ -51,23 +53,26 @@ public class Workspace {
 				// instances during every invalidation message sent on each map entry update/remove operation
 				.invalidationPolicy(InvalidationPolicy.ON_CHANGE).timeToLive(10, TimeUnit.SECONDS) // time to live for each map entry in local cache
 				.maxIdle(10, TimeUnit.SECONDS); // max idle time for each map entry in local cache
+		
+		this.rwlock = rclient.getReadWriteLock(wname + ".rwlock");
 	}
 
 	public Workspace init() {
 		if (!inited.getAndSet(true)) {
-			rclient.getMapCache(name()).addListener(new EntryUpdatedListener<String, String>() {
+			RMapCache<String, String> dataMap = rclient.getMapCache(nodeMapName());
+			dataMap.addListener(new EntryUpdatedListener<String, String>() {
 				@Override
 				public void onUpdated(EntryEvent<String, String> event) {
 					Workspace.this.onMerged(EventType.UPDATED, event.getKey(), event.getValue(), event.getOldValue());
 				}
 			});
-			rclient.getMapCache(name()).addListener(new EntryCreatedListener<String, String>() {
+			dataMap.addListener(new EntryCreatedListener<String, String>() {
 				@Override
 				public void onCreated(EntryEvent<String, String> event) {
 					Workspace.this.onMerged(EventType.CREATED, event.getKey(), event.getValue(), event.getOldValue());
 				}
 			});
-			rclient.getMapCache(name()).addListener(new EntryRemovedListener<String, String>() {
+			dataMap.addListener(new EntryRemovedListener<String, String>() {
 				@Override
 				public void onRemoved(EntryEvent<String, String> event) {
 					Workspace.this.onMerged(EventType.REMOVED, event.getKey(), event.getValue(), event.getOldValue());
@@ -99,11 +104,25 @@ public class Workspace {
 		return wname;
 	}
 
+	public Workspace executor(ExecutorService es) {
+		this.es = es ;
+		return this ;
+	}
+	
+	String nodeMapName(){
+		return wname + ".node" ;
+	}
+	
 	String struMapName() {
-		return "_" + wname;
+		return wname + ".stru";
 	}
 
-	public LocalCachedMapOptions<String, String> mapOption() {
+	String lobPrefix(){
+		return wname + ".lob" ;
+	}
+	
+	
+	LocalCachedMapOptions<String, String> mapOption() {
 		return mapOption;
 	}
 
@@ -115,7 +134,7 @@ public class Workspace {
 		return new ReadSession(this, rclient);
 	}
 
-	ReentrantReadWriteLock rwlock = new ReentrantReadWriteLock() ;
+
 	<T> Future<T> tran(WriteSession wsession, TransactionJob<T> tjob, ExceptionHandler ehandler) {
 		return es.submit(new Callable<T>() {
 			@Override
@@ -124,8 +143,8 @@ public class Workspace {
 				wsession.attribute(TransactionJob.class, tjob);
 				wsession.attribute(ExceptionHandler.class, ehandler);
 
-				//RLock wlock = rclient.getReadWriteLock(name()).writeLock();
-				WriteLock wlock = rwlock.writeLock() ;
+				RLock wlock = rwlock.writeLock();
+				// WriteLock wlock = rwlock.writeLock() ;
 				try {
 					wlock.tryLock(10, TimeUnit.MINUTES); // 
 
@@ -152,8 +171,8 @@ public class Workspace {
 	
 	
 	public boolean destorySelf() {
-		rclient.getKeys().deleteByPattern(wname + "/*") ;
-		rclient.getMap(wname).delete();
+		rclient.getKeys().deleteByPattern(lobPrefix() + "/*") ; // blob
+		rclient.getMap(nodeMapName()).delete();
 		rclient.getSetMultimap(struMapName()).delete();
 		listeners.clear();
 
@@ -161,7 +180,7 @@ public class Workspace {
 	}
 
 	OutputStream outputStream(String path) {
-		RBinaryStream binaryStream = rclient.getBinaryStream(wname + path);
+		RBinaryStream binaryStream = rclient.getBinaryStream(lobPrefix() + path);
 		if (binaryStream.isExists()) {
 			binaryStream.delete();
 		}
@@ -169,11 +188,10 @@ public class Workspace {
 	}
 
 	InputStream inputStream(String path) {
-		return rclient.getBinaryStream(wname + path).getInputStream();
+		return rclient.getBinaryStream(lobPrefix() + path).getInputStream();
 	}
-	
-	
 
+	@Deprecated //test only
 	RedissonClient client() {
 		return rclient;
 	}

@@ -27,6 +27,8 @@ public class TestInterface extends TestCase {
 		long start = System.currentTimeMillis();
 
 		ReadNode root = rsession.pathBy("/");
+		assertEquals(true, root.isRoot());
+		assertEquals(true, root.parent().isRoot());
 		assertEquals(true, rsession.exist("/"));
 		assertEquals(false, root.hasProperty("not"));
 

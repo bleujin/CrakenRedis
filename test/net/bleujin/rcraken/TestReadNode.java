@@ -32,5 +32,10 @@ public class TestReadNode extends TestBaseCrakenRedis{
 		Debug.line(rsession.pathBy("/emp").childrenNames()) ;
 	}
 	
+
+	public void testCollect() throws Exception {
+		
+	}
+	
 	
 }

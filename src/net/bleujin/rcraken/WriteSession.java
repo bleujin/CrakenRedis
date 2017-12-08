@@ -18,6 +18,7 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.collections.list.SetUniqueList;
 import org.redisson.api.RBinaryStream;
 import org.redisson.api.RListMultimap;
+import org.redisson.api.RLock;
 import org.redisson.api.RMap;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RSetMultimap;
@@ -50,7 +51,7 @@ public class WriteSession {
 		this.wspace = wspace;
 		this.rsession = rsession;
 		this.rclient = rclient ;
-		this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption());
+		this.dataMap = rclient.getMapCache(wspace.nodeMapName(), wspace.mapOption());
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 	}
 
@@ -65,8 +66,7 @@ public class WriteSession {
 	}
 
 	public WriteNode pathBy(Fqn fqn) {
-		return new WriteNode(this, fqn,
-				ObjectUtil.coalesce(JsonObject.fromString(dataMap.get(fqn.absPath())), new JsonObject()));
+		return new WriteNode(this, fqn, ObjectUtil.coalesce(JsonObject.fromString(dataMap.get(fqn.absPath())), new JsonObject()));
 	}
 
 	void merge(WriteNode wnode, Fqn fqn, JsonObject data) {
@@ -96,48 +96,34 @@ public class WriteSession {
 	}
 	
 	void removeChild(WriteNode wnode, Fqn fqn, JsonObject data) {
-		WriteLock rwlock = wspace.rwlock.writeLock() ;
-		try {
-			rwlock.lock();
-			Set<String> rs = SetUtil.newSet() ;
-			decendant(fqn, rs); 
-			
-			dataMap.fastRemove(rs.toArray(new String[0])) ;
-			struMap.fastRemove(rs.toArray(new String[0])) ;
+		Set<String> rs = SetUtil.newSet() ;
+		decendant(fqn, rs); 
+		
+		dataMap.fastRemove(rs.toArray(new String[0])) ;
+		struMap.fastRemove(rs.toArray(new String[0])) ;
 
-			rclient.getKeys().findKeysByPattern(rsession.workspace().name() + fqn.absPath() + "/*").forEach(key ->{
-				rclient.getBinaryStream(key).delete() ;
-			});
-
-		} finally {
-			rwlock.unlock();
-		}
+		rclient.getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + fqn.absPath() + "/*").forEach(key ->{
+			rclient.getBinaryStream(key).delete() ;
+		});
 	}
 
 	void removeSelf(WriteNode wnode, Fqn fqn, JsonObject data) {
-		WriteLock rwlock = wspace.rwlock.writeLock() ;
-		try {
-			rwlock.lock(); 
-			Set<String> rs = SetUtil.newSet() ;
-			decendant(fqn, rs);
-			rs.add(fqn.absPath()) ;
-			
-			dataMap.fastRemove(rs.toArray(new String[0])) ;
-			struMap.fastRemove(rs.toArray(new String[0])) ;
-			Fqn parent = fqn.getParent() ;
-			if(! fqn.isRoot()) struMap.get(parent.absPath()).remove(fqn.name()) ;
-			
-			// remove lob
-			rclient.getKeys().findKeysByPattern(rsession.workspace().name() + fqn.absPath() + "$*").forEach(key ->{
-				rclient.getBinaryStream(key).delete() ;
-			});
-			rclient.getKeys().findKeysByPattern(rsession.workspace().name() + fqn.absPath() + "/*").forEach(key ->{
-				rclient.getBinaryStream(key).delete() ;
-			});
-			
-		} finally {
-			rwlock.unlock();
-		}
+		Set<String> rs = SetUtil.newSet() ;
+		decendant(fqn, rs);
+		rs.add(fqn.absPath()) ;
+		
+		dataMap.fastRemove(rs.toArray(new String[0])) ;
+		struMap.fastRemove(rs.toArray(new String[0])) ;
+		Fqn parent = fqn.getParent() ;
+		if(! fqn.isRoot()) struMap.get(parent.absPath()).remove(fqn.name()) ;
+		
+		// remove lob
+		rclient.getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + fqn.absPath() + "$*").forEach(key ->{
+			rclient.getBinaryStream(key).delete() ;
+		});
+		rclient.getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + fqn.absPath() + "/*").forEach(key ->{
+			rclient.getBinaryStream(key).delete() ;
+		});
 	}
 
 	void decendant(Fqn parent, Set<String> rs) {

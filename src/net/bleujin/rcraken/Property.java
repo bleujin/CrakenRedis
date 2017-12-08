@@ -3,14 +3,16 @@ package net.bleujin.rcraken;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
 import java.util.Calendar;
+import java.util.List;
 
 import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.DateUtil;
+import net.ion.framework.util.ListUtil;
 
 public class Property {
 
-	private static final Property NOTFOUND = new Property(null, null, "N/A", new JsonObject());
+	private static final Property NOTFOUND = new Property(null, null, "N/A", JsonObject.create());
 
 	private final ReadSession rsession;
 	private final Fqn fqn;
@@ -38,6 +40,13 @@ public class Property {
 		return json.asString(Defined.Property.Value);
 	}
 
+	public String[] asStrings() {
+		List<String> result = ListUtil.newList() ;
+		json.asJsonArray("values").spliterator().forEachRemaining(e -> result.add(e.getAsString()));;
+		return result.toArray(result.toArray(new String[0])) ; 
+	}
+
+	
 	public long asLong() {
 		return json.asLong(Defined.Property.Value);
 	}
@@ -63,7 +72,7 @@ public class Property {
 	}
 
 	public boolean isExist() {
-		return fqn != null;
+		return this != NOTFOUND;
 	}
 
 	public PType type() {
@@ -80,5 +89,6 @@ public class Property {
 	public String toString() {
 		return "Property["  + name + ", " + json + "]" ;
 	}
+
 
 }

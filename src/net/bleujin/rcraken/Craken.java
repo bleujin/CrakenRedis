@@ -2,6 +2,7 @@ package net.bleujin.rcraken;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -27,6 +28,10 @@ public class Craken {
 		return findWorkspace(wname).readSession();
 	}
 
+	public Stream<Workspace> workspaces(){
+		return wss.values().stream() ;
+	}
+	
 	private Workspace findWorkspace(String wname) {
 		if (wname.startsWith("_"))
 			throw new IllegalAccessError("illegal worksapce name");

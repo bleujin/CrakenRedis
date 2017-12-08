@@ -1,6 +1,5 @@
 package net.bleujin.rcraken;
 
-import net.bleujin.rcraken.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 

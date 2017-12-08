@@ -95,11 +95,6 @@ public class ReadNode {
 		return new ReadChildren(rsession, fqn, childrenNames());
 	}
 
-	//
-	// public Map<String, Property> propertyMap(){
-	//
-	// }
-	//
 	public ReadNode ref(String refName) {
 		return rsession.pathBy(asString(refName));
 	};
@@ -115,10 +110,7 @@ public class ReadNode {
 	// public boolean hasRef(String refName, Fqn fqn) {
 	//
 	// };
-	//
-	// public <R> R transformer(Function<ReadNode, R> transformer) {
-	//
-	// };
+
 
 	public void debugPrint() {
 		Debug.line(this);
