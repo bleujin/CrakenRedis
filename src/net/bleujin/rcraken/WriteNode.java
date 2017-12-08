@@ -15,6 +15,8 @@ import java.util.stream.StreamSupport;
 import org.redisson.api.RMap;
 
 import net.bleujin.rcraken.Property.PType;
+import net.ion.framework.parse.gson.JsonArray;
+import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -61,7 +63,7 @@ public class WriteNode {
 
 	public WriteNode refTo(String name, String fqn, String... fqns) {
 		JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn);
-		jvalue.accumulate("values", fqns) ;
+		jvalue.add("values", new JsonArray());
 		for (String fv : fqns) {
 			jvalue.accumulate("values", fv) ;	
 		}
@@ -70,12 +72,18 @@ public class WriteNode {
 	
 	public WriteNode property(String name, String value, String... values) {
 		JsonObject jvalue = new JsonObject().put("type", PType.String.toString()).put("value", value) ;
-		jvalue.accumulate("values", value) ;
+		jvalue.add("values", new JsonArray());
 		for (String v : values) {
 			jvalue.accumulate("values", v) ;	
 		}
 		return property(name, jvalue);
 	}
+	
+	public JsonObject unset(String name) {
+		JsonElement removed = jsonData.remove(name) ;
+		return removed.getAsJsonObject();
+	}
+
 
 	// property
 
@@ -177,6 +185,7 @@ public class WriteNode {
 	public String toString() {
 		return "WriteNode:[fqn:" + fqn + ", props:" + jsonData + "]";
 	}
+
 
 
 

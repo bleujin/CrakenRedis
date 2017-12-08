@@ -1,6 +1,7 @@
 package net.bleujin.rcraken;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
@@ -10,9 +11,11 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.collections.list.SetUniqueList;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterators;
 
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
 
 public class ReadNode {
@@ -49,6 +52,10 @@ public class ReadNode {
 
 	public boolean isRoot() {
 		return fqn.isRoot();
+	}
+	
+	public boolean exist() {
+		return rsession.exist(fqn.absPath()) ;
 	}
 
 	public Set<String> childrenNames() {
@@ -94,19 +101,39 @@ public class ReadNode {
 	public ReadChildren children() {
 		return new ReadChildren(rsession, fqn, childrenNames());
 	}
+	
+	public WalkReadChildren walkBreadth() {
+		List<String> fqns = ListUtil.newList() ;
+		rsession.descentantBreadth(this.fqn, fqns);
+		return new WalkReadChildren(rsession, this.fqn, fqns);
+	}
 
+	public WalkReadChildren walkDepth() {
+		List<String> fqns = ListUtil.newList() ;
+		rsession.descentantDepth(this.fqn, fqns);
+		return new WalkReadChildren(rsession, this.fqn, fqns);
+	}
+
+	public WalkReadChildren refChildren(String relName, int limit) {
+		List<String> fqns = ListUtil.newList() ;
+		rsession.walkRef(this, relName, limit, fqns);
+		return new WalkReadChildren(rsession, this.fqn, fqns);
+	}
+
+	
+	public WalkReadChildren refs(String relName) {
+		Set<String> relFqns = SetUtil.create(property(relName).asStrings()) ;
+		for (String relFqn : relFqns.toArray(new String[0])) {
+			if (! rsession.exist(relFqn)) relFqns.remove(relFqn) ;
+		}
+				
+		return new WalkReadChildren(rsession, this.fqn, relFqns);
+	}
+	
 	public ReadNode ref(String refName) {
 		return rsession.pathBy(asString(refName));
 	};
-	//
-	// public IteratorList<ReadNode> refs(String refName){
-	//
-	// }
-	//
-	// public boolean hasRef(String refName) {
-	//
-	// };
-	//
+
 	// public boolean hasRef(String refName, Fqn fqn) {
 	//
 	// };
@@ -119,5 +146,7 @@ public class ReadNode {
 	public String toString() {
 		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]";
 	}
+
+
 
 }

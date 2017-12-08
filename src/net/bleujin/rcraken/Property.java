@@ -41,8 +41,11 @@ public class Property {
 	}
 
 	public String[] asStrings() {
+		if (asString() == null) return new String[0] ;
 		List<String> result = ListUtil.newList() ;
-		json.asJsonArray("values").spliterator().forEachRemaining(e -> result.add(e.getAsString()));;
+		result.add(asString()) ;
+		if (json.has("values")) json.asJsonArray("values").spliterator().forEachRemaining(e -> result.add(e.getAsString()));;
+		
 		return result.toArray(result.toArray(new String[0])) ; 
 	}
 

@@ -25,7 +25,10 @@ import org.redisson.api.RMapCache;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 
-import net.bleujin.rcraken.NodeListener.EventType;
+import net.bleujin.rcraken.extend.NodeListener;
+import net.bleujin.rcraken.extend.Sequence;
+import net.bleujin.rcraken.extend.Topic;
+import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
@@ -120,7 +123,14 @@ public class Workspace {
 	String lobPrefix(){
 		return wname + ".lob" ;
 	}
+
+	String seqPrefix(){
+		return wname + ".seq." ;
+	}
 	
+	String topicPrefix(){
+		return wname + ".topic." ;
+	}
 	
 	LocalCachedMapOptions<String, String> mapOption() {
 		return mapOption;
@@ -168,12 +178,19 @@ public class Workspace {
 		listeners.add(nodeListener);
 	}
 
-	
+	public Sequence sequence(String name) {
+		return new Sequence(name, rclient.getAtomicLong(seqPrefix() + name));
+	}
+
+	public <T> Topic<T> topic(String name) {
+		return new Topic<T>(name, rclient.getTopic(topicPrefix() + name));
+	}
+
 	
 	public boolean destorySelf() {
-		rclient.getKeys().deleteByPattern(lobPrefix() + "/*") ; // blob
-		rclient.getMap(nodeMapName()).delete();
-		rclient.getSetMultimap(struMapName()).delete();
+		rclient.getKeys().deleteByPattern(name() + ".*") ; // blob
+//		rclient.getMap(nodeMapName()).delete();
+//		rclient.getSetMultimap(struMapName()).delete();
 		listeners.clear();
 
 		return true;
@@ -195,6 +212,8 @@ public class Workspace {
 	RedissonClient client() {
 		return rclient;
 	}
+
+
 
 
 }

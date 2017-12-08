@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -10,6 +11,7 @@ import org.redisson.api.RSetMultimap;
 import org.redisson.api.RSetMultimapCache;
 import org.redisson.api.RedissonClient;
 
+import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 
@@ -63,6 +65,36 @@ public class ReadSession {
 		return struMap.getAll(fqn.absPath());
 	}
 
+	void descentantBreadth(Fqn fqn, List<String> fqns) {
+		for(String childName : readStruBy(fqn)) {
+			Fqn child = Fqn.from(fqn, childName);
+			fqns.add(child.absPath()) ;
+			descentantBreadth(child, fqns);
+		}
+	}
+
+	void descentantDepth(Fqn fqn, List<String> fqns) {
+		for(String childName : readStruBy(fqn)) {
+			Fqn child = Fqn.from(fqn, childName);
+			fqns.add(child.absPath()) ;
+		}
+
+		for(String childName : readStruBy(fqn)) {
+			descentantDepth(Fqn.from(fqn, childName), fqns);
+		}
+	}
+
+	public void walkRef(ReadNode source, String relName, int limit, List<String> fqns) {
+		if (limit == 0) return ; 
+		for(String relPath : source.property(relName).asStrings()) {
+			Fqn rel = Fqn.from(relPath);
+			if (! source.session().exist(rel.absPath())) continue ;
+			fqns.add(rel.absPath()) ;
+			walkRef(source.session().pathBy(rel), relName, --limit, fqns);
+		}
+	}
+
+
 	public Workspace workspace() {
 		return wspace;
 	}
@@ -75,5 +107,7 @@ public class ReadSession {
 	RMap<String, String> dataMap() {
 		return dataMap;
 	}
+
+
 
 }

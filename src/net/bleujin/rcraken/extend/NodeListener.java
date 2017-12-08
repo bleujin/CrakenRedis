@@ -1,5 +1,6 @@
-package net.bleujin.rcraken;
+package net.bleujin.rcraken.extend;
 
+import net.bleujin.rcraken.Fqn;
 import net.ion.framework.parse.gson.JsonObject;
 
 public interface NodeListener {
