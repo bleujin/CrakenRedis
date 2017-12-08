@@ -2,6 +2,7 @@ package net.bleujin.rcraken;
 
 import java.util.Calendar;
 
+import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 
 public class TestWalkChildren extends TestBaseCrakenRedis{
@@ -30,7 +31,5 @@ public class TestWalkChildren extends TestBaseCrakenRedis{
 		rsession.pathBy("/emp/bleujin").refChildren("friend", 5).stream().forEach(System.out::println);
 	}
 
-	public void testToRows() throws Exception {
 
-	}
 }

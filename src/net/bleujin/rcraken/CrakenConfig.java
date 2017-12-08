@@ -16,6 +16,13 @@ public class CrakenConfig {
 		return new CrakenConfig(config);
 	}
 
+	public static CrakenConfig redisCluster(String... addresses) {
+		Config config = new Config();
+		config.useClusterServers().addNodeAddress(addresses) ;
+		return new CrakenConfig(config) ;
+	}
+
+	
 	public static CrakenConfig redisSingle(String address) {
 		Config config = new Config();
 		config.useSingleServer().setAddress(address);
@@ -31,5 +38,6 @@ public class CrakenConfig {
 	public Craken build() {
 		return new Craken(config);
 	}
+
 
 }
