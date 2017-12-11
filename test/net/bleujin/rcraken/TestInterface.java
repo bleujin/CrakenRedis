@@ -14,7 +14,7 @@ public class TestInterface extends TestCase {
 		this.c = CrakenConfig.redisSingle().build().start();
 
 		this.rsession = c.login("testworkspace");
-		this.rsession.workspace().destorySelf();
+		this.rsession.workspace().removeSelf();
 	}
 
 	@Override

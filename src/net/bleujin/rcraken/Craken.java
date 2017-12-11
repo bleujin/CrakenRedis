@@ -47,6 +47,11 @@ public class Craken {
 		if (cnode != null) cnode.destorySelf(); 
 		else rclient.shutdown();
 	}
+	
+	@Deprecated // test only
+	public void removeAll() {
+		rclient.getKeys().deleteByPattern("*") ;
+	}
 
 	public RRemoteService remoteService(String name) {
 		return rclient.getRemoteService(name);
@@ -54,8 +59,13 @@ public class Craken {
 
 	public CrakenNode node(Map<String, Integer> workers) {
 		if (rclient == null) throw new IllegalStateException("craken not started");
-		this.cnode = new CrakenNode(rclient, config, workers).start();
+		this.cnode = new CrakenNode(rclient, config, workers);
 		return cnode ;
 	}
 	
+	
+	@Deprecated // test only
+	public RedissonClient rclient() {
+		return rclient ;
+	}
 }

@@ -4,11 +4,15 @@ import java.io.InputStream;
 import java.io.StringBufferInputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.parse.gson.JsonPrimitive;
+import net.ion.framework.parse.gson.internal.LazilyParsedNumber;
 import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.SetUtil;
 
 public class Property {
 
@@ -49,7 +53,23 @@ public class Property {
 		return result.toArray(result.toArray(new String[0])) ; 
 	}
 
-	
+	public Set<Object> asSet() {
+		if (asString() == null) return SetUtil.EMPTY ;
+		Set<Object> result = SetUtil.newSet() ;
+		result.add(asString()) ;
+		if (json.has("values")) json.asJsonArray("values").spliterator().forEachRemaining(e -> result.add(e.getAsJsonPrimitive().getValue()));;
+		
+		return result ; 
+	}
+
+	public Object value() {
+		JsonPrimitive value = json.getAsJsonPrimitive(Defined.Property.Value);
+		if (value == null) return null ;
+		Object result = value.getValue() ;
+		if (result instanceof LazilyParsedNumber) return ((LazilyParsedNumber)result).longValue() ;
+		return result;
+	}
+
 	public long asLong() {
 		return json.asLong(Defined.Property.Value);
 	}
@@ -92,6 +112,8 @@ public class Property {
 	public String toString() {
 		return "Property["  + name + ", " + json + "]" ;
 	}
+
+
 
 
 }

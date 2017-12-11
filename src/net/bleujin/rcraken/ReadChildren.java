@@ -1,10 +1,16 @@
 package net.bleujin.rcraken;
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import net.bleujin.rcraken.convert.AdNodeRows;
+import net.bleujin.rcraken.convert.FieldDefinition;
+import net.ion.framework.db.Page;
+import net.ion.framework.db.Rows;
 
 public class ReadChildren implements Iterable<ReadNode> {
 
@@ -38,8 +44,16 @@ public class ReadChildren implements Iterable<ReadNode> {
 		stream().forEach(rnode -> rnode.debugPrint());
 	}
 
-	public Stream<ReadNode> stream() {
-		return StreamSupport.stream(Spliterators.spliterator(iterator(), childNames.size(), 0), false);
+	public StreamChildren stream() {
+		return new StreamChildren(rsession, StreamSupport.stream(this.spliterator(), false)) ;
+	}
+
+	public ReadSession rsession() {
+		return rsession ;
+	}
+
+	public long size() {
+		return childNames.size();
 	}
 
 }

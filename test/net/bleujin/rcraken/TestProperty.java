@@ -23,7 +23,7 @@ public class TestProperty extends TestBaseCrakenRedis{
 		InputStream input = rsession.pathBy("/emp/bleujin").property("data").asStream() ;
 		Debug.line(IOUtil.toStringWithClose(input));
 
-		rsession.workspace().destorySelf() ; // removed all lob 
+		rsession.workspace().removeSelf() ; // removed all lob 
 		Debug.line(rsession.workspace().client().getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + "/*")) ;
 	}
 	
@@ -71,13 +71,17 @@ public class TestProperty extends TestBaseCrakenRedis{
 		}) ;
 
 		rsession.tran(wsession -> {
-			JsonObject jsonvalue = wsession.pathBy("/emp/bleujin").property("name", "bleujin").unset("city") ;
+			WriteNode wnode = wsession.pathBy("/emp/bleujin");
+			JsonObject jsonvalue = wnode.property("name", "bleujin").unset("city");
 			assertEquals("seoul", jsonvalue.asString("value"));
 			assertEquals("pusan", jsonvalue.asJsonArray("values").get(0).getAsString());
 			assertEquals("inchen", jsonvalue.asJsonArray("values").get(1).getAsString());
+			wnode.merge(); // alert
 			return null ;
 		}) ;
 
+		assertEquals(false, rsession.pathBy("/emp/bleujin").hasProperty("city")) ;
+		
 		// when lob
 	}
 	

@@ -19,6 +19,10 @@ public class WalkReadChildren implements Iterable<ReadNode> {
 		this.refFqns = refFqns;
 	}
 
+	public Fqn source() {
+		return source ;
+	}
+	
 	@Override
 	public Iterator<ReadNode> iterator() {
 		Iterator<String> citer = refFqns.iterator();
@@ -39,8 +43,8 @@ public class WalkReadChildren implements Iterable<ReadNode> {
 		stream().forEach(rnode -> rnode.debugPrint());
 	}
 
-	public Stream<ReadNode> stream() {
-		return StreamSupport.stream(Spliterators.spliterator(iterator(), refFqns.size(), 0), false);
+	public StreamChildren stream() {
+		return new StreamChildren(rsession, StreamSupport.stream(this.spliterator(), false)) ;
 	}
 
 }

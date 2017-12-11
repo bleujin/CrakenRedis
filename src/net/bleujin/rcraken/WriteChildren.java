@@ -39,7 +39,7 @@ public class WriteChildren implements Iterable<WriteNode> {
 	}
 
 	public Stream<WriteNode> stream() {
-		return StreamSupport.stream(Spliterators.spliterator(iterator(), childNames.size(), 0), false);
+		return StreamSupport.stream(this.spliterator(), false);
 	}
 
 }

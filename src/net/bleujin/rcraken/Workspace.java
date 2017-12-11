@@ -187,7 +187,7 @@ public class Workspace {
 	}
 
 	
-	public boolean destorySelf() {
+	public boolean removeSelf() {
 		rclient.getKeys().deleteByPattern(name() + ".*") ; // blob
 //		rclient.getMap(nodeMapName()).delete();
 //		rclient.getSetMultimap(struMapName()).delete();

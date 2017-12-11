@@ -28,6 +28,8 @@ public class CrakenNode {
         nodeConfig.setExecutorServiceWorkers(workers);
         this.node = RedissonNode.create(nodeConfig);
         node.start();
+        
+        
 		return this;
 	}
 

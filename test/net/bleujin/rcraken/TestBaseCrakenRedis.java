@@ -26,7 +26,7 @@ public class TestBaseCrakenRedis extends TestCase {
 		c.start() ;
 		
 		this.rsession = c.login("testworkspace") ;
-		this.rsession.workspace().destorySelf() ;
+		this.rsession.workspace().removeSelf() ;
 	}
 	
 	@Override

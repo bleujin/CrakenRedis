@@ -18,7 +18,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
 
-public class ReadNode {
+public class ReadNode implements CommonNode {
 
 	private ReadSession rsession;
 	private Fqn fqn;
@@ -134,9 +134,9 @@ public class ReadNode {
 		return rsession.pathBy(asString(refName));
 	};
 
-	// public boolean hasRef(String refName, Fqn fqn) {
-	//
-	// };
+	 public boolean hasRef(String refName) {
+		 return ref(refName).exist() ;
+	 };
 
 
 	public void debugPrint() {
