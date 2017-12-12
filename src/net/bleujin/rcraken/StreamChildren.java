@@ -251,8 +251,7 @@ public class StreamChildren implements Stream<ReadNode> {
 
 	
 	public Rows toRows(String expr, FieldDefinition... fds) throws SQLException {
-		AdNodeRows result = new AdNodeRows(rsession);
-		return result.init(rsession, this, expr, fds) ;
+		return new AdNodeRows(rsession).init(rsession, this, expr, fds) ;
 	}
 
 }

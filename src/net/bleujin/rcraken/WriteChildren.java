@@ -20,18 +20,7 @@ public class WriteChildren implements Iterable<WriteNode> {
 
 	@Override
 	public Iterator<WriteNode> iterator() {
-		Iterator<String> citer = childNames.iterator();
-		return new Iterator<WriteNode>() {
-			@Override
-			public boolean hasNext() {
-				return citer.hasNext();
-			}
-
-			@Override
-			public WriteNode next() {
-				return wsession.pathBy(Fqn.from(parent, citer.next()));
-			}
-		};
+		return childNames.stream().map(path -> wsession.pathBy(Fqn.from(parent, path))).iterator() ;
 	}
 
 	public void debugPrint() {

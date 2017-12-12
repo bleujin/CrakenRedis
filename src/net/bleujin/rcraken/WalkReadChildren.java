@@ -25,18 +25,7 @@ public class WalkReadChildren implements Iterable<ReadNode> {
 	
 	@Override
 	public Iterator<ReadNode> iterator() {
-		Iterator<String> citer = refFqns.iterator();
-		return new Iterator<ReadNode>() {
-			@Override
-			public boolean hasNext() {
-				return citer.hasNext();
-			}
-
-			@Override
-			public ReadNode next() {
-				return rsession.pathBy(Fqn.from(citer.next()));
-			}
-		};
+		return refFqns.stream().map(path -> rsession.pathBy(Fqn.from(path))).iterator() ;
 	}
 
 	public void debugPrint() {

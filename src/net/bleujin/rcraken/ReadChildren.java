@@ -26,18 +26,7 @@ public class ReadChildren implements Iterable<ReadNode> {
 
 	@Override
 	public Iterator<ReadNode> iterator() {
-		Iterator<String> citer = childNames.iterator();
-		return new Iterator<ReadNode>() {
-			@Override
-			public boolean hasNext() {
-				return citer.hasNext();
-			}
-
-			@Override
-			public ReadNode next() {
-				return rsession.pathBy(Fqn.from(parent, citer.next()));
-			}
-		};
+		return childNames.stream().map(childName -> rsession.pathBy(Fqn.from(parent, childName))).iterator() ;
 	}
 
 	public void debugPrint() {
