@@ -9,14 +9,27 @@ import net.ion.framework.util.Debug;
 public class TestListener extends TestBaseCrakenRedis {
 
 	
-	public void testConfirm() throws Exception {
+	public void testMerge() throws Exception {
 		rsession.workspace().addListener(new NodeListener() {
-			@Override
 			public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
 				Debug.line(etype, fqn, value, oldValue);
+			}
+			@Override
+			public String id() {
+				return "test";
 			}
 		}) ;
 		
 		rsession.tran(SAMPLE) ;
+		rsession.tran( wsession -> {
+			wsession.pathBy("/emp/bleujin").removeSelf();
+			return null ;
+		}) ;
+		
+		rsession.workspace().removeListener("test") ;
+		rsession.tran( wsession -> {
+			wsession.pathBy("/emp/hero").removeSelf();
+			return null ;
+		}) ;
 	}
 }

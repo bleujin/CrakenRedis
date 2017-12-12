@@ -9,6 +9,7 @@ public interface NodeListener {
 		CREATED, UPDATED, REMOVED
 	}
 
+	public String id()  ;
 	public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue);
 
 }

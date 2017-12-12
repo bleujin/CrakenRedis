@@ -3,6 +3,7 @@ package net.bleujin.rcraken;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,7 @@ import org.redisson.api.RMapCache;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 
+import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
@@ -33,18 +35,22 @@ import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.WithinThreadExecutor;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.config.CentralLocalConfig;
 
 public class Workspace {
 
-	private String wname;
-	private RedissonClient rclient;
-	private LocalCachedMapOptions<String, String> mapOption;
-	private List<NodeListener> listeners = ListUtil.newList();
-	private AtomicBoolean inited = new AtomicBoolean(false);
-	private ExecutorService es = new WithinThreadExecutor();
-	private RReadWriteLock rwlock;
+	private String wname ;
+	private RedissonClient rclient ;
+	private LocalCachedMapOptions<String, String> mapOption ;
+	private Map<String, NodeListener> listeners = MapUtil.newMap() ;
+	private AtomicBoolean inited = new AtomicBoolean(false) ;
+	private ExecutorService es = new WithinThreadExecutor() ;
+	private RReadWriteLock rwlock ;
+	private Central central ;
 
 	Workspace(String wname, RedissonClient rclient) {
 		this.wname = wname;
@@ -94,7 +100,7 @@ public class Workspace {
 		JsonObject value = toJson(_value);
 		JsonObject oldValue = toJson(_oldValue);
 
-		for (NodeListener nodeListener : listeners) {
+		for (NodeListener nodeListener : listeners.values()) {
 			nodeListener.onMerged(etype, fqn, value, oldValue);
 		}
 	};
@@ -154,20 +160,21 @@ public class Workspace {
 				wsession.attribute(ExceptionHandler.class, ehandler);
 
 				RLock wlock = rwlock.writeLock();
-				// WriteLock wlock = rwlock.writeLock() ;
 				try {
 					wlock.tryLock(10, TimeUnit.MINUTES); // 
-
 					T result = tjob.handle(wsession);
-					wsession.endBatch();
-					wsession.readSession().reload();
+					
+					List<IndexEvent> list = Workspace.this.ievents ;
+					Workspace.this.ievents = ListUtil.newList() ;
+					wsession.attribute(indexListenerId(), list) ;
+					
+					wsession.endTran();
 					return result;
 				} catch (Throwable ex) {
 					ehandler.handle(wsession, tjob, ex);
 					return null;
 				} finally {
-					// wlock.unlink();
-					wlock.unlock(); // @FixMe : Why??? redisson unlock not working.
+					wlock.unlock(); 
 				}
 			}
 		});
@@ -175,7 +182,7 @@ public class Workspace {
 	}
 
 	public void addListener(NodeListener nodeListener) {
-		listeners.add(nodeListener);
+		listeners.put(nodeListener.id(), nodeListener);
 	}
 
 	public Sequence sequence(String name) {
@@ -191,6 +198,7 @@ public class Workspace {
 		rclient.getKeys().deleteByPattern(name() + ".*") ; // blob
 //		rclient.getMap(nodeMapName()).delete();
 //		rclient.getSetMultimap(struMapName()).delete();
+		if (central != null) central.destroySelf(); 
 		listeners.clear();
 
 		return true;
@@ -213,7 +221,38 @@ public class Workspace {
 		return rclient;
 	}
 
+	
+	private List<IndexEvent> ievents = ListUtil.newList() ;
+	private boolean hasIndexer() {
+		return listeners.containsKey(indexListenerId()) ;
+	}
+	String indexListenerId() {
+		return name() + ".indexer" ;
+	}
+	
+	
+	public Central central() {
+		return central ;
+	}
+	
+	public Workspace indexCntral(Central central) {
+		this.central = central ;
+		this.addListener(new NodeListener() {
+			public void onMerged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
+				if (! jvalue.keySet().isEmpty() )
+					Workspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue)) ;
+			}
 
+			@Override
+			public String id() {
+				return indexListenerId();
+			}
+		});
+		return this ;
+	}
 
+	public void removeListener(String id) {
+		listeners.remove(id) ;
+	}
 
 }

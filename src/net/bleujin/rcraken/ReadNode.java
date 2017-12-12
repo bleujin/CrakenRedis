@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.collections.list.SetUniqueList;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.Query;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
@@ -147,6 +150,15 @@ public class ReadNode implements CommonNode {
 		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]";
 	}
 
+//	ChildQueryRequest childQuery(String query) throws IOException;
+//
+//	ChildQueryRequest childQuery(Query query) throws IOException;
+//
+//	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws IOException;
+//
+//	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws IOException;
+//	
+//	ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException ;
 
 
 }

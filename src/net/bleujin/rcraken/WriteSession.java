@@ -30,6 +30,7 @@ import org.redisson.api.map.event.EntryUpdatedListener;
 import org.redisson.api.map.event.MapEntryListener;
 
 import net.bleujin.rcraken.Property.PType;
+import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -37,6 +38,10 @@ import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.nsearcher.common.WriteDocument;
+import net.ion.nsearcher.index.IndexJob;
+import net.ion.nsearcher.index.IndexSession;
+import net.ion.nsearcher.index.Indexer;
 
 public class WriteSession {
 
@@ -159,7 +164,28 @@ public class WriteSession {
 		return (T) attrs.get(clz.getCanonicalName());
 	}
 
-	public void endBatch() {
+	public void endTran() {
+		if (workspace().central() != null) { 
+			List<IndexEvent> ievents = (List<IndexEvent>) attrs.get(workspace().indexListenerId()) ;
+			Indexer indexer = workspace().central().newIndexer() ;
+			indexer.index(isession -> {
+				for (IndexEvent ie : ievents) {
+					if (ie.eventType() == EventType.REMOVED) {
+						isession.deleteById(ie.fqn().absPath()) ;
+						continue ;
+					}
+					WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()) ;
+					JsonObject jvalue = ie.jsonValue();
+					for (String fname : jvalue.keySet()) {
+						Property property = Property.create(rsession, ie.fqn(), fname, jvalue.asJsonObject(fname)) ;
+						property.indexTo(wdoc) ;
+					}
+					wdoc.update() ;
+				}
+				return null;
+			}) ;
+		}
+		
 		attrs.clear(); 
 	}
 
@@ -167,7 +193,7 @@ public class WriteSession {
 		return wspace;
 	}
 
-	public WriteSession attribute(String name, InputStream value) {
+	public WriteSession attribute(String name, Object value) {
 		attrs.put(name, value) ;
 		return this ;
 	}

@@ -64,7 +64,6 @@ public class Craken {
 	}
 	
 	
-	@Deprecated // test only
 	public RedissonClient rclient() {
 		return rclient ;
 	}

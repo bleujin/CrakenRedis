@@ -2,9 +2,12 @@ package net.bleujin.rcraken;
 
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.lucene.document.Field;
 
 import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonObject;
@@ -13,6 +16,8 @@ import net.ion.framework.parse.gson.internal.LazilyParsedNumber;
 import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.nsearcher.common.MyField;
+import net.ion.nsearcher.common.WriteDocument;
 
 public class Property {
 
@@ -24,7 +29,53 @@ public class Property {
 	private final JsonObject json;
 
 	public enum PType {
-		String, Long, Date, Boolean, Ref, Lob
+		String {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				Arrays.asList(property.asStrings()).forEach(str -> wdoc.keyword(property.name, str));
+			}
+		}, Long {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				wdoc.number(property.name, property.asLong()) ;
+			}
+		}, Date {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				wdoc.date(property.name, property.asDate().getTime()) ;
+			}
+		}, Boolean {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				wdoc.keyword(property.name, property.asString()) ;
+			}
+		}, Ref {
+			public void indexTo(WriteDocument wdoc, final Property property) {
+				Arrays.asList(property.asStrings()).forEach(str -> wdoc.keyword(property.name, str));
+			}
+		}, Lob {
+			public void indexTo(WriteDocument wdoc, Property property) {
+			}
+		}, Unknown {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				
+			}
+		};
+		
+		
+		public abstract void indexTo(WriteDocument wdoc, Property property)  ;
+		
+		public static PType from(String typeName) {
+			if ("String".equalsIgnoreCase(typeName)) {
+				return String ;
+			} else if ("Long".equalsIgnoreCase(typeName)) {
+				return Long ;
+			} else if ("Date".equalsIgnoreCase(typeName)) {
+				return Date ;
+			} else if ("Boolean".equalsIgnoreCase(typeName)) {
+				return Boolean ;
+			} else if ("Ref".equalsIgnoreCase(typeName)) {
+				return Ref ;
+			} else {
+				return Unknown ;
+			}
+		}
 	}
 
 	public Property(ReadSession rsession, Fqn fqn, String name, JsonObject json) {
@@ -111,6 +162,10 @@ public class Property {
 	
 	public String toString() {
 		return "Property["  + name + ", " + json + "]" ;
+	}
+
+	public void indexTo(WriteDocument wdoc) {
+		this.type().indexTo(wdoc, this);
 	}
 
 
