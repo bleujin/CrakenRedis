@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -14,6 +15,7 @@ import org.redisson.api.RedissonClient;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.nsearcher.search.Searcher;
 
 public class ReadSession {
 
@@ -106,6 +108,10 @@ public class ReadSession {
 	@Deprecated
 	RMap<String, String> dataMap() {
 		return dataMap;
+	}
+
+	public Searcher newSearcher() throws IOException {
+		return workspace().central().newSearcher();
 	}
 
 	

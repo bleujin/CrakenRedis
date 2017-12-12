@@ -30,6 +30,7 @@ import org.redisson.api.map.event.EntryUpdatedListener;
 import org.redisson.api.map.event.MapEntryListener;
 
 import net.bleujin.rcraken.Property.PType;
+import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
@@ -174,7 +175,7 @@ public class WriteSession {
 						isession.deleteById(ie.fqn().absPath()) ;
 						continue ;
 					}
-					WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()) ;
+					WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
 					JsonObject jvalue = ie.jsonValue();
 					for (String fname : jvalue.keySet()) {
 						Property property = Property.create(rsession, ie.fqn(), fname, jvalue.asJsonObject(fname)) ;

@@ -13,7 +13,7 @@ public class WalkReadChildren implements Iterable<ReadNode> {
 	private Fqn source;
 	private Collection<String> refFqns;
 
-	WalkReadChildren(ReadSession rsession, Fqn source, Collection<String> refFqns) {
+	public WalkReadChildren(ReadSession rsession, Fqn source, Collection<String> refFqns) {
 		this.rsession = rsession;
 		this.source = source;
 		this.refFqns = refFqns;

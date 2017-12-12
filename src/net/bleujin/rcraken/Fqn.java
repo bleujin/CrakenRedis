@@ -4,9 +4,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
+import org.apache.lucene.search.BooleanClause.Occur;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
 
+import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -272,6 +280,15 @@ public class Fqn implements Serializable{
 
 	public String startWith() {
 		return isRoot() ? "/*" : toString() + "/*";
+	}
+
+	
+	public Query childrenQuery() {
+		BooleanQuery result = new BooleanQuery();
+		result.add(new WildcardQuery(new Term(Defined.Index.PARENT, this.startWith())), Occur.SHOULD);
+		result.add(new TermQuery(new Term(Defined.Index.PARENT, this.toString())), Occur.SHOULD);
+		return result;
+		// return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
 	}
 
 }

@@ -3,23 +3,27 @@ package net.bleujin.rcraken;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.collections.list.SetUniqueList;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.QueryWrapperFilter;
+import org.apache.lucene.search.TermQuery;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
-
+import net.bleujin.rcraken.def.Defined;
+import net.bleujin.rcraken.extend.ChildQueryRequest;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 public class ReadNode implements CommonNode {
 
@@ -150,15 +154,68 @@ public class ReadNode implements CommonNode {
 		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]";
 	}
 
-//	ChildQueryRequest childQuery(String query) throws IOException;
-//
-//	ChildQueryRequest childQuery(Query query) throws IOException;
-//
-//	ChildQueryRequest childQuery(Query query, boolean includeAllTree) throws IOException;
-//
-//	ChildQueryRequest childQuery(String query, boolean includeAllTree) throws IOException;
-//	
-//	ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException ;
+	
+	public ChildQueryRequest childQuery(String query) throws IOException {
+		if (StringUtil.isBlank(query))
+			return childQuery(new TermQuery(new Term(Defined.Index.PARENT, this.fqn().toString())));
+
+		Central central = rsession.workspace().central();
+		Analyzer analyzer = central.searchConfig().queryAnalyzer();
+		try {
+			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
+			result.filter(new TermFilter(Defined.Index.PARENT, this.fqn().toString()));
+
+			return result;
+		} catch (ParseException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException {
+		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new ParseException(String.format("not defined name or value[%s:%s]", name, value)) ;
+		
+		final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), new TermQuery(new Term(name, value)));
+		if (includeDecentTree){
+			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+		} else {
+			result.filter(new TermFilter(Defined.Index.PARENT, this.fqn().toString()));
+		}
+		return result;
+	}
+
+	public ChildQueryRequest childQuery(Query query) throws IOException {
+		return ChildQueryRequest.create(rsession, rsession.newSearcher(), query);
+	}
+
+	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) throws IOException {
+		if (!includeDecentTree)
+			return childQuery(query);
+
+		Analyzer analyzer = session().workspace().central().searchConfig().queryAnalyzer();
+		final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), query);
+		result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+
+		return result;
+	}
+
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws IOException {
+		if (!includeDecentTree)
+			return childQuery(query);
+
+		if (StringUtil.isBlank(query))
+			return childQuery(this.fqn().childrenQuery());
+
+		try {
+			Analyzer analyzer = session().workspace().central().searchConfig().queryAnalyzer();
+			Central central = rsession.workspace().central();
+			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
+			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+			return result;
+		} catch (ParseException e) {
+			throw new IOException(e);
+		}
+
+	}
 
 
 }

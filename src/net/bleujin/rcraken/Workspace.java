@@ -232,6 +232,7 @@ public class Workspace {
 	
 	
 	public Central central() {
+		if (central == null) throw new IllegalStateException("this workspace not indexed") ;
 		return central ;
 	}
 	
