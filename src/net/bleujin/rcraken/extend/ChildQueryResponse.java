@@ -3,11 +3,13 @@ package net.bleujin.rcraken.extend;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+
+import org.apache.ecs.xml.XML;
+
+import com.google.common.base.Function;
 
 import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadNode;
@@ -24,12 +26,6 @@ import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
 import net.ion.nsearcher.search.SearchRequest;
 import net.ion.nsearcher.search.SearchResponse;
-
-
-
-import org.apache.ecs.xml.XML;
-
-import com.google.common.base.Function;
 
 public class ChildQueryResponse {
 

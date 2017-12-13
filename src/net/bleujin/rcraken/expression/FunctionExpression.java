@@ -6,11 +6,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.common.collect.Iterables;
+
 import net.bleujin.rcraken.CommonNode;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.NumberUtil;
-
-import com.google.common.collect.Iterables;
 
 public final class FunctionExpression extends ValueObject implements Expression {
 	public final QualifiedName function;

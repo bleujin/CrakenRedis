@@ -4,42 +4,35 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.LocalCachedMapOptions.EvictionPolicy;
 import org.redisson.api.LocalCachedMapOptions.InvalidationPolicy;
 import org.redisson.api.RBinaryStream;
-import org.redisson.api.map.event.EntryCreatedListener;
-import org.redisson.api.map.event.EntryEvent;
-import org.redisson.api.map.event.EntryRemovedListener;
-import org.redisson.api.map.event.EntryUpdatedListener;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
+import org.redisson.api.map.event.EntryCreatedListener;
+import org.redisson.api.map.event.EntryEvent;
+import org.redisson.api.map.event.EntryRemovedListener;
+import org.redisson.api.map.event.EntryUpdatedListener;
 
 import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener;
+import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
-import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralLocalConfig;
 
 public class Workspace {
 
@@ -145,18 +138,22 @@ public class Workspace {
 	WriteSession writeSession(ReadSession rsession) {
 		return new WriteSession(this, rsession, rclient);
 	}
+	
+	BatchSession batchSession(ReadSession rsession) {
+		return new BatchSession(this, rsession, rclient);
+	}
 
 	ReadSession readSession() {
 		return new ReadSession(this, rclient);
 	}
 
 
-	<T> Future<T> tran(WriteSession wsession, TransactionJob<T> tjob, ExceptionHandler ehandler) {
+	<T> Future<T> tran(WriteSession wsession, WriteJob<T> tjob, ExceptionHandler ehandler) {
 		return es.submit(new Callable<T>() {
 			@Override
 			public T call() throws Exception {
 
-				wsession.attribute(TransactionJob.class, tjob);
+				wsession.attribute(WriteJob.class, tjob);
 				wsession.attribute(ExceptionHandler.class, ehandler);
 
 				RLock wlock = rwlock.writeLock();
@@ -178,8 +175,35 @@ public class Workspace {
 				}
 			}
 		});
-
 	}
+	
+	void batch(BatchSession bsession, BatchJob bjob, ExceptionHandler ehandler) {
+		es.submit(new Callable<Void>() {
+			public Void call() throws Exception {
+
+				bsession.attribute(BatchJob.class, bjob);
+				bsession.attribute(ExceptionHandler.class, ehandler);
+
+				RLock wlock = rwlock.writeLock();
+				try {
+					wlock.tryLock(10, TimeUnit.MINUTES); // 
+					bjob.handle(bsession);
+					
+					List<IndexEvent> list = Workspace.this.ievents ;
+					Workspace.this.ievents = ListUtil.newList() ;
+					bsession.attribute(indexListenerId(), list) ;
+					
+					bsession.endTran();
+				} catch (Throwable ex) {
+					ehandler.handle(bsession, bjob, ex);
+				} finally {
+					wlock.unlock(); 
+				}
+				return null ;
+			}
+		});
+	}
+
 
 	public void addListener(NodeListener nodeListener) {
 		listeners.put(nodeListener.id(), nodeListener);
@@ -232,7 +256,6 @@ public class Workspace {
 	
 	
 	public Central central() {
-		if (central == null) throw new IllegalStateException("this workspace not indexed") ;
 		return central ;
 	}
 	
@@ -255,5 +278,7 @@ public class Workspace {
 	public void removeListener(String id) {
 		listeners.remove(id) ;
 	}
+
+
 
 }

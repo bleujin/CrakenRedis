@@ -5,11 +5,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterables;
@@ -19,7 +19,7 @@ import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ObjectUtil;
 
-public class Fqn implements Serializable{
+public class Fqn implements Serializable {
 
 	private static final long serialVersionUID = 8600966614365198424L;
 
@@ -79,16 +79,13 @@ public class Fqn implements Serializable{
 	}
 
 	public static Fqn fromString(String stringRepresentation) {
-		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR)
-				|| stringRepresentation.length() == 0)
+		if (stringRepresentation == null || stringRepresentation.equals(SEPARATOR) || stringRepresentation.length() == 0)
 			return root();
 
-		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1)
-				: stringRepresentation;
-		String[] el = toMatch.split(SEPARATOR);
+		String toMatch = stringRepresentation.startsWith(SEPARATOR) ? stringRepresentation.substring(1) : stringRepresentation;
+		// String[] el = toMatch.split(SEPARATOR);
 		// return new Fqn(el) ;
-		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch),
-				String.class));
+		return new Fqn(Iterables.toArray(Splitter.on(SEPARATOR).trimResults().omitEmptyStrings().split(toMatch), String.class));
 	}
 
 	public Fqn getAncestor(int generation) {
@@ -282,7 +279,6 @@ public class Fqn implements Serializable{
 		return isRoot() ? "/*" : toString() + "/*";
 	}
 
-	
 	public Query childrenQuery() {
 		BooleanQuery result = new BooleanQuery();
 		result.add(new WildcardQuery(new Term(Defined.Index.PARENT, this.startWith())), Occur.SHOULD);

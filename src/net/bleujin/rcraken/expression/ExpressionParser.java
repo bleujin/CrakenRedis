@@ -7,8 +7,8 @@ import java.util.List;
 
 import net.bleujin.rosetta.OperatorTable;
 import net.bleujin.rosetta.Parser;
-import net.bleujin.rosetta.Parsers;
 import net.bleujin.rosetta.Parser.Reference;
+import net.bleujin.rosetta.Parsers;
 import net.bleujin.rosetta.functors.Binary;
 import net.bleujin.rosetta.functors.Pair;
 import net.bleujin.rosetta.functors.Unary;

@@ -1,10 +1,10 @@
 package net.bleujin.rcraken.expression;
 
+import org.apache.lucene.search.Filter;
+
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
 import net.ion.framework.util.NumberUtil;
-
-import org.apache.lucene.search.Filter;
 
 public final class NumberExpression extends ValueObject implements Expression , ConstantExpression{
 	public final String number;

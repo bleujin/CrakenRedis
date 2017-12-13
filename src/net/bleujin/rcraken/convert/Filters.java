@@ -3,20 +3,6 @@ package net.bleujin.rcraken.convert;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import net.bleujin.rcraken.expression.Expression;
-import net.bleujin.rcraken.expression.ExpressionParser;
-import net.bleujin.rcraken.expression.TerminalParser;
-import net.bleujin.rosetta.Parser;
-import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.ObjectUtil;
-import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.config.IndexConfig;
-import net.ion.nsearcher.config.SearchConfig;
-import net.ion.nsearcher.search.filter.BooleanFilter;
-import net.ion.nsearcher.search.filter.FilterUtil;
-import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
-import net.ion.nsearcher.search.filter.TermFilter;
-
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queries.FilterClause;
@@ -30,6 +16,20 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermRangeFilter;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.util.BytesRef;
+
+import net.bleujin.rcraken.expression.Expression;
+import net.bleujin.rcraken.expression.ExpressionParser;
+import net.bleujin.rcraken.expression.TerminalParser;
+import net.bleujin.rosetta.Parser;
+import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectUtil;
+import net.ion.framework.util.StringUtil;
+import net.ion.nsearcher.config.IndexConfig;
+import net.ion.nsearcher.config.SearchConfig;
+import net.ion.nsearcher.search.filter.BooleanFilter;
+import net.ion.nsearcher.search.filter.FilterUtil;
+import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
+import net.ion.nsearcher.search.filter.TermFilter;
 
 public class Filters {
 

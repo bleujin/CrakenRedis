@@ -1,4 +1,4 @@
-package net.bleujin.plan;
+package net.bleujin.rcraken.extend;
 
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;

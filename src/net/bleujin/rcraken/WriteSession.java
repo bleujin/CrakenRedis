@@ -1,7 +1,5 @@
 package net.bleujin.rcraken;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,38 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.collections.list.SetUniqueList;
-import org.redisson.api.RBinaryStream;
-import org.redisson.api.RListMultimap;
-import org.redisson.api.RLock;
 import org.redisson.api.RMap;
-import org.redisson.api.RMapCache;
 import org.redisson.api.RSetMultimap;
-import org.redisson.api.RSetMultimapCache;
 import org.redisson.api.RedissonClient;
-import org.redisson.api.map.event.EntryCreatedListener;
-import org.redisson.api.map.event.EntryEvent;
-import org.redisson.api.map.event.EntryUpdatedListener;
-import org.redisson.api.map.event.MapEntryListener;
 
-import net.bleujin.rcraken.Property.PType;
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.WriteDocument;
-import net.ion.nsearcher.index.IndexJob;
-import net.ion.nsearcher.index.IndexSession;
 import net.ion.nsearcher.index.Indexer;
 
 public class WriteSession {

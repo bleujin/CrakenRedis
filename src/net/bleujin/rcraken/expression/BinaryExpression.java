@@ -3,13 +3,13 @@ package net.bleujin.rcraken.expression;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.lucene.search.Filter;
+
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ListUtil;
-
-import org.apache.commons.lang.reflect.MethodUtils;
-import org.apache.lucene.search.Filter;
 
 public final class BinaryExpression extends ValueObject implements Expression {
 	public final Expression left;

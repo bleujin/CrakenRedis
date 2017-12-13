@@ -5,16 +5,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.redisson.api.RLocalCachedMap;
 import org.redisson.api.RMap;
-import org.redisson.api.RMapCache;
 import org.redisson.api.RSetMultimap;
-import org.redisson.api.RSetMultimapCache;
 import org.redisson.api.RedissonClient;
 
-import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.nsearcher.search.Searcher;
 
 public class ReadSession {
@@ -48,15 +43,26 @@ public class ReadSession {
 		return fqn.isRoot() || dataMap.containsKey(fqn.absPath());
 	}
 
-	public <T> Future<T> tran(TransactionJob<T> tjob) {
+	public <T> Future<T> tran(WriteJob<T> tjob) {
 		return tran(tjob, ehandler);
 	}
 
-	public <T> Future<T> tran(TransactionJob<T> tjob, ExceptionHandler ehandler) {
+	public <T> Future<T> tran(WriteJob<T> tjob, ExceptionHandler ehandler) {
 		WriteSession wsession = wspace.writeSession(this);
 		return wspace.tran(wsession, tjob, ehandler);
 	}
 
+	public void batch(BatchJob bjob) {
+		batch(bjob, ehandler);
+	}
+
+	public void batch(BatchJob bjob, ExceptionHandler ehandler) {
+		BatchSession bsession = wspace.batchSession(this);
+		wspace.batch(bsession, bjob, ehandler);
+	}
+
+	
+	
 	
 	private JsonObject readDataBy(Fqn fqn) {
 		String jsonString = dataMap.get(fqn.absPath());

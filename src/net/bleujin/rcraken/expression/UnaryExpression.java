@@ -2,11 +2,11 @@ package net.bleujin.rcraken.expression;
 
 import java.lang.reflect.InvocationTargetException;
 
-import net.bleujin.rcraken.CommonNode;
-import net.bleujin.rcraken.convert.Filters;
-
 import org.apache.commons.lang.reflect.MethodUtils;
 import org.apache.lucene.search.Filter;
+
+import net.bleujin.rcraken.CommonNode;
+import net.bleujin.rcraken.convert.Filters;
 
 public final class UnaryExpression extends ValueObject implements Expression {
 	public final Expression operand;

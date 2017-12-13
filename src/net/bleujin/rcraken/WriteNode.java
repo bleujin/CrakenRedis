@@ -1,25 +1,18 @@
 package net.bleujin.rcraken;
 
-import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import org.redisson.api.RMap;
 
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
-import net.ion.framework.util.ListUtil;
 
 public class WriteNode {
 
@@ -102,18 +95,7 @@ public class WriteNode {
 	}
 
 	public Stream<Property> properties() {
-		Iterator<String> keyIter = keys().iterator() ;
-		return StreamSupport.stream(Spliterators.spliterator(new Iterator<Property>() {
-			@Override
-			public boolean hasNext() {
-				return keyIter.hasNext();
-			}
-
-			@Override
-			public Property next() {
-				return property(keyIter.next());
-			}
-		}, keySize(), 0), false);
+		return keys().stream().map(pid->property(pid)) ;
 	}
 	
 	public String asString(String name) {

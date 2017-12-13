@@ -7,8 +7,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.document.Field;
-
 import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonPrimitive;
@@ -16,7 +14,6 @@ import net.ion.framework.parse.gson.internal.LazilyParsedNumber;
 import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.SetUtil;
-import net.ion.nsearcher.common.MyField;
 import net.ion.nsearcher.common.WriteDocument;
 
 public class Property {

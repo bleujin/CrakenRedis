@@ -8,7 +8,7 @@ public class TestBaseCrakenRedis extends TestCase {
 	protected Craken c;
 	protected ReadSession rsession;
 
-	protected static TransactionJob<Void> SAMPLE = new TransactionJob<Void>() {
+	protected static WriteJob<Void> SAMPLE = new WriteJob<Void>() {
 		@Override
 		public Void handle(WriteSession wsession) throws Exception {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("age", 20).property("address", "seoul").merge() ;
