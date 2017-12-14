@@ -30,7 +30,7 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 			}) ;
 		}
 		Debug.line(System.currentTimeMillis() - start);
-		rsession.pathBy("/emp/bleujin").debugPrint();
+		rsession.pathBy("/").walkDepth().debugPrint();
 	}
 	
 	public void testOverwrite() throws Exception {
@@ -68,14 +68,5 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 		
 		rsession.pathBy("/").children().debugPrint(); 
 	}
-	
 
-	public void testMove() throws Exception {
-		
-	}
-	
-	public void testCopy() throws Exception {
-		
-	}
-	
 }

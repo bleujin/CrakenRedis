@@ -21,6 +21,7 @@ import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.SelectProjection;
 import net.bleujin.rosetta.Parser;
 import net.ion.framework.db.Rows;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.nsearcher.common.IKeywordField;
 import net.ion.nsearcher.common.ReadDocument;
@@ -81,7 +82,7 @@ public class ChildQueryResponse {
 	}
 
 	public void debugPrint() throws IOException {
-		found().stream().forEach(fqn -> session.pathBy(fqn).debugPrint());
+		found().stream().forEach(fqn -> Debug.line(session.pathBy(fqn)));
 	}
 
 	public int totalCount() {

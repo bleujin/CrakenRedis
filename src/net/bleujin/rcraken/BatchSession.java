@@ -8,9 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.ecs.xhtml.map;
+import org.redisson.api.BatchResult;
+import org.redisson.api.RBatch;
+import org.redisson.api.RMapAsync;
+import org.redisson.api.RSetMultimap;
+import org.redisson.api.RSetMultimapCache;
 import org.redisson.api.RedissonClient;
 
 import net.bleujin.rcraken.def.Defined;
@@ -30,11 +38,17 @@ public class BatchSession {
 	private ReadSession rsession;
 	private Map<String, Object> attrs = MapUtil.newMap();
 	private RedissonClient rclient;
+	private RBatch batch;
+	private RMapAsync<String, String> dataMap;
+	private RSetMultimap<String, String> struMap;
 
 	public BatchSession(Workspace wspace, ReadSession rsession, RedissonClient rclient) {
 		this.wspace = wspace ;
 		this.rsession = rsession ;
 		this.rclient = rclient ;
+		this.batch = rclient.createBatch();
+		this.dataMap = batch.getMapCache(wspace.nodeMapName());
+		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 	}
 
 
@@ -42,6 +56,10 @@ public class BatchSession {
 		return rsession;
 	}
 
+	RBatch batch() {
+		return batch ;
+	}
+	
 	public BatchNode pathBy(String path) {
 		Fqn fqn = Fqn.from(path);
 
@@ -53,15 +71,16 @@ public class BatchSession {
 	}
 
 	void insert(BatchNode wnode, Fqn fqn, JsonObject data) {
-//		Fqn current = fqn;
-//		while (!current.isRoot()) {
-//			if (!dataMap.containsKey(current.absPath())) {
-//				struMap.put(current.getParent().absPath(), current.name());
-//				dataMap.put(current.absPath(), "{}");
-//			}
-//			current = current.getParent();
-//		}
-//		dataMap.put(fqn.absPath(), data.toString());
+		Fqn current = fqn;
+		while (!current.isRoot()) {
+			
+			if (! (struMap.containsKey(current.absPath()) && struMap.containsKey(current.getParent().absPath()))) {
+				struMap.put(current.getParent().absPath(), current.name());
+				dataMap.putAsync(current.absPath(), "{}");
+			}
+			current = current.getParent();
+		}
+		dataMap.fastPutAsync(fqn.absPath(), data.toString());
 //		
 //		// handle lob
 //		childJson(data).filter(p -> "Lob".equals(p.asString("type"))&& hasAttribute(p.asString("value"))).forEach(p -> {
@@ -92,27 +111,6 @@ public class BatchSession {
 	}
 
 	public void endTran() {
-		if (workspace().central() != null) { 
-			List<IndexEvent> ievents = (List<IndexEvent>) attrs.get(workspace().indexListenerId()) ;
-			Indexer indexer = workspace().central().newIndexer() ;
-			indexer.index(isession -> {
-				for (IndexEvent ie : ievents) {
-					if (ie.eventType() == EventType.REMOVED) {
-						isession.deleteById(ie.fqn().absPath()) ;
-						continue ;
-					}
-					WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
-					JsonObject jvalue = ie.jsonValue();
-					for (String fname : jvalue.keySet()) {
-						Property property = Property.create(rsession, ie.fqn(), fname, jvalue.asJsonObject(fname)) ;
-						property.indexTo(wdoc) ;
-					}
-					wdoc.update() ;
-				}
-				return null;
-			}) ;
-		}
-		
 		attrs.clear(); 
 	}
 

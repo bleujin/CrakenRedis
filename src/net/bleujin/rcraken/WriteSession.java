@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
@@ -15,16 +14,11 @@ import org.redisson.api.RMap;
 import org.redisson.api.RSetMultimap;
 import org.redisson.api.RedissonClient;
 
-import net.bleujin.rcraken.def.Defined;
-import net.bleujin.rcraken.extend.IndexEvent;
-import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
-import net.ion.nsearcher.common.WriteDocument;
-import net.ion.nsearcher.index.Indexer;
 
 public class WriteSession {
 
@@ -39,7 +33,7 @@ public class WriteSession {
 		this.wspace = wspace;
 		this.rsession = rsession;
 		this.rclient = rclient ;
-		this.dataMap = rclient.getMapCache(wspace.nodeMapName(), wspace.mapOption());
+		this.dataMap = rclient.getMapCache(wspace.nodeMapName());
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 	}
 
@@ -60,7 +54,7 @@ public class WriteSession {
 	void merge(WriteNode wnode, Fqn fqn, JsonObject data) {
 		Fqn current = fqn;
 		while (!current.isRoot()) {
-			if (!dataMap.containsKey(current.absPath())) {
+			if (! (struMap.containsKey(current.absPath()) && struMap.containsKey(current.getParent().absPath()))) { 			// if (!dataMap.containsKey(current.absPath())) {
 				struMap.put(current.getParent().absPath(), current.name());
 				dataMap.put(current.absPath(), "{}");
 			}
@@ -148,27 +142,6 @@ public class WriteSession {
 	}
 
 	public void endTran() {
-		if (workspace().central() != null) { 
-			List<IndexEvent> ievents = (List<IndexEvent>) attrs.get(workspace().indexListenerId()) ;
-			Indexer indexer = workspace().central().newIndexer() ;
-			indexer.index(isession -> {
-				for (IndexEvent ie : ievents) {
-					if (ie.eventType() == EventType.REMOVED) {
-						isession.deleteById(ie.fqn().absPath()) ;
-						continue ;
-					}
-					WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
-					JsonObject jvalue = ie.jsonValue();
-					for (String fname : jvalue.keySet()) {
-						Property property = Property.create(rsession, ie.fqn(), fname, jvalue.asJsonObject(fname)) ;
-						property.indexTo(wdoc) ;
-					}
-					wdoc.update() ;
-				}
-				return null;
-			}) ;
-		}
-		
 		attrs.clear(); 
 	}
 

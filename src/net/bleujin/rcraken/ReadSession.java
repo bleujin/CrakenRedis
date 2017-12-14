@@ -10,6 +10,7 @@ import org.redisson.api.RSetMultimap;
 import org.redisson.api.RedissonClient;
 
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 
 public class ReadSession {
@@ -25,7 +26,7 @@ public class ReadSession {
 	ReadSession(Workspace wspace, RedissonClient rclient) {
 		this.wspace = wspace;
 		this.rclient = rclient;
-		this.dataMap = rclient.getMapCache(wspace.nodeMapName(), wspace.mapOption());
+		this.dataMap = rclient.getMapCache(wspace.nodeMapName());
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 	}
 
@@ -117,7 +118,9 @@ public class ReadSession {
 	}
 
 	public Searcher newSearcher() throws IOException {
-		return workspace().central().newSearcher();
+		Central central = workspace().central();
+		if (central == null) throw new IllegalStateException("this workspace not indexed") ;
+		return central.newSearcher();
 	}
 
 	

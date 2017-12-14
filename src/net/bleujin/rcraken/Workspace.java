@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.redisson.api.LocalCachedMapOptions;
 import org.redisson.api.LocalCachedMapOptions.EvictionPolicy;
 import org.redisson.api.LocalCachedMapOptions.InvalidationPolicy;
+import org.redisson.api.RBatch;
 import org.redisson.api.RBinaryStream;
+import org.redisson.api.RListMultimapCache;
 import org.redisson.api.RLock;
 import org.redisson.api.RMapCache;
 import org.redisson.api.RReadWriteLock;
@@ -23,16 +25,21 @@ import org.redisson.api.map.event.EntryEvent;
 import org.redisson.api.map.event.EntryRemovedListener;
 import org.redisson.api.map.event.EntryUpdatedListener;
 
+import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.WithinThreadExecutor;
+import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
+import net.ion.nsearcher.index.Indexer;
 
 public class Workspace {
 
@@ -44,6 +51,7 @@ public class Workspace {
 	private ExecutorService es = new WithinThreadExecutor() ;
 	private RReadWriteLock rwlock ;
 	private Central central ;
+	private RMapCache<Object, Object> dataMap;
 
 	Workspace(String wname, RedissonClient rclient) {
 		this.wname = wname;
@@ -57,11 +65,11 @@ public class Workspace {
 				.maxIdle(10, TimeUnit.SECONDS); // max idle time for each map entry in local cache
 		
 		this.rwlock = rclient.getReadWriteLock(wname + ".rwlock");
+		this.dataMap = rclient.getMapCache(nodeMapName());
 	}
 
 	public Workspace init() {
 		if (!inited.getAndSet(true)) {
-			RMapCache<String, String> dataMap = rclient.getMapCache(nodeMapName());
 			dataMap.addListener(new EntryUpdatedListener<String, String>() {
 				@Override
 				public void onUpdated(EntryEvent<String, String> event) {
@@ -131,7 +139,7 @@ public class Workspace {
 		return wname + ".topic." ;
 	}
 	
-	LocalCachedMapOptions<String, String> mapOption() {
+	public LocalCachedMapOptions<String, String> mapOption() {
 		return mapOption;
 	}
 
@@ -147,7 +155,6 @@ public class Workspace {
 		return new ReadSession(this, rclient);
 	}
 
-
 	<T> Future<T> tran(WriteSession wsession, WriteJob<T> tjob, ExceptionHandler ehandler) {
 		return es.submit(new Callable<T>() {
 			@Override
@@ -161,10 +168,7 @@ public class Workspace {
 					wlock.tryLock(10, TimeUnit.MINUTES); // 
 					T result = tjob.handle(wsession);
 					
-					List<IndexEvent> list = Workspace.this.ievents ;
-					Workspace.this.ievents = ListUtil.newList() ;
-					wsession.attribute(indexListenerId(), list) ;
-					
+					Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
 					wsession.endTran();
 					return result;
 				} catch (Throwable ex) {
@@ -186,12 +190,18 @@ public class Workspace {
 
 				RLock wlock = rwlock.writeLock();
 				try {
-					wlock.tryLock(10, TimeUnit.MINUTES); // 
+					wlock.tryLock(10, TimeUnit.MINUTES); //
 					bjob.handle(bsession);
 					
-					List<IndexEvent> list = Workspace.this.ievents ;
-					Workspace.this.ievents = ListUtil.newList() ;
-					bsession.attribute(indexListenerId(), list) ;
+//					batch.skipResult();// Synchronize write operations execution across defined amount of Redis slave nodes 2 slaves and 1 second timeout
+//					batch.syncSlaves(2, 1, TimeUnit.SECONDS) ;
+//					batch.timeout(2, TimeUnit.SECONDS); // Response timeout
+//					batch.retryInterval(2, TimeUnit.SECONDS); // Retry interval for each attempt to send Redis commands batch
+//					batch.retryAttempts(4); // Attempts amount to re-send Redis commands batch if it hasn't been sent already
+//					RBatch batch = bsession.batch() ;
+					bsession.batch().execute();
+					
+					Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
 					
 					bsession.endTran();
 				} catch (Throwable ex) {
@@ -219,7 +229,10 @@ public class Workspace {
 
 	
 	public boolean removeSelf() {
-		rclient.getKeys().deleteByPattern(name() + ".*") ; // blob
+		rclient.getKeys().deleteByPattern(name() + ".*") ;
+		rclient.getKeys().deleteByPattern("{" + name() + ".*") ; // ?? 
+		
+		
 //		rclient.getMap(nodeMapName()).delete();
 //		rclient.getSetMultimap(struMapName()).delete();
 		if (central != null) central.destroySelf(); 
@@ -263,8 +276,32 @@ public class Workspace {
 		this.central = central ;
 		this.addListener(new NodeListener() {
 			public void onMerged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
-				if (! jvalue.keySet().isEmpty() )
+				if (fqn.absPath().startsWith("/__endtran")) {
+					List<IndexEvent> ies = Workspace.this.ievents ;
+					Workspace.this.ievents = ListUtil.newList() ;
+					
+					Indexer indexer = central.newIndexer() ;
+					indexer.index(isession -> {
+						for (IndexEvent ie : ies) {
+							if (ie.eventType() == EventType.REMOVED) {
+								isession.deleteById(ie.fqn().absPath()) ;
+								continue ;
+							}
+							WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
+							JsonObject newvalue = ie.jsonValue();
+							for (String fname : newvalue.keySet()) {
+								Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname)) ;
+								property.indexTo(wdoc) ;
+							}
+							wdoc.update() ;
+						}
+						return null;
+					}) ;
+					return ;
+				}
+				if (! jvalue.keySet().isEmpty() ) {
 					Workspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue)) ;
+				}
 			}
 
 			@Override

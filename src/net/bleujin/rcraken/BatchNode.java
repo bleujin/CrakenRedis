@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Spliterators;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -84,7 +85,7 @@ public class BatchNode {
 		return this;
 	}
 
-	public void insert() {
+	public void insert()  {
 		bsession.insert(this, fqn, jsonData);
 	}
 
