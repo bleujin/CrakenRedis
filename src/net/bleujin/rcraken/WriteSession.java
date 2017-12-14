@@ -54,7 +54,7 @@ public class WriteSession {
 	void merge(WriteNode wnode, Fqn fqn, JsonObject data) {
 		Fqn current = fqn;
 		while (!current.isRoot()) {
-			if (! (struMap.containsKey(current.absPath()) && struMap.containsKey(current.getParent().absPath()))) { 			// if (!dataMap.containsKey(current.absPath())) {
+			if (!dataMap.containsKey(current.absPath())) {
 				struMap.put(current.getParent().absPath(), current.name());
 				dataMap.put(current.absPath(), "{}");
 			}
@@ -129,7 +129,7 @@ public class WriteSession {
 		}, parent.keySet().size(), 0), false);
 	}
 	
-	private boolean hasAttribute(String name) {
+	public boolean hasAttribute(String name) {
 		return attrs.containsKey(name) ;
 	}
 

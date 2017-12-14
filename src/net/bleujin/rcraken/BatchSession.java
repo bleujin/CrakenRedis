@@ -74,7 +74,7 @@ public class BatchSession {
 		Fqn current = fqn;
 		while (!current.isRoot()) {
 			
-			if (! (struMap.containsKey(current.absPath()) && struMap.containsKey(current.getParent().absPath()))) {
+			if (! (struMap.containsKey(current.absPath()) && struMap.get(current.getParent().absPath()).contains(current.absPath())  )) {
 				struMap.put(current.getParent().absPath(), current.name());
 				dataMap.putAsync(current.absPath(), "{}");
 			}
@@ -98,7 +98,7 @@ public class BatchSession {
 	}
 	
 	
-	private boolean hasAttribute(String name) {
+	public boolean hasAttribute(String name) {
 		return attrs.containsKey(name) ;
 	}
 

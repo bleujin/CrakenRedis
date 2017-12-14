@@ -1,4 +1,4 @@
-package net.bleujin;
+package net.bleujin.study;
 
 import org.redisson.api.RBatch;
 import org.redisson.api.RLocalCachedMap;

@@ -47,6 +47,17 @@ public class TestBatch extends TestBaseCrakenRedis {
 		rsession.pathBy("/emp").childQuery("").find().debugPrint();
 	}
 
+	
+	public void testBatch2() throws Exception {
+		rsession.batch(bsession ->{
+			for (int i = 0; i < 10; i++) {
+				bsession.pathBy("/" + i).property("index", i).property("type", "batch").insert(); 
+			}
+			bsession.pathBy("/emp/bleujin").property("address", "city").insert() ;// overwrite
+		}) ;
+		rsession.pathBy("/").walkDepth().debugPrint();
+	}
+
 
 	
 	public void testConfirm() throws Exception {
