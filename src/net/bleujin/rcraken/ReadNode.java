@@ -109,41 +109,41 @@ public class ReadNode implements CommonNode {
 		return new ReadChildren(rsession, fqn, childrenNames());
 	}
 	
-	public WalkReadChildren walkBreadth() {
+	public ReadWalk walkBreadth() {
 		List<String> fqns = ListUtil.newList() ;
 		rsession.descentantBreadth(this.fqn, fqns);
-		return new WalkReadChildren(rsession, this.fqn, fqns);
+		return new ReadWalk(rsession, this.fqn, fqns);
 	}
 
-	public WalkReadChildren walkDepth() {
+	public ReadWalk walkDepth() {
 		List<String> fqns = ListUtil.newList() ;
 		rsession.descentantDepth(this.fqn, fqns);
-		return new WalkReadChildren(rsession, this.fqn, fqns);
+		return new ReadWalk(rsession, this.fqn, fqns);
 	}
 
-	public WalkReadChildren refChildren(String relName, int limit) {
+	public ReadWalk refChildren(String relName, int limit) {
 		List<String> fqns = ListUtil.newList() ;
 		rsession.walkRef(this, relName, limit, fqns);
-		return new WalkReadChildren(rsession, this.fqn, fqns);
+		return new ReadWalk(rsession, this.fqn, fqns);
 	}
 
 	
-	public WalkReadChildren refs(String relName) {
+	public ReadWalk refs(String relName) {
 		Set<String> relFqns = SetUtil.create(property(relName).asStrings()) ;
 		for (String relFqn : relFqns.toArray(new String[0])) {
 			if (! rsession.exist(relFqn)) relFqns.remove(relFqn) ;
 		}
 				
-		return new WalkReadChildren(rsession, this.fqn, relFqns);
+		return new ReadWalk(rsession, this.fqn, relFqns);
 	}
 	
 	public ReadNode ref(String refName) {
 		return rsession.pathBy(asString(refName));
 	};
 
-	 public boolean hasRef(String refName) {
-		 return ref(refName).exist() ;
-	 };
+	public boolean hasRef(String refName) {
+		return ref(refName).exist();
+	};
 
 
 	public void debugPrint() {
@@ -206,8 +206,8 @@ public class ReadNode implements CommonNode {
 			return childQuery(this.fqn().childrenQuery());
 
 		try {
-			Analyzer analyzer = session().workspace().central().searchConfig().queryAnalyzer();
 			Central central = rsession.workspace().central();
+			Analyzer analyzer = central.searchConfig().queryAnalyzer();
 			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
 			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
 			return result;

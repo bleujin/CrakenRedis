@@ -7,7 +7,7 @@ import javax.sql.RowSetMetaData;
 
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.StreamChildren;
+import net.bleujin.rcraken.ReadStream;
 import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.SelectProjection;
 import net.bleujin.rcraken.expression.TerminalParser;
@@ -20,11 +20,11 @@ public class AdNodeRows extends RowsImpl {
 
 	private static final long serialVersionUID = 6352864291571907347L;
 
-	public AdNodeRows(ReadSession session) throws SQLException {
+	public AdNodeRows() throws SQLException {
 		super(Queryable.Fake);
 	}
 
-	public AdNodeRows init(ReadSession rsession, StreamChildren schildren, String expr, FieldDefinition... fds) throws SQLException {
+	public AdNodeRows init(ReadSession rsession, ReadStream schildren, String expr, FieldDefinition... fds) throws SQLException {
 		SelectProjection projection = makeSelectProjection(expr);
 
 		FieldContext fcontext = new FieldContext();
@@ -35,7 +35,7 @@ public class AdNodeRows extends RowsImpl {
 		return this;
 	}
 
-	private void populate(ReadSession session, StreamChildren schildren, SelectProjection projection) throws SQLException {
+	private void populate(ReadSession session, ReadStream schildren, SelectProjection projection) throws SQLException {
 
 		AtomicBoolean isFirst = new AtomicBoolean(true);
 		AtomicBoolean isEmpty = new AtomicBoolean(true);

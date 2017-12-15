@@ -3,6 +3,7 @@ package net.bleujin.rcraken;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.Spliterators;
 import java.util.stream.Stream;
@@ -13,6 +14,8 @@ import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.SetUtil;
 
 public class WriteNode {
 
@@ -123,11 +126,44 @@ public class WriteNode {
 		wsession.removeSelf(this, fqn, jsonData) ;
 	}
 
-
+	
 	public WriteChildren children() {
 		return new WriteChildren(wsession, fqn, childrenNames());
 	}
 
+	public WriteWalk walkBreadth() {
+		List<String> fqns = ListUtil.newList() ;
+		wsession.descentantBreadth(this.fqn, fqns);
+		return new WriteWalk(wsession, this.fqn, fqns);
+	}
+
+	public WriteWalk walkDepth() {
+		List<String> fqns = ListUtil.newList() ;
+		wsession.descentantDepth(this.fqn, fqns);
+		return new WriteWalk(wsession, this.fqn, fqns);
+	}
+
+	public WriteWalk refChildren(String relName, int limit) {
+		List<String> fqns = ListUtil.newList() ;
+		wsession.walkRef(this, relName, limit, fqns);
+		return new WriteWalk(wsession, this.fqn, fqns);
+	}
+
+	
+	public WriteWalk refs(String relName) {
+		Set<String> relFqns = SetUtil.create(property(relName).asStrings()) ;
+		for (String relFqn : relFqns.toArray(new String[0])) {
+			if (! wsession.exist(relFqn)) relFqns.remove(relFqn) ;
+		}
+				
+		return new WriteWalk(wsession, this.fqn, relFqns);
+	}
+	
+	public WriteNode ref(String refName) {
+		return wsession.pathBy(asString(refName));
+	};
+
+	
 	public WriteNode parent() {
 		return wsession.pathBy(fqn.getParent());
 	}

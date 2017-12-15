@@ -25,8 +25,8 @@ public class ReadChildren implements Iterable<ReadNode> {
 		stream().forEach(rnode -> rnode.debugPrint());
 	}
 
-	public StreamChildren stream() {
-		return new StreamChildren(rsession, StreamSupport.stream(this.spliterator(), false)) ;
+	public ReadStream stream() {
+		return new ReadStream(rsession, StreamSupport.stream(this.spliterator(), false)) ;
 	}
 
 	public ReadSession rsession() {

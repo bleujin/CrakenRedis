@@ -26,23 +26,23 @@ import net.bleujin.rcraken.convert.AdNodeRows;
 import net.bleujin.rcraken.convert.FieldDefinition;
 import net.ion.framework.db.Rows;
 
-public class StreamChildren implements Stream<ReadNode> {
+public class WriteStream implements Stream<WriteNode> {
 
-	private ReadSession rsession ;
-	private Stream<ReadNode> stream;
+	private WriteSession wsession ;
+	private Stream<WriteNode> stream;
 	
-	StreamChildren(ReadSession rsession, Stream<ReadNode> stream) {
-		this.rsession = rsession ;
+	WriteStream(WriteSession wsession, Stream<WriteNode> stream) {
+		this.wsession = wsession ;
 		this.stream = stream;
 	}
 
 	@Override
-	public Iterator<ReadNode> iterator() {
+	public Iterator<WriteNode> iterator() {
 		return stream.iterator();
 	}
 
 	@Override
-	public Spliterator<ReadNode> spliterator() {
+	public Spliterator<WriteNode> spliterator() {
 		return stream.spliterator() ;
 	}
 
@@ -52,25 +52,25 @@ public class StreamChildren implements Stream<ReadNode> {
 	}
 
 	@Override
-	public StreamChildren sequential() {
+	public WriteStream sequential() {
 		stream = stream.sequential() ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren parallel() {
+	public WriteStream parallel() {
 		stream = stream.parallel() ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren unordered() {
+	public WriteStream unordered() {
 		stream = stream.unordered() ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren onClose(Runnable closeHandler) {
+	public WriteStream onClose(Runnable closeHandler) {
 		stream = stream.onClose(closeHandler) ;
 		return this ;
 	}
@@ -81,93 +81,93 @@ public class StreamChildren implements Stream<ReadNode> {
 	}
 
 	@Override
-	public StreamChildren filter(Predicate<? super ReadNode> predicate) {
+	public WriteStream filter(Predicate<? super WriteNode> predicate) {
 		stream = stream.filter(predicate) ;
 		return this ;
 	}
 
 	@Override
-	public <R> Stream<R> map(Function<? super ReadNode, ? extends R> mapper) {
+	public <R> Stream<R> map(Function<? super WriteNode, ? extends R> mapper) {
 		return stream.map(mapper) ;
 	}
 
 	@Override
-	public IntStream mapToInt(ToIntFunction<? super ReadNode> mapper) {
+	public IntStream mapToInt(ToIntFunction<? super WriteNode> mapper) {
 		return stream.mapToInt(mapper) ;
 	}
 
 	@Override
-	public LongStream mapToLong(ToLongFunction<? super ReadNode> mapper) {
+	public LongStream mapToLong(ToLongFunction<? super WriteNode> mapper) {
 		return stream.mapToLong(mapper) ;
 	}
 
 	@Override
-	public DoubleStream mapToDouble(ToDoubleFunction<? super ReadNode> mapper) {
+	public DoubleStream mapToDouble(ToDoubleFunction<? super WriteNode> mapper) {
 		return stream.mapToDouble(mapper) ;
 	}
 
 	@Override
-	public <R> Stream<R> flatMap(Function<? super ReadNode, ? extends Stream<? extends R>> mapper) {
+	public <R> Stream<R> flatMap(Function<? super WriteNode, ? extends Stream<? extends R>> mapper) {
 		return stream.flatMap(mapper) ;
 	}
 
 	@Override
-	public IntStream flatMapToInt(Function<? super ReadNode, ? extends IntStream> mapper) {
+	public IntStream flatMapToInt(Function<? super WriteNode, ? extends IntStream> mapper) {
 		return stream.flatMapToInt(mapper) ;
 	}
 
 	@Override
-	public LongStream flatMapToLong(Function<? super ReadNode, ? extends LongStream> mapper) {
+	public LongStream flatMapToLong(Function<? super WriteNode, ? extends LongStream> mapper) {
 		return stream.flatMapToLong(mapper) ;
 	}
 
 	@Override
-	public DoubleStream flatMapToDouble(Function<? super ReadNode, ? extends DoubleStream> mapper) {
+	public DoubleStream flatMapToDouble(Function<? super WriteNode, ? extends DoubleStream> mapper) {
 		return stream.flatMapToDouble(mapper);
 	}
 
 	@Override
-	public StreamChildren distinct() {
+	public WriteStream distinct() {
 		stream = stream.distinct() ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren sorted() {
+	public WriteStream sorted() {
 		stream = stream.sorted() ;
 		return this ;
 	}
 
 	@Override
-	public Stream<ReadNode> sorted(Comparator<? super ReadNode> comparator) {
+	public Stream<WriteNode> sorted(Comparator<? super WriteNode> comparator) {
 		return stream.sorted(comparator) ;
 	}
 
 	@Override
-	public StreamChildren peek(Consumer<? super ReadNode> action) {
+	public WriteStream peek(Consumer<? super WriteNode> action) {
 		stream = stream.peek(action) ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren limit(long maxSize) {
+	public WriteStream limit(long maxSize) {
 		stream = stream.limit(maxSize) ;
 		return this ;
 	}
 
 	@Override
-	public StreamChildren skip(long n) {
+	public WriteStream skip(long n) {
 		stream = stream.skip(n) ;
 		return this ;
 	}
 
 	@Override
-	public void forEach(Consumer<? super ReadNode> action) {
+	public void forEach(Consumer<? super WriteNode> action) {
 		stream.forEach(action);
 	}
 
 	@Override
-	public void forEachOrdered(Consumer<? super ReadNode> action) {
+	public void forEachOrdered(Consumer<? super WriteNode> action) {
 		stream.forEachOrdered(action);
 	}
 
@@ -182,37 +182,37 @@ public class StreamChildren implements Stream<ReadNode> {
 	}
 
 	@Override
-	public ReadNode reduce(ReadNode identity, BinaryOperator<ReadNode> accumulator) {
+	public WriteNode reduce(WriteNode identity, BinaryOperator<WriteNode> accumulator) {
 		return stream.reduce(identity, accumulator) ;
 	}
 
 	@Override
-	public Optional<ReadNode> reduce(BinaryOperator<ReadNode> accumulator) {
+	public Optional<WriteNode> reduce(BinaryOperator<WriteNode> accumulator) {
 		return stream.reduce(accumulator) ;
 	}
 
 	@Override
-	public <U> U reduce(U identity, BiFunction<U, ? super ReadNode, U> accumulator, BinaryOperator<U> combiner) {
+	public <U> U reduce(U identity, BiFunction<U, ? super WriteNode, U> accumulator, BinaryOperator<U> combiner) {
 		return stream.reduce(identity, accumulator, combiner) ;
 	}
 
 	@Override
-	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super ReadNode> accumulator, BiConsumer<R, R> combiner) {
+	public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super WriteNode> accumulator, BiConsumer<R, R> combiner) {
 		return stream.collect(supplier, accumulator, combiner) ;
 	}
 
 	@Override
-	public <R, A> R collect(Collector<? super ReadNode, A, R> collector) {
+	public <R, A> R collect(Collector<? super WriteNode, A, R> collector) {
 		return stream.collect(collector) ;
 	}
 
 	@Override
-	public Optional<ReadNode> min(Comparator<? super ReadNode> comparator) {
+	public Optional<WriteNode> min(Comparator<? super WriteNode> comparator) {
 		return stream.min(comparator) ;
 	}
 
 	@Override
-	public Optional<ReadNode> max(Comparator<? super ReadNode> comparator) {
+	public Optional<WriteNode> max(Comparator<? super WriteNode> comparator) {
 		return stream.max(comparator) ;
 	}
 
@@ -222,33 +222,30 @@ public class StreamChildren implements Stream<ReadNode> {
 	}
 
 	@Override
-	public boolean anyMatch(Predicate<? super ReadNode> predicate) {
+	public boolean anyMatch(Predicate<? super WriteNode> predicate) {
 		return stream.anyMatch(predicate) ;
 	}
 
 	@Override
-	public boolean allMatch(Predicate<? super ReadNode> predicate) {
+	public boolean allMatch(Predicate<? super WriteNode> predicate) {
 		return stream.allMatch(predicate) ;
 	}
 
 	@Override
-	public boolean noneMatch(Predicate<? super ReadNode> predicate) {
+	public boolean noneMatch(Predicate<? super WriteNode> predicate) {
 		return stream.noneMatch(predicate) ;
 	}
 
 	@Override
-	public Optional<ReadNode> findFirst() {
+	public Optional<WriteNode> findFirst() {
 		return stream.findFirst() ;
 	}
 
 	@Override
-	public Optional<ReadNode> findAny() {
+	public Optional<WriteNode> findAny() {
 		return stream.findAny() ;
 	}
 
-	
-	public Rows toRows(String expr, FieldDefinition... fds) throws SQLException {
-		return new AdNodeRows(rsession).init(rsession, this, expr, fds) ;
-	}
+
 
 }

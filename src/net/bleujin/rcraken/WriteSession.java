@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Spliterators;
@@ -154,4 +155,41 @@ public class WriteSession {
 		return this ;
 	}
 
+	Set<String> readStruBy(Fqn fqn) {
+		return struMap.getAll(fqn.absPath());
+	}
+	
+	void descentantBreadth(Fqn fqn, List<String> fqns) {
+		for(String childName : readStruBy(fqn)) {
+			Fqn child = Fqn.from(fqn, childName);
+			fqns.add(child.absPath()) ;
+			descentantBreadth(child, fqns);
+		}
+	}
+
+	void descentantDepth(Fqn fqn, List<String> fqns) {
+		for(String childName : readStruBy(fqn)) {
+			Fqn child = Fqn.from(fqn, childName);
+			fqns.add(child.absPath()) ;
+		}
+
+		for(String childName : readStruBy(fqn)) {
+			descentantDepth(Fqn.from(fqn, childName), fqns);
+		}
+	}
+
+	public boolean exist(String path) {
+		Fqn fqn = Fqn.from(path);
+		return fqn.isRoot() || dataMap.containsKey(fqn.absPath());
+	}
+
+	public void walkRef(WriteNode source, String relName, int limit, List<String> fqns) {
+		if (limit == 0) return ; 
+		for(String relPath : source.property(relName).asStrings()) {
+			Fqn rel = Fqn.from(relPath);
+			if (! source.session().exist(rel.absPath())) continue ;
+			fqns.add(rel.absPath()) ;
+			walkRef(source.session().pathBy(rel), relName, --limit, fqns);
+		}
+	}
 }

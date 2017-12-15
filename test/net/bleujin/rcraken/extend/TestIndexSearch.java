@@ -16,6 +16,7 @@ public class TestIndexSearch extends TestBaseCrakenRedis {
 
 		Thread.sleep(500); // index operated asynchronously(listener)
 		rsession.pathBy("/emp").childQuery("", true).find().toRows("name, age").debugPrint();
+		rsession.pathBy("/emp").childQuery("", true).find().stream().forEach(System.out::println); ;
 	}
 	
 	public void testIndex() throws Exception {
@@ -34,5 +35,21 @@ public class TestIndexSearch extends TestBaseCrakenRedis {
 		rsession.workspace().central().newSearcher().createRequest("").find().debugPrint("name", "age"); 
 	}
 	
+	
+	public void testSearchInWriteSession() throws Exception {
+		Central central = CentralConfig.newRam().build() ;
+		
+		rsession.workspace().indexCntral(central) ;
+		rsession.tran(SAMPLE) ;
+		
+		Thread.sleep(500);
+		rsession.tran(wsession ->{
+			wsession.readSession().pathBy("/emp").childQuery("age:[25 TO 30]").find()
+				.stream(wsession).map(wn-> wn.property("age", wn.property("age").asInt() * 2)).forEach(wn -> wn.merge()); 
+			return null ;
+		}) ;
+		
+		rsession.pathBy("/emp").children().debugPrint(); 
+	}
 	
 }

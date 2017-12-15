@@ -14,8 +14,11 @@ import com.google.common.base.Function;
 import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.StreamChildren;
-import net.bleujin.rcraken.WalkReadChildren;
+import net.bleujin.rcraken.ReadStream;
+import net.bleujin.rcraken.ReadWalk;
+import net.bleujin.rcraken.WriteSession;
+import net.bleujin.rcraken.WriteStream;
+import net.bleujin.rcraken.WriteWalk;
 import net.bleujin.rcraken.convert.AdNodeRows;
 import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.SelectProjection;
@@ -110,12 +113,21 @@ public class ChildQueryResponse {
 
 	
 	public Rows toRows(String expr) throws SQLException {
-		StreamChildren schildren = new WalkReadChildren(session, (Fqn)null, new ArrayList(found())).stream() ;
-		return new AdNodeRows(session).init(session, schildren, expr) ;
+		ReadStream schildren = new ReadWalk(session, (Fqn)null, new ArrayList(found())).stream() ;
+		return new AdNodeRows().init(session, schildren, expr) ;
 	}
 
 	public SearchRequest request() {
 		return response.request() ;
+	}
+
+
+	public ReadStream stream() {
+		return new ReadWalk(session, null, found()).stream() ;
+	}
+
+	public WriteStream stream(WriteSession wsession) {
+		return new WriteWalk(wsession, null, found()).stream() ;
 	}
 
 }
