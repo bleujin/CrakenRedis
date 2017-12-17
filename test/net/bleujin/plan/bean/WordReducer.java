@@ -1,4 +1,4 @@
-package net.bleujin.plan;
+package net.bleujin.plan.bean;
 
 import java.util.Iterator;
 

@@ -49,7 +49,7 @@ public class TestIndexSearch extends TestBaseCrakenRedis {
 			return null ;
 		}) ;
 		
-		rsession.pathBy("/emp").children().debugPrint(); 
+		rsession.pathBy("/emp").children().debugPrint(); // hero, jin 
 	}
 	
 }

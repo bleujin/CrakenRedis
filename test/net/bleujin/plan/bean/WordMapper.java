@@ -1,4 +1,4 @@
-package net.bleujin.plan;
+package net.bleujin.plan.bean;
 
 import org.redisson.api.mapreduce.RCollector;
 import org.redisson.api.mapreduce.RMapper;

@@ -14,6 +14,9 @@ import org.redisson.api.mapreduce.RMapper;
 import org.redisson.api.mapreduce.RReducer;
 
 import junit.framework.TestCase;
+import net.bleujin.plan.bean.WordCollator;
+import net.bleujin.plan.bean.WordMapper;
+import net.bleujin.plan.bean.WordReducer;
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 

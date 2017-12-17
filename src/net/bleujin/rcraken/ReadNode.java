@@ -1,6 +1,9 @@
 package net.bleujin.rcraken;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -15,8 +18,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 
+import net.bleujin.rcraken.convert.FieldDefinition;
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.ChildQueryRequest;
+import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -217,5 +222,8 @@ public class ReadNode implements CommonNode {
 
 	}
 
+	public Rows toRows(String expr, FieldDefinition... fds) throws SQLException {
+		return new ReadStream(rsession, Arrays.asList(this).stream()).toRows(expr, fds) ; 
+	}
 
 }

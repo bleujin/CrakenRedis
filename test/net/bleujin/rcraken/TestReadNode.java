@@ -28,13 +28,16 @@ public class TestReadNode extends TestBaseCrakenRedis{
 	public void testChildrenNames() throws Exception {
 		rsession.tran(SAMPLE) ;
 		
-		Debug.line(rsession.pathBy("/").childrenNames()) ;
-		Debug.line(rsession.pathBy("/emp").childrenNames()) ;
+		rsession.pathBy("/").childrenNames().stream().forEach(Debug::println);
+		rsession.pathBy("/emp").childrenNames().stream().forEach(Debug::println);
 	}
 	
 
-	public void testCollect() throws Exception {
+	public void testWhenNotExist() throws Exception {
+		rsession.tran(SAMPLE) ;
 		
+		rsession.pathBy("/notexist").children().debugPrint();
+		assertNull(rsession.pathBy("/notexist").property("name").asString()) ;
 	}
 	
 	
