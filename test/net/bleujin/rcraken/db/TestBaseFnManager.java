@@ -37,7 +37,7 @@ public class TestBaseFnManager extends TestCase{
 	@Override
 	protected void tearDown() throws Exception {
 		dc.destroySelf();
-		craken.destroySelf();
+		craken.shutdownSelf();
 	}
 
 	private CrakenFnManager registerFunction() {

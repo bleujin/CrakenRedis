@@ -1,10 +1,12 @@
-package net.bleujin.plan;
+package net.bleujin.rcraken.distribute;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.redisson.Redisson;
+import org.redisson.RedissonNode;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.mapreduce.RCollator;
@@ -12,24 +14,18 @@ import org.redisson.api.mapreduce.RCollector;
 import org.redisson.api.mapreduce.RMapReduce;
 import org.redisson.api.mapreduce.RMapper;
 import org.redisson.api.mapreduce.RReducer;
+import org.redisson.config.Config;
+import org.redisson.config.RedissonNodeConfig;
 
 import junit.framework.TestCase;
-import net.bleujin.plan.bean.WordCollator;
-import net.bleujin.plan.bean.WordMapper;
-import net.bleujin.plan.bean.WordReducer;
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
-public class TestMapReduce extends TestCase {
+public class TestMapReduce extends TestBaseCrakenRedis {
 	// https://github.com/redisson/redisson/wiki/9.-distributed-services
 
 	public void testFirst() throws Exception {
-		RedissonClient redisson = Redisson.create();
-//		redisson.getMap("wordsMap").delete() ;
-		
-		redisson.getKeys().deleteByPattern("*") ;
-		
-		RMap<String, String> map = redisson.getMap("wordsMap");
+		RMap<String, String> map = c.node().getMap("mapreduce");
 		map.put("line1", "Alice was beginning to get very tired");
 		map.put("line2", "of sitting by her sister on the bank and");
 		map.put("line3", "of having nothing to do once or twice she");
@@ -41,14 +37,8 @@ public class TestMapReduce extends TestCase {
 		RMapReduce<String, String, String, Integer> mapReduce = map.<String, Integer>mapReduce().mapper(new WordMapper()).reducer(new WordReducer()).timeout(60, TimeUnit.SECONDS);;
 		Map<String, Integer> mapToNumber = mapReduce.execute();
 		Integer totalWordsAmount = mapReduce.execute(new WordCollator());
-		Debug.line(mapToNumber);
+		mapToNumber.entrySet().forEach(System.out::println);
 		Debug.line(totalWordsAmount);
-		
-		redisson.shutdown(); 
 	}
 
 }
-
-
-
-

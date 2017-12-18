@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.redisson.RedissonNode;
 import org.redisson.api.RCountDownLatch;
+import org.redisson.api.RMap;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RScheduledExecutorService;
 import org.redisson.api.RedissonClient;
@@ -48,8 +49,12 @@ public class CrakenNode {
 		return rclient.getCountDownLatch(cdName);
 	}
 
-	void destorySelf() {
+	void shutdown() {
 		node.shutdown(); 
+	}
+
+	public <T, R> RMap<T, R> getMap(String name) {
+		return rclient.getMap(name);
 	}
 
 

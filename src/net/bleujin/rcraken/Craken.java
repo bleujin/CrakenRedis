@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import org.redisson.Redisson;
+import org.redisson.api.RMap;
 import org.redisson.api.RRemoteService;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -25,11 +26,16 @@ public class Craken {
 	}
 
 	public Craken start() {
+		return start(true);
+	}
+
+	public Craken start(boolean doStartNodeService) {
 		this.rclient = Redisson.create(config);
-		this.cnode = new CrakenNode(rclient, config, workers).start();
+		if (doStartNodeService) this.cnode = new CrakenNode(rclient, config, workers).start();
 		return this;
 	}
 
+	
 	public ReadSession login(String wname) {
 		return findWorkspace(wname).readSession();
 	}
@@ -46,8 +52,8 @@ public class Craken {
 		return wss.get(wname);
 	}
 
-	public void destroySelf() {
-		if (cnode != null) cnode.destorySelf(); 
+	public void shutdownSelf() {
+		if (cnode != null) cnode.shutdown(); 
 		rclient.shutdown();
 	}
 	
@@ -61,7 +67,7 @@ public class Craken {
 	}
 
 	public CrakenNode node() {
-		if (rclient == null) throw new IllegalStateException("craken not started");
+		if (this.rclient == null || this.cnode == null) throw new IllegalStateException("craken node not started");
 		return cnode ;
 	}
 	
@@ -69,4 +75,5 @@ public class Craken {
 	public RedissonClient rclient() {
 		return rclient ;
 	}
+
 }

@@ -1,4 +1,4 @@
-package net.bleujin.plan.bean;
+package net.bleujin.rcraken.distribute;
 
 import java.util.Map;
 
@@ -12,7 +12,6 @@ public class WordCollator implements RCollator<String, Integer, Integer> {
 		int result = 0;
 		for (Integer count : resultMap.values()) {
 			result += count;
-			Debug.line();
 		}
 		return result;
 	}

@@ -1,4 +1,4 @@
-package net.bleujin.plan.bean;
+package net.bleujin.rcraken.distribute;
 
 import java.util.Iterator;
 
@@ -11,7 +11,6 @@ public class WordReducer implements RReducer<String, Integer> {
 	public Integer reduce(String reducedKey, Iterator<Integer> iter) {
 		int sum = 0;
 		while (iter.hasNext()) {
-			Debug.line();
 			Integer i = (Integer) iter.next();
 			sum += i;
 		}

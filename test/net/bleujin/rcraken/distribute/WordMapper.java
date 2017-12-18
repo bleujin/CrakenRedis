@@ -1,4 +1,4 @@
-package net.bleujin.plan.bean;
+package net.bleujin.rcraken.distribute;
 
 import org.redisson.api.mapreduce.RCollector;
 import org.redisson.api.mapreduce.RMapper;
@@ -10,8 +10,6 @@ public class WordMapper implements RMapper<String, String, String, Integer> {
 	public void map(String key, String value, RCollector<String, Integer> collector) {
 		String[] words = value.split("[^a-zA-Z]");
 		for (String word : words) {
-			Debug.line();
-
 			collector.emit(word, 1);
 		}
 	}

@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.extend;
+package net.bleujin.rcraken.distribute;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,7 +26,7 @@ public class TestCrakenService extends TestCase {
 	public void testCluster() throws Exception {
 		Craken craken = CrakenConfig.redisCluster("redis://127.0.0.1:6701", "redis://127.0.0.1:6702", "redis://127.0.0.1:6703").build().start();
 		Thread.sleep(1000);
-		craken.destroySelf();
+		craken.shutdownSelf();
 	}
 
 	public void testRemoteService() throws Exception {
@@ -38,8 +38,8 @@ public class TestCrakenService extends TestCase {
 			assertEquals(42, service.myMethod(21L).longValue());
 
 		} finally {
-			client.destroySelf();
-			server.destroySelf();
+			client.shutdownSelf();
+			server.shutdownSelf();
 		}
 	}
 
@@ -67,7 +67,7 @@ public class TestCrakenService extends TestCase {
 		es.submit(new CallableTask()).get();
 
 		es.awaitTermination(1, TimeUnit.SECONDS);
-		craken.destroySelf();
+		craken.shutdownSelf();
 	}
 
 	public void testScheduleExecutor() throws Exception {
@@ -84,7 +84,7 @@ public class TestCrakenService extends TestCase {
 		es.schedule(new RunnableTask(), CronSchedule.weeklyOnDayAndHourAndMinute(12, 4, Calendar.MONDAY, Calendar.FRIDAY));
 
 		es.awaitTermination(1, TimeUnit.SECONDS);
-		craken.destroySelf();
+		craken.shutdownSelf();
 	}
 
 	public interface RemoteInterface {

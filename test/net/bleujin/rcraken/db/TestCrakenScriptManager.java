@@ -34,7 +34,7 @@ public class TestCrakenScriptManager extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		dc.destroySelf();
-		craken.destroySelf();
+		craken.shutdownSelf();
 	}
 	
 	
