@@ -44,6 +44,8 @@ public class TestCrakenScriptManager extends TestCase {
 		
 		Rows rows = dc.createUserProcedure("afield@listBy(?,?)").addParam(0).addParam(2).execQuery() ;
 		rows.debugPrint(); 
+		rows.first() ;
+		assertEquals("rday", rows.getString("afieldId"));
 	}
 	
 	public void testCreateUserProcedureBatch() throws Exception {

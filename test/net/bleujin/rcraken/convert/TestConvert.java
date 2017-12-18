@@ -29,8 +29,7 @@ public class TestConvert extends TestBaseCrakenRedis{
 	
 	public void testChild() throws Exception {
 		rsession.tran(wsession -> {
-			wsession.pathBy("/bleujin").property("name", "bleujin").merge(); 
-			wsession.pathBy("/bleujin/mychild").property("name", "bleujin").property("male", true).property("birth", Calendar.getInstance()).property("items", Long.MAX_VALUE).property("age", 20L)
+			wsession.pathBy("/bleujin").property("name", "bleujin").child("mychild").property("name", "bleujin").property("male", true).property("birth", Calendar.getInstance()).property("items", Long.MAX_VALUE).property("age", 20L)
 				.property("names", "hero", "bleu", "jin").merge() ;
 			return null ;
 		}) ;

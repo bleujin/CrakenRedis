@@ -19,6 +19,7 @@ import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.CrakenNode;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
+import net.ion.framework.util.MapUtil;
 
 public class TestCrakenService extends TestCase {
 
@@ -58,26 +59,23 @@ public class TestCrakenService extends TestCase {
 
 	public void testExecutor() throws Exception {
 		Craken craken = CrakenConfig.redisSingle().build().start();
-		CrakenNode cnode = craken.node(Collections.singletonMap("node.worker", 2)).start();
+		CrakenNode cnode = craken.node() ;
 
-		RExecutorService es = cnode.executorService("node.worker");
+		RExecutorService es = cnode.executorService(CrakenConfig.DFT_WORKER_NAME);
 
-		Debug.line(es.isShutdown(), es.isTerminated(), es.countActiveWorkers());
 		es.execute(new RunnableTask());
 		es.submit(new CallableTask()).get();
 
-		// es.shutdown();
-		es.awaitTermination(3, TimeUnit.SECONDS);
+		es.awaitTermination(1, TimeUnit.SECONDS);
 		craken.destroySelf();
 	}
 
 	public void testScheduleExecutor() throws Exception {
-		Craken craken = CrakenConfig.redisSingle().build().start();
-		CrakenNode cnode = craken.node(Collections.singletonMap("node.sworker", 2)).start();
+		Craken craken = CrakenConfig.redisSingle().worker(MapUtil.create("node.sworker", 2)).build().start();
+		CrakenNode cnode = craken.node();
 
 		RScheduledExecutorService es = cnode.executorService("node.sworker");
 
-		Debug.line(es.isShutdown(), es.isTerminated(), es.countActiveWorkers());
 		es.schedule(new RunnableTask(), 10, TimeUnit.SECONDS);
 		es.schedule(new CallableTask(), 4, TimeUnit.MINUTES);
 
@@ -85,10 +83,7 @@ public class TestCrakenService extends TestCase {
 		es.schedule(new RunnableTask(), CronSchedule.dailyAtHourAndMinute(10, 5));
 		es.schedule(new RunnableTask(), CronSchedule.weeklyOnDayAndHourAndMinute(12, 4, Calendar.MONDAY, Calendar.FRIDAY));
 
-		new InfinityThread().startNJoin();
-
-		es.shutdown();
-		es.awaitTermination(3, TimeUnit.SECONDS);
+		es.awaitTermination(1, TimeUnit.SECONDS);
 		craken.destroySelf();
 	}
 

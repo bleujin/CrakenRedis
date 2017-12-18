@@ -25,7 +25,9 @@ public class TestMapReduce extends TestCase {
 
 	public void testFirst() throws Exception {
 		RedissonClient redisson = Redisson.create();
-		redisson.getMap("wordsMap").delete() ;
+//		redisson.getMap("wordsMap").delete() ;
+		
+		redisson.getKeys().deleteByPattern("*") ;
 		
 		RMap<String, String> map = redisson.getMap("wordsMap");
 		map.put("line1", "Alice was beginning to get very tired");

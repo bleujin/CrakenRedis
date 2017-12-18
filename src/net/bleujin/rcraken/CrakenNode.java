@@ -3,6 +3,8 @@ package net.bleujin.rcraken;
 import java.util.Map;
 
 import org.redisson.RedissonNode;
+import org.redisson.api.RCountDownLatch;
+import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RScheduledExecutorService;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -21,21 +23,32 @@ public class CrakenNode {
 		this.workers = workers ;
 	}
 
-	public CrakenNode start() {
+	CrakenNode start() {
         RedissonNodeConfig nodeConfig = new RedissonNodeConfig(config);
         nodeConfig.setExecutorServiceWorkers(workers);
         this.node = RedissonNode.create(nodeConfig);
         node.start();
-        
-        
+
 		return this;
 	}
 
+	public RScheduledExecutorService executorService() {
+		return executorService(CrakenConfig.DFT_WORKER_NAME) ;
+	}
+	
 	public RScheduledExecutorService executorService(String workerName) {
 		return rclient.getExecutorService(workerName);
 	}
+	
+	public RReadWriteLock rwLock(String rwName) {
+		return rclient.getReadWriteLock(rwName);
+	}
+	
+	public RCountDownLatch countdownLatch(String cdName) {
+		return rclient.getCountDownLatch(cdName);
+	}
 
-	public void destorySelf() {
+	void destorySelf() {
 		node.shutdown(); 
 	}
 

@@ -17,13 +17,16 @@ public class Craken {
 
 	private ConcurrentMap<String, Workspace> wss = new ConcurrentHashMap<>();
 	private CrakenNode cnode;
+	private Map<String, Integer> workers;
 
-	public Craken(Config config) {
+	public Craken(Config config, Map<String, Integer> workers) {
 		this.config = config;
+		this.workers = workers ;
 	}
 
 	public Craken start() {
 		this.rclient = Redisson.create(config);
+		this.cnode = new CrakenNode(rclient, config, workers).start();
 		return this;
 	}
 
@@ -45,7 +48,7 @@ public class Craken {
 
 	public void destroySelf() {
 		if (cnode != null) cnode.destorySelf(); 
-		else rclient.shutdown();
+		rclient.shutdown();
 	}
 	
 	@Deprecated // test only
@@ -57,9 +60,8 @@ public class Craken {
 		return rclient.getRemoteService(name);
 	}
 
-	public CrakenNode node(Map<String, Integer> workers) {
+	public CrakenNode node() {
 		if (rclient == null) throw new IllegalStateException("craken not started");
-		this.cnode = new CrakenNode(rclient, config, workers);
 		return cnode ;
 	}
 	

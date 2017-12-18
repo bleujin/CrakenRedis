@@ -193,10 +193,11 @@ public class WriteNode {
 	}
 
 	public boolean hasChild(String name) {
-		return jsonData.has(name);
+		return wsession.exist(Fqn.from(fqn, name).absPath()) ;
 	};
 
 	public WriteNode child(String name) {
+		this.merge();
 		return wsession.pathBy(Fqn.from(fqn, name));
 	}
 

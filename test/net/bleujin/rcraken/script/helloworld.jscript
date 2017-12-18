@@ -1,0 +1,17 @@
+importPackage(net.bleujin.rcraken.script)
+
+new function(){
+
+	var hiobj = new HiWorld();
+	
+	var myobj = new function(){
+		this.sayHello = function(name){
+			return hiobj.hi(name) + " called" ;
+		}
+	}
+
+	this.sayHello = function(name){
+		return myobj.sayHello(name);
+	}
+
+} ;
