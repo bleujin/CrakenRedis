@@ -3,6 +3,7 @@ package net.bleujin.rcraken;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Calendar;
 
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -10,6 +11,21 @@ import net.ion.framework.util.IOUtil;
 
 public class TestProperty extends TestBaseCrakenRedis{
 
+	
+	public void testPrimitive() throws Exception {
+		rsession.tran(wsession -> {
+			wsession.pathBy("/property").property("string", "bleujin").property("boolean", true).property("calendar", Calendar.getInstance()).property("long", Long.MAX_VALUE).property("integer", Integer.MAX_VALUE * 1L).merge() ;
+			return null ;
+		}) ;
+		
+		ReadNode found = rsession.pathBy("/property") ;
+		assertEquals("bleujin", found.property("string").asString());
+		assertEquals(true, found.property("boolean").asBoolean());
+		assertEquals(Long.MAX_VALUE, found.property("long").asLong());
+		assertEquals(Integer.MAX_VALUE, found.property("integer").asLong());
+		assertEquals(Calendar.getInstance().get(Calendar.DATE), found.property("calendar").asDate().get(Calendar.DATE));
+	}
+	
 	public void testBlob() throws Exception {
 		
 		FileInputStream fis = new FileInputStream(new File("./resource/helloworld.txt")) ;
@@ -100,6 +116,15 @@ public class TestProperty extends TestBaseCrakenRedis{
 		rsession.pathBy("/dept/dev").refs("account").debugPrint();
 	}
 
-	
+	public void testEncrypt() throws Exception {
+		rsession.tran(wsession -> {
+			wsession.pathBy("/emp/bleujin").property("id", "bleujin").encrypt("pwd", "1234").merge();
+			return null;
+		}) ;
+
+		ReadNode found = rsession.pathBy("/emp/bleujin");
+		Debug.line(found.property("pwd").asString()) ;
+		assertEquals(true, found.isMatch("pwd", "1234")) ;
+	}
 
 }

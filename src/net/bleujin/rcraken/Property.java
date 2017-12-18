@@ -13,6 +13,7 @@ import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.internal.LazilyParsedNumber;
 import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.WriteDocument;
 
@@ -88,6 +89,10 @@ public class Property {
 		return new Property(rsession, fqn, name, json);
 	}
 
+	public String name() {
+		return name ;
+	}
+	
 	public String asString() {
 		return json.asString(Defined.Property.Value);
 	}
@@ -110,11 +115,22 @@ public class Property {
 		return result ; 
 	}
 
+	public <T> T defaultValue(T defaultValue) {
+		return (T) ObjectUtil.coalesce(value(), defaultValue);
+	}
+	
 	public Object value() {
 		JsonPrimitive value = json.getAsJsonPrimitive(Defined.Property.Value);
 		if (value == null) return null ;
 		Object result = value.getValue() ;
-		if (result instanceof LazilyParsedNumber) return ((LazilyParsedNumber)result).longValue() ;
+		if (result instanceof LazilyParsedNumber) {
+			if (type() == PType.Date) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(((LazilyParsedNumber)result).longValue());
+				return cal ;
+			}
+			return ((LazilyParsedNumber)result).longValue() ;
+		}
 		return result;
 	}
 

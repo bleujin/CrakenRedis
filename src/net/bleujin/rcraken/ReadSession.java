@@ -1,19 +1,36 @@
 package net.bleujin.rcraken;
 
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.ShortBufferException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.redisson.api.RMap;
 import org.redisson.api.RSetMultimap;
 import org.redisson.api.RedissonClient;
 
+import net.ion.framework.file.HexUtil;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.MapUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 
 public class ReadSession {
+
+	public final static String EncryptKeyBytes = "KeyBytes";
+	public final static String EncryptIvBytes = "IvBytes";
 
 	private static ExceptionHandler ehandler = ExceptionHandler.PRINT;
 
@@ -22,12 +39,16 @@ public class ReadSession {
 
 	private RMap<String, String> dataMap;
 	private RSetMultimap<String, String> struMap;
+	private Map<String, Object> attrs = MapUtil.newMap();
 
 	ReadSession(Workspace wspace, RedissonClient rclient) {
 		this.wspace = wspace;
 		this.rclient = rclient;
 		this.dataMap = rclient.getMapCache(wspace.nodeMapName());
 		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
+
+		attribute(EncryptKeyBytes, "40674244".getBytes());
+		attribute(EncryptIvBytes, "@1B2c3D4".getBytes());
 	}
 
 	public ReadNode pathBy(String path) {
@@ -124,7 +145,40 @@ public class ReadSession {
 	}
 
 	
+	public void attribute(String key, Object value) {
+		attrs.put(key, value);
+	}
+
+	public Object attribute(String key) {
+		return attrs.get(key);
+	}
+
 	
+	
+	
+	String encrypt(String value) throws IOException {
+		try {
+			byte[] keyBytes = (byte[]) attribute(ReadSession.EncryptKeyBytes);
+			byte[] ivBytes = (byte[]) attribute(ReadSession.EncryptIvBytes);
+
+			SecretKeySpec skey = new SecretKeySpec(keyBytes, "DES"); // wrap key data in Key/IV specs to pass to cipher
+			IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+
+			Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding"); // create the cipher with the algorithm you choose see javadoc for Cipher class for more info, e.g.
+
+			byte[] input = value.getBytes("UTF-8");
+
+			cipher.init(Cipher.ENCRYPT_MODE, skey, ivSpec);
+			byte[] encrypted = new byte[cipher.getOutputSize(input.length)];
+
+			int enc_len = cipher.update(input, 0, input.length, encrypted, 0);
+			enc_len += cipher.doFinal(encrypted, enc_len);
+			
+			return HexUtil.toHex(encrypted) ;
+		} catch(NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException ex) {
+			throw new IOException(ex) ;
+		}
+	}
 
 
 }

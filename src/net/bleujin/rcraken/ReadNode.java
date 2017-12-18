@@ -2,14 +2,10 @@ package net.bleujin.rcraken;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Spliterators;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
@@ -19,6 +15,7 @@ import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 
 import net.bleujin.rcraken.convert.FieldDefinition;
+import net.bleujin.rcraken.convert.ToBeanStrategy;
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.ChildQueryRequest;
 import net.ion.framework.db.Rows;
@@ -87,23 +84,12 @@ public class ReadNode implements CommonNode {
 	}
 	
 	public Stream<Property> properties() {
-		Iterator<String> keyIter = keys().iterator() ;
-		return StreamSupport.stream(Spliterators.spliterator(new Iterator<Property>() {
-			@Override
-			public boolean hasNext() {
-				return keyIter.hasNext();
-			}
-
-			@Override
-			public Property next() {
-				return property(keyIter.next());
-			}
-		}, keySize(), 0), false);
+		return keys().stream().map(pid -> property(pid)) ;
 	}
 
 
 	public boolean hasChild(String name) {
-		return data.has(name);
+		return child(name).exist();
 	};
 
 	public ReadNode child(String name) {
@@ -150,6 +136,9 @@ public class ReadNode implements CommonNode {
 		return ref(refName).exist();
 	};
 
+	public boolean isMatch(String key, String value) throws IOException{
+		return this.property(key).defaultValue("").equals(session().encrypt(value)) ;
+	}
 
 	public void debugPrint() {
 		Debug.line(this);
@@ -224,6 +213,10 @@ public class ReadNode implements CommonNode {
 
 	public Rows toRows(String expr, FieldDefinition... fds) throws SQLException {
 		return new ReadStream(rsession, Arrays.asList(this).stream()).toRows(expr, fds) ; 
+	}
+
+	public <T> T toBean(Class<T> clz) {
+		return ToBeanStrategy.ProxyByCGLib.toBean(this, clz) ;
 	}
 
 }

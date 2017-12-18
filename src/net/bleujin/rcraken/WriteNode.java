@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -46,7 +47,7 @@ public class WriteNode {
 	}
 
 	public WriteNode property(String name, Calendar value) {
-		JsonObject jvalue = new JsonObject().put("type", PType.Boolean.toString()).put("value", value.getTimeInMillis());
+		JsonObject jvalue = new JsonObject().put("type", PType.Date.toString()).put("value", value.getTimeInMillis());
 		return property(name, jvalue);
 	}
 
@@ -80,6 +81,9 @@ public class WriteNode {
 		return removed.getAsJsonObject();
 	}
 
+	public WriteNode encrypt(String key, String value) throws IOException {
+		return property(key, wsession.readSession().encrypt(value)) ;
+	}
 
 	// property
 
