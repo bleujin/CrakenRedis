@@ -17,11 +17,10 @@ public class WalkChildrenTest extends TestBaseCrakenRedis{
 			wsession.pathBy("/emp/jin").property("name", "jin").merge();
 			wsession.pathBy("/emp/bleujin/address").property("city", "seoul").property("date", Calendar.getInstance()).merge();
 			return null;
-		});
-
-		rsession.pathBy("/emp").walkBreadth().debugPrint();
-		rsession.pathBy("/emp").walkDepth().stream().forEach(System.out::println);
-
+		}).thenAccept(nil -> {
+			rsession.pathBy("/emp").walkBreadth().debugPrint();
+			rsession.pathBy("/emp").walkDepth().stream().forEach(System.out::println);
+		}) ;
 	}
 
 	@Test
@@ -31,8 +30,9 @@ public class WalkChildrenTest extends TestBaseCrakenRedis{
 			wsession.pathBy("/emp/hero").property("name", "hero").refTo("friend", "/emp/jin").merge();
 			wsession.pathBy("/emp/jin").property("name", "jin").refTo("friend", "/emp/bleujin", "/emp/notfound").merge(); // loop
 			return null;
-		});
-		rsession.pathBy("/emp/bleujin").refChildren("friend", 5).stream().forEach(System.out::println);
+		}).thenAccept(nil -> {
+			rsession.pathBy("/emp/bleujin").refChildren("friend", 5).stream().forEach(System.out::println);
+		}) ;
 	}
 
 

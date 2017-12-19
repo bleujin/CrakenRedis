@@ -32,11 +32,11 @@ public class ReadMe {
 			wsession.pathBy("/emp").children().stream().limit(2).map(wn -> wn.property("age", wn.property("age").asInt() * 2)).forEach(w -> w.merge());
 			return null;
 			
-		}).thenAccept((r) ->{
-			rsession.pathBy("/emp").children().stream().limit(5).filter(rnode -> rnode.property("age").asLong() >= 25L)
-				.sorted((n1, n2) -> n2.property("age").asInt() - n1.property("age").asInt())
-				.forEach(System.out::println);
-		}) ;
+		}).get() ;
+
+		rsession.pathBy("/emp").children().stream().limit(5).filter(rnode -> rnode.property("age").asLong() >= 25L)
+			.sorted((n1, n2) -> n2.property("age").asInt() - n1.property("age").asInt())
+			.forEach(System.out::println);
 		
 		c.shutdownSelf(); 
 	}

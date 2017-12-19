@@ -1,5 +1,5 @@
 package net.bleujin.plan;
 
-public class TestTemplate {
+public class GithubWiki {
 
 }

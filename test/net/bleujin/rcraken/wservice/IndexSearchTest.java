@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.extend;
+package net.bleujin.rcraken.wservice;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +13,8 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 	@Test
 	public void testFirst() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
-		
 		rsession.workspace().indexCntral(central) ;
+		
 		rsession.tran(SAMPLE) ;
 
 		Thread.sleep(500); // index operated asynchronously(listener)

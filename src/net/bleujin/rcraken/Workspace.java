@@ -33,6 +33,7 @@ import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
+import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
@@ -54,6 +55,7 @@ public class Workspace {
 	private RReadWriteLock rwlock ;
 	private Central central ;
 	private RMapCache<Object, Object> dataMap;
+	private Engine parseEngine = Engine.createDefaultEngine();
 
 	Workspace(String wname, RedissonClient rclient) {
 		this.wname = wname;
@@ -119,6 +121,11 @@ public class Workspace {
 	ExecutorService executor() {
 		return es ;
 	}
+	
+	public Engine parseEngine() {
+		return parseEngine;
+	}
+
 	
 	public Workspace executor(ExecutorService es) {
 		this.es = es ;
@@ -318,6 +325,7 @@ public class Workspace {
 	public void removeListener(String id) {
 		listeners.remove(id) ;
 	}
+
 
 
 

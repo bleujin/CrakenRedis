@@ -164,7 +164,7 @@ public class ReadSession {
 	
 	
 	
-	String encrypt(String value) throws IOException {
+	String encrypt(String value) {
 		try {
 			byte[] keyBytes = (byte[]) attribute(ReadSession.EncryptKeyBytes);
 			byte[] ivBytes = (byte[]) attribute(ReadSession.EncryptIvBytes);
@@ -183,8 +183,8 @@ public class ReadSession {
 			enc_len += cipher.doFinal(encrypted, enc_len);
 			
 			return HexUtil.toHex(encrypted) ;
-		} catch(NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException ex) {
-			throw new IOException(ex) ;
+		} catch(NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | IOException ex) {
+			throw new IllegalStateException(ex) ;
 		}
 	}
 

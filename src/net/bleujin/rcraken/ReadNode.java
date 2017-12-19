@@ -136,7 +136,7 @@ public class ReadNode implements CommonNode {
 		return ref(refName).exist();
 	};
 
-	public boolean isMatch(String key, String value) throws IOException{
+	public boolean isMatch(String key, String value) {
 		return this.property(key).defaultValue("").equals(session().encrypt(value)) ;
 	}
 

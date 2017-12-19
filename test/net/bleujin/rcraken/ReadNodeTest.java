@@ -13,12 +13,13 @@ public class ReadNodeTest extends TestBaseCrakenRedis{
 
 	@Test
 	public void parentExist() throws Exception {
-		rsession.tran(SAMPLE) ;
-		assertEquals(true, rsession.exist("/emp"));
-		assertEquals(false, rsession.pathBy("/emp").property("name").isExist()) ;
-		
-		assertEquals(true, rsession.exist("/emp/bleujin")) ;
-		assertEquals(true, rsession.pathBy("/emp/bleujin").property("name").isExist()) ;
+		rsession.tran(SAMPLE).thenAccept(nil -> {
+			assertEquals(true, rsession.exist("/emp"));
+			assertEquals(false, rsession.pathBy("/emp").property("name").isExist()) ;
+			
+			assertEquals(true, rsession.exist("/emp/bleujin")) ;
+			assertEquals(true, rsession.pathBy("/emp/bleujin").property("name").isExist()) ;
+		}) ;
 	}
 	
 	@Test
@@ -35,19 +36,21 @@ public class ReadNodeTest extends TestBaseCrakenRedis{
 
 	@Test
 	public void childrenNames() throws Exception {
-		rsession.tran(SAMPLE) ;
+		rsession.tran(SAMPLE).thenAccept(nil -> {
+			rsession.pathBy("/").childrenNames().stream().forEach(Debug::println);
+			rsession.pathBy("/emp").childrenNames().stream().forEach(Debug::println);
+		}) ;
 		
-		rsession.pathBy("/").childrenNames().stream().forEach(Debug::println);
-		rsession.pathBy("/emp").childrenNames().stream().forEach(Debug::println);
 	}
 	
 
 	@Test
 	public void whenNotExist() throws Exception {
-		rsession.tran(SAMPLE) ;
+		rsession.tran(SAMPLE).thenAccept(nil -> {
+			rsession.pathBy("/notexist").children().debugPrint();
+			assertNull(rsession.pathBy("/notexist").property("name").asString()) ;
+		}) ;
 		
-		rsession.pathBy("/notexist").children().debugPrint();
-		assertNull(rsession.pathBy("/notexist").property("name").asString()) ;
 	}
 
 }

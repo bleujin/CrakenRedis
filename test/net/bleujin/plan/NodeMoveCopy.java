@@ -3,7 +3,7 @@ package net.bleujin.plan;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 
-public class TestMoveCopy extends TestBaseCrakenRedis {
+public class NodeMoveCopy extends TestBaseCrakenRedis {
 	
 
 	public void testCopy() throws Exception {

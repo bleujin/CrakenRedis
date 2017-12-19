@@ -1,4 +1,6 @@
-package net.bleujin.rcraken.distribute;
+package net.bleujin.rcraken.cservice;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Calendar;
 import java.util.Collections;
@@ -22,7 +24,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.MapUtil;
 
-public class CrakenServiceTest extends TestCase {
+public class CrakenExecutorTest {
 
 	@Test
 	public void testCluster() throws Exception {

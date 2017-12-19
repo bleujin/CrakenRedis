@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.convert;
+package net.bleujin.rcraken.extend;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -15,7 +15,7 @@ import net.ion.framework.util.Debug;
 public class ConvertTest extends TestBaseCrakenRedis{
 
 	@Test
-	public void testSimple() throws Exception {
+	public void flatBean() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/property").property("name", "bleujin").property("male", true).property("birth", Calendar.getInstance()).property("items", Long.MAX_VALUE).property("age", 20L)
 				.property("names", "hero", "bleu", "jin").merge() ;
@@ -33,7 +33,7 @@ public class ConvertTest extends TestBaseCrakenRedis{
 	}
 	
 	@Test
-	public void testChild() throws Exception {
+	public void beanWithChild() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/bleujin").property("name", "bleujin").child("mychild").property("name", "bleujin").property("male", true).property("birth", Calendar.getInstance()).property("items", Long.MAX_VALUE).property("age", 20L)
 				.property("names", "hero", "bleu", "jin").merge() ;
