@@ -2,11 +2,14 @@ package net.bleujin.rcraken;
 
 import java.util.Calendar;
 
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 
-public class TestWalkChildren extends TestBaseCrakenRedis{
+public class WalkChildrenTest extends TestBaseCrakenRedis{
 
+	@Test
 	public void testWalkChildren() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").merge();
@@ -21,6 +24,7 @@ public class TestWalkChildren extends TestBaseCrakenRedis{
 
 	}
 
+	@Test
 	public void testWalkRefChildren() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero").merge();

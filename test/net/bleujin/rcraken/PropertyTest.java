@@ -1,18 +1,22 @@
 package net.bleujin.rcraken;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
-public class TestProperty extends TestBaseCrakenRedis{
+public class PropertyTest extends TestBaseCrakenRedis {
 
-	
-	public void testPrimitive() throws Exception {
+	@Test
+	public void primitiveProperty() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/property").property("string", "bleujin").property("boolean", true).property("calendar", Calendar.getInstance()).property("long", Long.MAX_VALUE).property("integer", Integer.MAX_VALUE * 1L).merge() ;
 			return null ;
@@ -26,7 +30,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 		assertEquals(Calendar.getInstance().get(Calendar.DATE), found.property("calendar").asDate().get(Calendar.DATE));
 	}
 	
-	public void testBlob() throws Exception {
+	@Test
+	public void blobProperty() throws Exception {
 		
 		FileInputStream fis = new FileInputStream(new File("./resource/helloworld.txt")) ;
 		rsession.tran(wsession -> {
@@ -44,8 +49,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 	}
 	
 
-	
-	public void testBlobWhenRemove() throws Exception {
+	@Test
+	public void blobPropertyWhenRemove() throws Exception {
 		FileInputStream fis = new FileInputStream(new File("./resource/helloworld.txt")) ;
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("data", fis).merge() ;
@@ -60,7 +65,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 		
 	}
 	
-	public void testArray() throws Exception {
+	@Test
+	public void arrayProperty() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("city", "seoul", "pusan", "inchen").merge() ;
 			return null ;
@@ -80,7 +86,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 		assertEquals(2, rsession.pathBy("/emp/bleujin").property("city").asStrings().length) ;
 	}
 	
-	public void testUnSet() throws Exception {
+	@Test
+	public void unSet() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("city", "seoul", "pusan", "inchen").merge() ;
 			return null ;
@@ -102,8 +109,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 	}
 	
 
-	
-	public void testReference() throws Exception {
+	@Test
+	public void reference() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").merge() ;
 			wsession.pathBy("/emp/hero").property("name", "bleujin").merge() ;
@@ -116,7 +123,8 @@ public class TestProperty extends TestBaseCrakenRedis{
 		rsession.pathBy("/dept/dev").refs("account").debugPrint();
 	}
 
-	public void testEncrypt() throws Exception {
+	@Test
+	public void encrypt() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("id", "bleujin").encrypt("pwd", "1234").merge();
 			return null;

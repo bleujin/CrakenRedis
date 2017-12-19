@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
 import org.redisson.Redisson;
 import org.redisson.RedissonNode;
 import org.redisson.api.RMap;
@@ -21,9 +22,10 @@ import junit.framework.TestCase;
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
-public class TestMapReduce extends TestBaseCrakenRedis {
+public class MapReduceTest extends TestBaseCrakenRedis {
 	// https://github.com/redisson/redisson/wiki/9.-distributed-services
 
+	@Test
 	public void testFirst() throws Exception {
 		RMap<String, String> map = c.node().getMap("mapreduce");
 		map.put("line1", "Alice was beginning to get very tired");
@@ -39,6 +41,40 @@ public class TestMapReduce extends TestBaseCrakenRedis {
 		Integer totalWordsAmount = mapReduce.execute(new WordCollator());
 		mapToNumber.entrySet().forEach(System.out::println);
 		Debug.line(totalWordsAmount);
+	}
+
+}
+
+class WordMapper implements RMapper<String, String, String, Integer> {
+	@Override
+	public void map(String key, String value, RCollector<String, Integer> collector) {
+		String[] words = value.split("[^a-zA-Z]");
+		for (String word : words) {
+			collector.emit(word, 1);
+		}
+	}
+}
+
+class WordReducer implements RReducer<String, Integer> {
+	@Override
+	public Integer reduce(String reducedKey, Iterator<Integer> iter) {
+		int sum = 0;
+		while (iter.hasNext()) {
+			Integer i = (Integer) iter.next();
+			sum += i;
+		}
+		return sum;
+	}
+}
+
+class WordCollator implements RCollator<String, Integer, Integer> {
+	@Override
+	public Integer collate(Map<String, Integer> resultMap) {
+		int result = 0;
+		for (Integer count : resultMap.values()) {
+			result += count;
+		}
+		return result;
 	}
 
 }

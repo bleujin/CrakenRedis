@@ -1,5 +1,6 @@
 package net.bleujin.study;
 
+import org.junit.jupiter.api.Test;
 import org.redisson.api.RBatch;
 import org.redisson.api.RLocalCachedMap;
 import org.redisson.api.RMap;
@@ -14,6 +15,7 @@ import net.ion.framework.util.Debug;
 public class TestStudy extends TestBaseCrakenRedis {
 	
 
+	@Test
 	public void testMap() throws Exception {
 		Debug.line(c.rclient().getMapCache("mytest", rsession.workspace().mapOption()).delete()); 
 		RMap<String, String> cmap = c.rclient().getMapCache("mytest") ;

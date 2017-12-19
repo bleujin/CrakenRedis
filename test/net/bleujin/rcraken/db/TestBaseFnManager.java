@@ -2,42 +2,48 @@ package net.bleujin.rcraken.db;
 
 import java.sql.SQLException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
-import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteNode;
-import net.bleujin.rcraken.WriteSession;
-import net.bleujin.rcraken.db.CrakenFnManager;
-import net.bleujin.rcraken.db.Function;
-import net.bleujin.rcraken.db.QueryPackage;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
-
 import net.ion.framework.db.servant.StdOutServant;
 
-public class TestBaseFnManager extends TestCase{
+public class TestBaseFnManager {
 
+	static Craken craken;
+	
 	protected DBController dc;
-	private Craken craken;
 	protected ReadSession session;
 
-	@Override
+	@BeforeAll
+	static void init() {
+		craken = CrakenConfig.redisSingle().build().start() ;
+	}
+	
+	@AfterAll
+	static void done() {
+		craken.shutdownSelf();
+	}
+	
+	@BeforeEach
 	protected void setUp() throws Exception {
-		this.craken = CrakenConfig.redisSingle().build() ;
-		this.session = craken.start().login("test") ;
+		this.session = craken.login("test") ;
 
 		CrakenFnManager dbm = registerFunction() ;
 		this.dc = new DBController("craken", dbm, new StdOutServant());
 		dc.initSelf() ;
 	}
 	
-	@Override
+	@AfterEach
 	protected void tearDown() throws Exception {
 		dc.destroySelf();
-		craken.shutdownSelf();
 	}
 
 	private CrakenFnManager registerFunction() {

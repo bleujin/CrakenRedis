@@ -1,11 +1,15 @@
 package net.bleujin.rcraken.extend;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 
-public class TestSequence extends TestBaseCrakenRedis {
+public class SequenceTest extends TestBaseCrakenRedis {
 
-	
-	public void testCreateSeq() throws Exception {
+	@Test
+	public void createSeq() throws Exception {
 		Sequence seq = rsession.workspace().sequence("seq") ;
 		assertEquals(0, seq.get()) ;
 		assertEquals(1, seq.incrementAndGet()) ;

@@ -1,6 +1,6 @@
 package net.bleujin.rcraken;
 
-public interface BatchJob {
+public interface BatchJob<T> {
 	
-	public void handle(BatchSession bsession) throws Exception;
+	public T handle(BatchSession bsession) throws Exception;
 }

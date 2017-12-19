@@ -2,12 +2,14 @@ package net.bleujin.rcraken.script;
 
 import java.io.StringReader;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
-public class TestScripter extends TestCase {
+public class ScripterTest {
 
+	@Test
 	public void testJScript() throws Exception {
 		Scripter je = Scripter.javascript();
 		String hello = IOUtil.toStringWithClose(getClass().getResourceAsStream("helloworld.jscript"));
@@ -26,6 +28,7 @@ public class TestScripter extends TestCase {
 		Debug.line(result, script.compiled().getClass());
 	}
 
+	@Test
 	public void testGScript() throws Exception {
 		Scripter ge = Scripter.groovy();
 		String hello = IOUtil.toStringWithClose(getClass().getResourceAsStream("helloworld.groovy"));

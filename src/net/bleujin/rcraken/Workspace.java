@@ -5,7 +5,9 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -114,6 +116,10 @@ public class Workspace {
 		return wname;
 	}
 
+	ExecutorService executor() {
+		return es ;
+	}
+	
 	public Workspace executor(ExecutorService es) {
 		this.es = es ;
 		return this ;
@@ -155,64 +161,61 @@ public class Workspace {
 		return new ReadSession(this, rclient);
 	}
 
-	<T> Future<T> tran(WriteSession wsession, WriteJob<T> tjob, ExceptionHandler ehandler) {
-		return es.submit(new Callable<T>() {
-			@Override
-			public T call() throws Exception {
+	<T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		return CompletableFuture.supplyAsync(() -> {
+			wsession.attribute(WriteJob.class, tjob);
+			wsession.attribute(ExceptionHandler.class, ehandler);
 
-				wsession.attribute(WriteJob.class, tjob);
-				wsession.attribute(ExceptionHandler.class, ehandler);
-
-				RLock wlock = rwlock.writeLock();
-				try {
-					wlock.tryLock(10, TimeUnit.MINUTES); // 
-					T result = tjob.handle(wsession);
-					
-					Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
-					wsession.endTran();
-					return result;
-				} catch (Throwable ex) {
-					ehandler.handle(wsession, tjob, ex);
-					return null;
-				} finally {
-					wlock.unlock(); 
-				}
+			RLock wlock = rwlock.writeLock();
+			try {
+				wlock.tryLock(10, TimeUnit.MINUTES); // 
+				T result = tjob.handle(wsession);
+				
+				Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
+				wsession.endTran();
+				return result;
+			} catch (Throwable ex) {
+				ehandler.handle(wsession, tjob, ex);
+				throw new IllegalStateException(ex) ; 
+			} finally {
+				wlock.unlock(); 
 			}
-		});
+		}, eservice) ;
 	}
+
+
+
 	
-	void batch(BatchSession bsession, BatchJob bjob, ExceptionHandler ehandler) {
-		es.submit(new Callable<Void>() {
-			public Void call() throws Exception {
+	<T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		return CompletableFuture.supplyAsync(() -> {
+			bsession.attribute(BatchJob.class, bjob);
+			bsession.attribute(ExceptionHandler.class, ehandler);
 
-				bsession.attribute(BatchJob.class, bjob);
-				bsession.attribute(ExceptionHandler.class, ehandler);
-
-				RLock wlock = rwlock.writeLock();
-				try {
-					wlock.tryLock(10, TimeUnit.MINUTES); //
-					bjob.handle(bsession);
-					
-//					batch.skipResult();// Synchronize write operations execution across defined amount of Redis slave nodes 2 slaves and 1 second timeout
-//					batch.syncSlaves(2, 1, TimeUnit.SECONDS) ;
-//					batch.timeout(2, TimeUnit.SECONDS); // Response timeout
-//					batch.retryInterval(2, TimeUnit.SECONDS); // Retry interval for each attempt to send Redis commands batch
-//					batch.retryAttempts(4); // Attempts amount to re-send Redis commands batch if it hasn't been sent already
-//					RBatch batch = bsession.batch() ;
-					bsession.batch().execute();
-					
-					Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
-					
-					bsession.endTran();
-				} catch (Throwable ex) {
-					ehandler.handle(bsession, bjob, ex);
-				} finally {
-					wlock.unlock(); 
-				}
-				return null ;
+			RLock wlock = rwlock.writeLock();
+			try {
+				wlock.tryLock(10, TimeUnit.MINUTES); //
+				T result = bjob.handle(bsession);
+				RBatch batch = bsession.batch() ;
+//				batch.skipResult();// Synchronize write operations execution across defined amount of Redis slave nodes 2 slaves and 1 second timeout
+//				batch.syncSlaves(2, 1, TimeUnit.SECONDS) ;
+//				batch.timeout(2, TimeUnit.SECONDS); // Response timeout
+				batch.retryInterval(2, TimeUnit.SECONDS); // Retry interval for each attempt to send Redis commands batch
+				batch.retryAttempts(4); // Attempts amount to re-send Redis commands batch if it hasn't been sent already
+				batch.execute();
+				
+				Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
+				
+				bsession.endTran();
+				return result ;
+			} catch (Throwable ex) {
+				ehandler.handle(bsession, bjob, ex);
+				throw new IllegalStateException(ex) ; 
+			} finally {
+				wlock.unlock(); 
 			}
-		});
+		}, eservice) ;
 	}
+
 
 
 	public void addListener(NodeListener nodeListener) {

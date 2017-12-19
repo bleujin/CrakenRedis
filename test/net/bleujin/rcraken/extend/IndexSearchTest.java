@@ -1,13 +1,16 @@
 package net.bleujin.rcraken.extend;
 
+import org.junit.jupiter.api.Test;
+
 import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;
 
-public class TestIndexSearch extends TestBaseCrakenRedis {
+public class IndexSearchTest extends TestBaseCrakenRedis {
 
 	
+	@Test
 	public void testFirst() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
 		
@@ -19,6 +22,7 @@ public class TestIndexSearch extends TestBaseCrakenRedis {
 		rsession.pathBy("/emp").childQuery("", true).find().stream().forEach(System.out::println); ;
 	}
 	
+	@Test
 	public void testIndex() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
 		
@@ -36,6 +40,7 @@ public class TestIndexSearch extends TestBaseCrakenRedis {
 	}
 	
 	
+	@Test
 	public void testSearchInWriteSession() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
 		

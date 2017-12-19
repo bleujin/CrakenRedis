@@ -11,10 +11,11 @@ import net.ion.framework.util.InfinityThread;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.junit.jupiter.api.Test;
 
-public class TestDetect extends TestCase {
+public class MonitorFile {
 
-	
+	@Test
 	public void testObserver() throws Exception {
 		File dir = new File("./test/net/bleujin/rcraken/db") ;
 		FileAlterationObserver observer = new FileAlterationObserver(dir, FileFilterUtils.suffixFileFilter(".js")) ;

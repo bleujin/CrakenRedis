@@ -1,11 +1,13 @@
 package net.bleujin.rcraken;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 
-public class TestBaseCrakenRedis extends TestCase {
+public class TestBaseCrakenRedis {
 
 	
-	protected Craken c;
+	protected static Craken c;
 	protected ReadSession rsession;
 
 	protected static WriteJob<Void> SAMPLE = new WriteJob<Void>() {
@@ -18,22 +20,26 @@ public class TestBaseCrakenRedis extends TestCase {
 		}
 	};
 	
-	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		this.c = CrakenConfig.redisSingle().build() ;
+	@BeforeAll
+	static void init() throws Exception {
+		c = CrakenConfig.redisSingle().build() ;
 		c.start() ;
 		
-		this.rsession = c.login("testworkspace") ;
-		this.rsession.workspace().removeSelf() ;
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+	@AfterAll
+	static void done() throws Exception {
 		c.shutdownSelf();
-		
-		super.tearDown();
 	}
+
+
+	@BeforeEach
+	void setUp(){
+		rsession = c.login("testworkspace") ;
+		rsession.workspace().removeSelf() ;
+	}
+	
+	
+	
 	
 }

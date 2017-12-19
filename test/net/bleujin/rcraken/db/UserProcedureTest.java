@@ -1,13 +1,15 @@
 package net.bleujin.rcraken.db;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.db.Rows;
 
-public class TestUserProcedure extends TestBaseFnManager{
+public class UserProcedureTest extends TestBaseFnManager{
 
-
-
+	@Test
 	public void testFirstStep() throws Exception {
-		
 		
 //		
 		dc.createUserProcedure("dummy@addPersonWITH(?,?,?)").addParam("bleujin").addParam(20).addParam("seoul").execUpdate() ;
@@ -16,8 +18,5 @@ public class TestUserProcedure extends TestBaseFnManager{
 		Rows rows = dc.createUserProcedure("dummy@findPersonBy(?)").addParam("hero").execQuery() ;
 		assertEquals("hero", rows.firstRow().getString("name")) ;
 		assertEquals(20, rows.firstRow().getInt("age")) ;
-
-		
-
 	}
 }

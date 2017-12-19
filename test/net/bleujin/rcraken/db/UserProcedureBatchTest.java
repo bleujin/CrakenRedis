@@ -2,12 +2,15 @@ package net.bleujin.rcraken.db;
 
 import java.sql.SQLException;
 
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedureBatch;
 
-public class TestUserProcedureBatch extends TestBaseFnManager {
+public class UserProcedureBatchTest extends TestBaseFnManager {
 
 	
+	@Test
 	public void testCreateUserProcedures() throws Exception {
 		IUserProcedureBatch upt = dc.createUserProcedureBatch("dummy@batchWith(?,?,?)");
 		upt.addParam(new String[]{"bleujin", "hero", "jin"})
@@ -20,6 +23,7 @@ public class TestUserProcedureBatch extends TestBaseFnManager {
 	}
 	
 
+	@Test
 	public void testConvertPrimitive() throws Exception {
 		IUserProcedureBatch upt = dc.createUserProcedureBatch("dummy@batchWith(?,?,?)");
 		upt.addParam(new String[]{"bleujin", "hero", "jin"})

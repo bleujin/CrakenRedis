@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.crypto.BadPaddingException;
@@ -65,22 +67,28 @@ public class ReadSession {
 		return fqn.isRoot() || dataMap.containsKey(fqn.absPath());
 	}
 
-	public <T> Future<T> tran(WriteJob<T> tjob) {
+	public <T> CompletableFuture<T> tran(WriteJob<T> tjob) {
 		return tran(tjob, ehandler);
 	}
 
-	public <T> Future<T> tran(WriteJob<T> tjob, ExceptionHandler ehandler) {
-		WriteSession wsession = wspace.writeSession(this);
-		return wspace.tran(wsession, tjob, ehandler);
+	public <T> CompletableFuture<T> tran(WriteJob<T> tjob, ExecutorService eservice) {
+		return wspace.tran(wspace.writeSession(this), tjob, eservice, ehandler);
 	}
 
-	public void batch(BatchJob bjob) {
-		batch(bjob, ehandler);
+	public <T> CompletableFuture<T> tran(WriteJob<T> tjob, ExceptionHandler ehandler) {
+		return wspace.tran(wspace.writeSession(this), tjob, wspace.executor(), ehandler);
 	}
 
-	public void batch(BatchJob bjob, ExceptionHandler ehandler) {
-		BatchSession bsession = wspace.batchSession(this);
-		wspace.batch(bsession, bjob, ehandler);
+	public <T> CompletableFuture<T> batch(BatchJob<T> bjob) {
+		return batch(bjob, ehandler);
+	}
+
+	public <T> CompletableFuture<T> batch(BatchJob<T> bjob, ExecutorService eservice) {
+		return wspace.batch(wspace.batchSession(this), bjob, eservice, ehandler);
+	}
+
+	public <T> CompletableFuture<T> batch(BatchJob<T> bjob, ExceptionHandler ehandler) {
+		return wspace.batch(wspace.batchSession(this), bjob, wspace.executor(), ehandler);
 	}
 
 	

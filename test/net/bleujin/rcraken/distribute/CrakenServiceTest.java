@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
 import org.redisson.api.CronSchedule;
 import org.redisson.api.RExecutorService;
 import org.redisson.api.RScheduledExecutorService;
@@ -21,14 +22,16 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.MapUtil;
 
-public class TestCrakenService extends TestCase {
+public class CrakenServiceTest extends TestCase {
 
+	@Test
 	public void testCluster() throws Exception {
 		Craken craken = CrakenConfig.redisCluster("redis://127.0.0.1:6701", "redis://127.0.0.1:6702", "redis://127.0.0.1:6703").build().start();
 		Thread.sleep(1000);
 		craken.shutdownSelf();
 	}
 
+	@Test
 	public void testRemoteService() throws Exception {
 		Craken server = CrakenConfig.redisSingle().build().start();
 		Craken client = CrakenConfig.redisSingle().build().start();
@@ -44,19 +47,7 @@ public class TestCrakenService extends TestCase {
 	}
 
 
-	
-	/*
-	 * public void testRemoteServer() throws Exception { Craken server =
-	 * CrakenConfig.redisSingle().build().start();
-	 * server.remoteService("bleujin.rs").register(RemoteInterface.class, new
-	 * RemoteImpl()); new InfinityThread().startNJoin(); }
-	 * 
-	 * public void testRemoteClient() throws Exception { Craken client =
-	 * CrakenConfig.redisSingle().build().start(); RemoteInterface service =
-	 * client.remoteService("bleujin.rs").get(RemoteInterface.class);
-	 * assertEquals(42, service.myMethod(21L).longValue()); client.destroySelf(); }
-	 */
-
+	@Test
 	public void testExecutor() throws Exception {
 		Craken craken = CrakenConfig.redisSingle().build().start();
 		CrakenNode cnode = craken.node() ;
@@ -70,6 +61,7 @@ public class TestCrakenService extends TestCase {
 		craken.shutdownSelf();
 	}
 
+	@Test
 	public void testScheduleExecutor() throws Exception {
 		Craken craken = CrakenConfig.redisSingle().worker(MapUtil.create("node.sworker", 2)).build().start();
 		CrakenNode cnode = craken.node();

@@ -1,13 +1,15 @@
 package net.bleujin.rcraken.db;
 
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedures;
 
-public class TestUserProcedures extends TestBaseFnManager {
+public class UserProceduresTest extends TestBaseFnManager {
 
 	
 	
-	
+	@Test
 	public void testCreateUserProcedures() throws Exception {
 		IUserProcedures upts = dc.createUserProcedures("addJob");
 		upts.add(dc.createUserProcedure("dummy@addPersonWITH(?,?,?)").addParam("bleujin").addParam(20).addParam("seoul"));

@@ -3,22 +3,25 @@ package net.bleujin.rcraken;
 import java.awt.image.SampleModel;
 import java.util.concurrent.Future;
 
+import org.junit.jupiter.api.Test;
+
 import net.ion.framework.util.Debug;
 
-public class TestWriteNode extends TestBaseCrakenRedis {
+public class WriteNodeTest extends TestBaseCrakenRedis {
 
+	@Test
 	public void testRefTo() throws Exception {
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero").merge();
 			wsession.pathBy("/emp/hero").property("name", "hero").merge();
 			return null;
+		}).thenAccept(nill ->{
+			ReadNode hero = rsession.pathBy("/emp/bleujin").ref("friend") ;
+			hero.debugPrint();
 		}) ;
-		
-		
-		ReadNode hero = rsession.pathBy("/emp/bleujin").ref("friend") ;
-		hero.debugPrint();
 	}
 
+	@Test
 	public void testSpeed() throws Exception {
 		long start = System.currentTimeMillis() ;
 		for (int i = 0; i < 100 ; i++) {
@@ -33,6 +36,7 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 		rsession.pathBy("/").walkDepth().debugPrint();
 	}
 	
+	@Test
 	public void testOverwrite() throws Exception {
 		long start = System.currentTimeMillis() ;
 		rsession.tran(SAMPLE) ;
@@ -42,14 +46,14 @@ public class TestWriteNode extends TestBaseCrakenRedis {
 			wsession.pathBy("/emp/hero").property("age", 30).merge(); ;
 			return null;
 		}) ;
+
 		Debug.line(System.currentTimeMillis() - start);
-		
-		
 		rsession.pathBy("/emp/bleujin").debugPrint();
 		rsession.pathBy("/emp/hero").debugPrint();
 	}
 	
 	
+	@Test
 	public void testDelete() throws Exception {
 		rsession.tran(wsession -> {
 			for (int i = 0; i < 10; i++) {
