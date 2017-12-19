@@ -12,27 +12,13 @@ The necessary required libraries are under the /lib directory.(JDK8)
 
 ```java
 
-public class TestInterface extends TestCase {
+public class ReadMe {
 
-	private Craken c;
-	private ReadSession rsession;
-
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		this.c = CrakenConfig.redis().singleServer().build().start();
-
-		this.rsession = c.login("testworkspace");
-		this.rsession.workspace().removeSelf();
-	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		c.destroySelf();
-		super.tearDown();
-	}
-
+	@Test
 	public void testFirst() throws Exception {
+		Craken c = CrakenConfig.redisSingle().build().start();
+		ReadSession rsession = c.login("testworkspace");
+		rsession.workspace().removeSelf(); // clear workspace
 
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("age", 20).merge();
@@ -56,6 +42,8 @@ public class TestInterface extends TestCase {
 				.sorted((n1, n2) -> n2.property("age").asInt() - n1.property("age").asInt())
 				.forEach(System.out::println);
 		}) ;
+		
+		c.shutdownSelf(); 
 	}
 
 }
