@@ -37,4 +37,8 @@ public class ReadWalk implements Iterable<ReadNode> {
 		return new WriteWalk(wsession, source, absPaths).stream() ;
 	}
 
+	public long size() {
+		return absPaths.size();
+	}
+
 }

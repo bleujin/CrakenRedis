@@ -130,6 +130,18 @@ public class WriteNode {
 		wsession.removeSelf(this, fqn, jsonData) ;
 	}
 
+	public void copySelf(String destPath) {
+		wsession.copySelf(this, fqn, jsonData, destPath) ;
+	}
+	
+	public void moveSelf(String destPath) {
+		wsession.copySelf(this, fqn, jsonData, destPath) ;
+		removeSelf();
+	}
+
+
+
+	
 	
 	public WriteChildren children() {
 		return new WriteChildren(wsession, fqn, childrenNames());

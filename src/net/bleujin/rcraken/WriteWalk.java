@@ -33,5 +33,8 @@ public class WriteWalk implements Iterable<WriteNode> {
 		return new WriteStream(wsession, StreamSupport.stream(this.spliterator(), false)) ;
 	}
 
+	public long size() {
+		return refFqns.size();
+	}
 
 }

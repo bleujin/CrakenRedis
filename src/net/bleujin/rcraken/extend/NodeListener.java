@@ -10,6 +10,6 @@ public interface NodeListener {
 	}
 
 	public String id()  ;
-	public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue);
+	public void onChanged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue);
 
 }

@@ -121,7 +121,7 @@ public class ReadNode implements CommonNode {
 	
 	public ReadWalk refs(String relName) {
 		Set<String> relFqns = SetUtil.create(property(relName).asStrings()) ;
-		for (String relFqn : relFqns.toArray(new String[0])) {
+		for (String relFqn : relFqns) {
 			if (! rsession.exist(relFqn)) relFqns.remove(relFqn) ;
 		}
 				
@@ -149,7 +149,7 @@ public class ReadNode implements CommonNode {
 	}
 
 	
-	public ChildQueryRequest childQuery(String query) throws IOException {
+	public ChildQueryRequest childQuery(String query) {
 		if (StringUtil.isBlank(query))
 			return childQuery(new TermQuery(new Term(Defined.Index.PARENT, this.fqn().toString())));
 
@@ -161,12 +161,12 @@ public class ReadNode implements CommonNode {
 
 			return result;
 		} catch (ParseException e) {
-			throw new IOException(e);
+			throw new IllegalStateException(e);
 		}
 	}
 	
-	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException, ParseException {
-		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new ParseException(String.format("not defined name or value[%s:%s]", name, value)) ;
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) {
+		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new IllegalStateException(String.format("not defined name or value[%s:%s]", name, value)) ;
 		
 		final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), new TermQuery(new Term(name, value)));
 		if (includeDecentTree){
@@ -177,11 +177,11 @@ public class ReadNode implements CommonNode {
 		return result;
 	}
 
-	public ChildQueryRequest childQuery(Query query) throws IOException {
+	public ChildQueryRequest childQuery(Query query) {
 		return ChildQueryRequest.create(rsession, rsession.newSearcher(), query);
 	}
 
-	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) throws IOException {
+	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) {
 		if (!includeDecentTree)
 			return childQuery(query);
 
@@ -192,7 +192,7 @@ public class ReadNode implements CommonNode {
 		return result;
 	}
 
-	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws IOException {
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) {
 		if (!includeDecentTree)
 			return childQuery(query);
 
@@ -205,14 +205,18 @@ public class ReadNode implements CommonNode {
 			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
 			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
 			return result;
-		} catch (ParseException e) {
-			throw new IOException(e);
+		} catch (ParseException ex) {
+			throw new IllegalStateException(ex) ;
 		}
 
 	}
 
-	public Rows toRows(String expr, FieldDefinition... fds) throws SQLException {
-		return new ReadStream(rsession, Arrays.asList(this).stream()).toRows(expr, fds) ; 
+	public Rows toRows(String expr, FieldDefinition... fds) {
+		try {
+			return new ReadStream(rsession, Arrays.asList(this).stream()).toRows(expr, fds) ;
+		} catch (SQLException ex) {
+			throw new IllegalStateException(ex) ;
+		} 
 	}
 
 	public <T> T toBean(Class<T> clz) {

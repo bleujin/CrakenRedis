@@ -12,9 +12,9 @@ import net.ion.framework.util.Debug;
 public class ListenerTest extends TestBaseCrakenRedis {
 
 	@Test
-	public void testMerge() throws Exception {
+	public void fireWhenMerge() throws Exception {
 		rsession.workspace().addListener(new NodeListener() {
-			public void onMerged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
+			public void onChanged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
 				Debug.line(etype, fqn, value, oldValue);
 			}
 			@Override

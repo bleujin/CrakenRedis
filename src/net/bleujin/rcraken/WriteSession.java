@@ -78,6 +78,16 @@ public class WriteSession {
 		
 	}
 	
+	public void copySelf(WriteNode sourceNode, Fqn sourceFqn, JsonObject sourceData, String destPath) {
+		Fqn dest = Fqn.from(destPath) ;
+		sourceNode.children().forEach(wn -> {
+			// if (exist(destPath)) throw new IllegalStateException("destPath already exist :" + destPath) ;
+			wn.copySelf(Fqn.from(dest, wn.fqn().name()).absPath());
+		});
+		merge(pathBy(destPath), dest, sourceData) ;
+	}
+
+	
 	void removeChild(WriteNode wnode, Fqn fqn, JsonObject data) {
 		Set<String> rs = SetUtil.newSet() ;
 		decendant(fqn, rs); 
@@ -192,4 +202,5 @@ public class WriteSession {
 			walkRef(source.session().pathBy(rel), relName, --limit, fqns);
 		}
 	}
+
 }

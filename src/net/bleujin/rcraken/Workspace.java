@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -106,7 +107,7 @@ public class Workspace {
 		JsonObject oldValue = toJson(_oldValue);
 
 		for (NodeListener nodeListener : listeners.values()) {
-			nodeListener.onMerged(etype, fqn, value, oldValue);
+			nodeListener.onChanged(etype, fqn, value, oldValue);
 		}
 	};
 
@@ -271,7 +272,7 @@ public class Workspace {
 	
 	private List<IndexEvent> ievents = ListUtil.newList() ;
 	private boolean hasIndexer() {
-		return listeners.containsKey(indexListenerId()) ;
+		return listeners.containsKey(indexListenerId()) && central != null;
 	}
 	String indexListenerId() {
 		return name() + ".indexer" ;
@@ -282,10 +283,11 @@ public class Workspace {
 		return central ;
 	}
 	
+	
 	public Workspace indexCntral(Central central) {
 		this.central = central ;
 		this.addListener(new NodeListener() {
-			public void onMerged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
+			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
 				if (fqn.absPath().startsWith("/__endtran")) {
 					List<IndexEvent> ies = Workspace.this.ievents ;
 					Workspace.this.ievents = ListUtil.newList() ;
@@ -319,14 +321,33 @@ public class Workspace {
 				return indexListenerId();
 			}
 		});
+		
 		return this ;
 	}
+	
+	public Workspace reindex(boolean clearOld) {
+		if (! hasIndexer()) throw new IllegalStateException("central not exists") ;
+		Indexer indexer = central.newIndexer() ;
+		indexer.index(isession -> {
+			if(clearOld) isession.deleteAll() ;
+			writeSession(readSession()).pathBy("/").walkBreadth().forEach(node -> {
+				try {
+					WriteDocument wdoc = isession.newDocument(node.fqn().absPath()).keyword(Defined.Index.PARENT, node.fqn().getParent().absPath()) ;
+					node.properties().iterator().forEachRemaining(property -> property.indexTo(wdoc));
+					wdoc.update() ;
+				} catch(IOException e) {
+					throw new IllegalStateException(e) ;
+				}
+			});
+			
+			return null ;
+		}) ;
+		return this ;
+	}
+	
 
 	public void removeListener(String id) {
 		listeners.remove(id) ;
 	}
-
-
-
 
 }

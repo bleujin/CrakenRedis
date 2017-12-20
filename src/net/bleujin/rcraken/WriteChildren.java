@@ -29,5 +29,9 @@ public class WriteChildren implements Iterable<WriteNode> {
 	public Stream<WriteNode> stream() {
 		return StreamSupport.stream(this.spliterator(), false);
 	}
+	
+	public long size() {
+		return childNames.size();
+	}
 
 }

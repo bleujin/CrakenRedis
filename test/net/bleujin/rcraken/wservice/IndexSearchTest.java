@@ -1,5 +1,7 @@
 package net.bleujin.rcraken.wservice;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.TestBaseCrakenRedis;
@@ -11,7 +13,7 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 
 	
 	@Test
-	public void testFirst() throws Exception {
+	public void indexWithEachCraken() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
 		rsession.workspace().indexCntral(central) ;
 		
@@ -23,7 +25,7 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 	}
 	
 	@Test
-	public void testIndex() throws Exception {
+	public void indexWhenSettingCentral() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
 		
 		rsession.workspace().indexCntral(central) ;
@@ -41,9 +43,8 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 	
 	
 	@Test
-	public void testSearchInWriteSession() throws Exception {
+	public void searchInWriteSession() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
-		
 		rsession.workspace().indexCntral(central) ;
 		rsession.tran(SAMPLE) ;
 		
@@ -57,4 +58,14 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 		rsession.pathBy("/emp").children().debugPrint(); // hero, jin 
 	}
 	
+	
+	@Test
+	void reindex() throws Exception {
+		rsession.tran(SAMPLE) ;
+		
+		Central central = CentralConfig.newRam().build() ;
+		rsession.workspace().indexCntral(central).reindex(true) ;
+		
+		rsession.pathBy("/emp").childQuery("age:[25 TO 30]").find().debugPrint();
+	}
 }

@@ -146,10 +146,14 @@ public class ReadSession {
 		return dataMap;
 	}
 
-	public Searcher newSearcher() throws IOException {
-		Central central = workspace().central();
-		if (central == null) throw new IllegalStateException("this workspace not indexed") ;
-		return central.newSearcher();
+	public Searcher newSearcher() {
+		try {
+			Central central = workspace().central();
+			if (central == null) throw new IllegalStateException("this workspace not indexed") ;
+			return central.newSearcher();
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex) ;
+		}
 	}
 
 	
@@ -186,6 +190,10 @@ public class ReadSession {
 		} catch(NoSuchAlgorithmException | InvalidKeyException | InvalidAlgorithmParameterException | ShortBufferException | IllegalBlockSizeException | BadPaddingException | NoSuchPaddingException | IOException ex) {
 			throw new IllegalStateException(ex) ;
 		}
+	}
+
+	public TemplateNode templateBy(String absPath) {
+		return new TemplateNode(this, Fqn.from(absPath));
 	}
 
 
