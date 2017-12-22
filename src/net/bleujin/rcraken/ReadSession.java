@@ -23,11 +23,14 @@ import org.redisson.api.RMap;
 import org.redisson.api.RSetMultimap;
 import org.redisson.api.RedissonClient;
 
+import net.bleujin.rcraken.template.TemplateNode;
 import net.ion.framework.file.HexUtil;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
+import sun.swing.StringUIClientPropertyKey;
 
 public class ReadSession {
 
@@ -192,8 +195,10 @@ public class ReadSession {
 		}
 	}
 
-	public TemplateNode templateBy(String absPath) {
-		return new TemplateNode(this, Fqn.from(absPath));
+	public TemplateNode templateBy(String path) {
+		String absPath = StringUtil.defaultIfEmpty(StringUtil.substringBeforeLast(path, "."), path) ;
+		String templateName = StringUtil.substringAfterLast(path, ".") ;
+		return workspace().templateFac().newNode(this, Fqn.from(absPath), templateName);
 	}
 
 

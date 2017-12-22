@@ -34,6 +34,7 @@ import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
+import net.bleujin.rcraken.template.TemplateFac;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -56,7 +57,8 @@ public class Workspace {
 	private RReadWriteLock rwlock ;
 	private Central central ;
 	private RMapCache<Object, Object> dataMap;
-	private Engine parseEngine = Engine.createDefaultEngine();
+	private Engine parseEngine ;
+	private TemplateFac templateFac;
 
 	Workspace(String wname, RedissonClient rclient) {
 		this.wname = wname;
@@ -71,6 +73,8 @@ public class Workspace {
 		
 		this.rwlock = rclient.getReadWriteLock(wname + ".rwlock");
 		this.dataMap = rclient.getMapCache(nodeMapName());
+		this.parseEngine = Engine.createDefaultEngine();
+		this.templateFac = new TemplateFac() ;
 	}
 
 	public Workspace init() {
@@ -125,6 +129,10 @@ public class Workspace {
 	
 	public Engine parseEngine() {
 		return parseEngine;
+	}
+	
+	public TemplateFac templateFac() {
+		return templateFac ; 
 	}
 
 	

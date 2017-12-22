@@ -223,4 +223,10 @@ public class ReadNode implements CommonNode {
 		return ToBeanStrategy.ProxyByCGLib.toBean(this, clz) ;
 	}
 
+	public JsonObject toJson() {
+		JsonObject json = new JsonObject() ;
+		json.put("path", fqn.absPath()) ;
+		json.put("property", this.data) ;
+		return json ;
+	}
 }
