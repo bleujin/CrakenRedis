@@ -113,10 +113,12 @@ public class MapWorkspace extends Workspace{
 				T result = tjob.handle(wsession);
 				
 				MapWorkspace.this.dataMap.put("__endtran_", "{}");
+				db.commit();
 				wsession.endTran();
 				return result;
 			} catch (Throwable ex) {
 				ehandler.handle(wsession, tjob, ex);
+				db.rollback();
 				throw new IllegalStateException(ex) ; 
 			} finally {
 				wlock.unlock(); 
@@ -138,10 +140,12 @@ public class MapWorkspace extends Workspace{
 				T result = bjob.handle(bsession);
 
 				MapWorkspace.this.dataMap.put("__endtran_", "{}");
+				db.commit(); 
 				bsession.endTran();
 				return result ;
 			} catch (Throwable ex) {
 				ehandler.handle(bsession, bjob, ex);
+				db.rollback();
 				throw new IllegalStateException(ex) ; 
 			} finally {
 				wlock.unlock(); 

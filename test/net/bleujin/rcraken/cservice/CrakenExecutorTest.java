@@ -68,7 +68,7 @@ public class CrakenExecutorTest {
 
 	@Test
 	public void testScheduleExecutor() throws Exception {
-		Craken craken = ((RedisConfig)CrakenConfig.redisSingle()).worker(MapUtil.create("node.sworker", 2)).build().start();
+		Craken craken = CrakenConfig.redisSingle().build(MapUtil.create("node.sworker", 2)).start();
 		CrakenNode cnode = craken.node();
 
 		RScheduledExecutorService es = (RScheduledExecutorService)cnode.executorService("node.sworker");

@@ -36,10 +36,11 @@ public class RedisNode implements CrakenNode{
 	}
 
 	public RScheduledExecutorService executorService() {
-		return executorService(RedisConfig.DFT_WORKER_NAME) ;
+		return executorService(workers.keySet().iterator().next()) ;
 	}
 	
 	public RScheduledExecutorService executorService(String workerName) {
+		if (! workers.containsKey(workerName)) throw new IllegalAccessError("not found workerName :" + workerName) ;
 		return rclient.getExecutorService(workerName);
 	}
 	

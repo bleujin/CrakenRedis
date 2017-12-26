@@ -1,6 +1,7 @@
 package net.bleujin.rcraken;
 
 import java.io.File;
+import java.util.Map;
 
 import net.bleujin.rcraken.store.MapConfig;
 import net.bleujin.rcraken.store.RedisConfig;
@@ -29,6 +30,8 @@ public interface CrakenConfig {
 	}
 
 	public Craken build()  ;
+
+	public Craken build(Map<String, Integer> workers);
 
 
 

@@ -17,9 +17,10 @@ public class MapNode implements CrakenNode{
 
 	private Map<String, ScheduledExecutorService> ess = MapUtil.newMap() ;
 	private Map<String, ReadWriteLock> rws = MapUtil.newMap() ;
+	private Map<String, Integer> workers;
 	
-	public MapNode(DB db, Maker maker) {
-		
+	public MapNode(DB db, Maker maker, Map<String, Integer> workers) {
+		this.workers = workers ;
 	}
 
 	@Override
@@ -29,16 +30,15 @@ public class MapNode implements CrakenNode{
 
 	@Override
 	public ScheduledExecutorService executorService() {
-		if (! ess.containsKey(CrakenConfig.DFT_WORKER_NAME)) {
-			ess.put(CrakenConfig.DFT_WORKER_NAME, Executors.newScheduledThreadPool(3)) ;
-		}
-		return ess.get(CrakenConfig.DFT_WORKER_NAME) ;
+		return executorService(workers.keySet().iterator().next()) ;
 	}
 
 	@Override
 	public ScheduledExecutorService executorService(String workerName) {
+		if (! workers.containsKey(workerName)) throw new IllegalAccessError("not found workerName :" + workerName) ;
+		
 		if (! ess.containsKey(workerName)) {
-			ess.put(workerName, Executors.newScheduledThreadPool(3)) ;
+			ess.put(workerName, Executors.newScheduledThreadPool(workers.get(workerName))) ;
 		}
 		return ess.get(workerName) ;
 	}

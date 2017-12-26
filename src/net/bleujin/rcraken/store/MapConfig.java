@@ -1,6 +1,8 @@
 package net.bleujin.rcraken.store;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.Map;
 
 import org.mapdb.DBMaker;
 import org.mapdb.DBMaker.Maker;
@@ -35,7 +37,11 @@ public class MapConfig implements CrakenConfig {
 	
 	@Override
 	public Craken build() {
-		return new MapCraken(maker);
+		return new MapCraken(maker, Collections.singletonMap(DFT_WORKER_NAME, 3));
 	}
 
+	@Override
+	public Craken build(Map<String, Integer> workers) {
+		return new MapCraken(maker, workers);
+	}
 }

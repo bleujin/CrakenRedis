@@ -74,8 +74,7 @@ public class MapWriteSession extends WriteSession {
 		rs.forEach(path -> {
 			dataMap.remove(path); 
 			struMap.remove(path);
-			binaryData.keySet().forEach( _key -> {
-				String key = (String) _key ;
+			binaryData.getKeys().forEach( key -> {
 				if (key.startsWith(path + "$")) {
 					binaryData.remove(key) ;
 				}
@@ -91,8 +90,7 @@ public class MapWriteSession extends WriteSession {
 		rs.forEach(path -> {
 			dataMap.remove(path); 
 			struMap.remove(path); 
-			binaryData.keySet().forEach( _key -> {
-				String key = (String) _key ;
+			binaryData.getKeys().forEach( key -> {
 				if (key.startsWith(path + "$")) {
 					binaryData.remove(key) ;
 				}

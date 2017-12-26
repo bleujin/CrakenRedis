@@ -8,6 +8,7 @@ import org.mapdb.DBMaker.Maker;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ReadSession;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 public class MapCraken extends Craken {
@@ -17,9 +18,11 @@ public class MapCraken extends Craken {
 	private DB db;
 	private Map<String, MapWorkspace> wss = MapUtil.newMap() ;
 	private MapNode mnode;
+	private Map<String, Integer> workers;
 
-	public MapCraken(Maker maker) {
+	public MapCraken(Maker maker, Map<String, Integer> workers) {
 		this.maker = maker;
+		this.workers = workers ;
 	}
 
 	public Craken start() {
@@ -28,7 +31,7 @@ public class MapCraken extends Craken {
 
 	public MapCraken start(boolean doStartNodeService) {
 		this.db = maker.make() ;
-		if (doStartNodeService) this.mnode = new MapNode(db, maker).start();
+		if (doStartNodeService) this.mnode = new MapNode(db, maker, workers).start();
 		return this;
 	}
 
@@ -54,6 +57,11 @@ public class MapCraken extends Craken {
 	@Deprecated // test only
 	public void removeAll() {
 		
+	}
+	
+	@Deprecated
+	public DB db() {
+		return db ;
 	}
 
 	public MapNode node() {
