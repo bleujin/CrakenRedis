@@ -32,7 +32,7 @@ import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.Searcher;
 import sun.swing.StringUIClientPropertyKey;
 
-public class ReadSession {
+public abstract class ReadSession {
 
 	public final static String EncryptKeyBytes = "KeyBytes";
 	public final static String EncryptIvBytes = "IvBytes";
@@ -40,17 +40,10 @@ public class ReadSession {
 	private static ExceptionHandler ehandler = ExceptionHandler.PRINT;
 
 	private Workspace wspace;
-	private RedissonClient rclient;
-
-	private RMap<String, String> dataMap;
-	private RSetMultimap<String, String> struMap;
 	private Map<String, Object> attrs = MapUtil.newMap();
 
-	ReadSession(Workspace wspace, RedissonClient rclient) {
+	protected ReadSession(Workspace wspace) {
 		this.wspace = wspace;
-		this.rclient = rclient;
-		this.dataMap = rclient.getMapCache(wspace.nodeMapName());
-		this.struMap = rclient.getSetMultimapCache(wspace.struMapName());
 
 		attribute(EncryptKeyBytes, "40674244".getBytes());
 		attribute(EncryptIvBytes, "@1B2c3D4".getBytes());
@@ -65,10 +58,7 @@ public class ReadSession {
 		return new ReadNode(this, fqn, readDataBy(fqn));
 	}
 
-	public boolean exist(String path) {
-		Fqn fqn = Fqn.from(path);
-		return fqn.isRoot() || dataMap.containsKey(fqn.absPath());
-	}
+	public abstract boolean exist(String path) ;
 
 	public <T> CompletableFuture<T> tran(WriteJob<T> tjob) {
 		return tran(tjob, ehandler);
@@ -97,15 +87,11 @@ public class ReadSession {
 	
 	
 	
-	private JsonObject readDataBy(Fqn fqn) {
-		String jsonString = dataMap.get(fqn.absPath());
-		return JsonObject.fromString(jsonString);
-	}
+	protected abstract JsonObject readDataBy(Fqn fqn) ;
 
-	Set<String> readStruBy(Fqn fqn) {
-		return struMap.getAll(fqn.absPath());
-	}
-
+	protected abstract Set<String> readStruBy(Fqn fqn) ;
+	
+	
 	void descentantBreadth(Fqn fqn, List<String> fqns) {
 		for(String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
@@ -142,11 +128,6 @@ public class ReadSession {
 
 	void reload() {
 		// this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption()) ;
-	}
-
-	@Deprecated
-	RMap<String, String> dataMap() {
-		return dataMap;
 	}
 
 	public Searcher newSearcher() {

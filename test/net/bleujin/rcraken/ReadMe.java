@@ -3,6 +3,8 @@ package net.bleujin.rcraken;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.concurrent.ExecutionException;
+
 import org.junit.jupiter.api.Test;
 
 import net.ion.framework.util.Debug;
@@ -10,8 +12,21 @@ import net.ion.framework.util.Debug;
 public class ReadMe {
 
 	@Test
-	public void testFirst() throws Exception {
+	public void testRedis() throws Exception {
 		Craken c = CrakenConfig.redisSingle().build().start();
+		stdTest(c); 
+	}
+	
+	@Test
+	public void testMapDB() throws Exception {
+		Craken c = CrakenConfig.mapMemory().build().start();
+		stdTest(c); 
+	}
+	
+	
+	
+
+	private void stdTest(Craken c) throws InterruptedException, ExecutionException {
 		ReadSession rsession = c.login("testworkspace");
 		rsession.workspace().removeSelf(); // clear workspace
 
@@ -38,7 +53,7 @@ public class ReadMe {
 			.sorted((n1, n2) -> n2.property("age").asInt() - n1.property("age").asInt())
 			.forEach(System.out::println);
 		
-		c.shutdownSelf(); 
+		c.shutdownSelf();
 	}
 
 }

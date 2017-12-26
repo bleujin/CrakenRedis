@@ -26,10 +26,10 @@ public class TemplateNode {
 	private final TemplateFac tfac;
 	private final ReadSession rsession;
 	private final Fqn fqn;
-	
 	private final String templateName;
-	private ReadNode templateNode ;
+	
 	private ParamMap params = new ParamMap(MapUtil.EMPTY);
+	private final static String DftTemplatePropertyName = "template";
 
 	TemplateNode(TemplateFac tfac, ReadSession rsession, Fqn fqn, String templateName) {
 		this.tfac = tfac ;
@@ -47,19 +47,12 @@ public class TemplateNode {
 		return rsession.pathBy(fqn) ;
 	}
 
-	public ReadNode templateNode() {
-		if (templateNode == null) {
-//			templateNode = findTemplateNode() ;
-		}
-		return null ;
-	}
-
-	public StringBuilder template() {
-		return null ;
-	}
-
 	public String templateName() {
 		return templateName;
+	}
+	
+	public ParamMap params() {
+		return params ;
 	}
 
 	public void transform(Writer writer) {
@@ -67,6 +60,8 @@ public class TemplateNode {
 			Engine engine = rsession.workspace().parseEngine();
 			String transformed = engine.transform(findTemplate(), MapUtil.<String, Object>chainMap().put("self", targetNode()).put("params", params).toMap()) ;
 			IOUtil.copy(new StringReader(transformed), writer) ;
+			writer.write("\n");
+			writer.flush();
 		} catch(IOException ex) {
 			throw new IllegalStateException(ex) ;
 		}
@@ -77,14 +72,14 @@ public class TemplateNode {
 		while(! current.isRoot()) {
 			if (current.hasProperty(templateName)) {
 				return current.asString(templateName) ;
-			} else if (templateName.isEmpty() && current.hasProperty("template")) {
-				return current.asString("template") ;
-			} if (current.hasRef(templateName) && current.ref(templateName).hasProperty("template")) {
-				return current.ref(templateName).asString("template") ;
+			} else if (templateName.isEmpty() && current.hasProperty(DftTemplatePropertyName)) {
+				return current.asString(DftTemplatePropertyName) ;
+			} if (current.hasRef(templateName) && current.ref(templateName).hasProperty(DftTemplatePropertyName)) {
+				return current.ref(templateName).asString(DftTemplatePropertyName) ;
 			}
 			current = current.parent() ;
 		}
-		return tfac.findTemplate(templateName) ;
+		return tfac.findTemplate(StringUtil.defaultIfEmpty(templateName, DftTemplatePropertyName)) ;
 	}
 
 }

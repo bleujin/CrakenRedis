@@ -11,69 +11,29 @@ import org.redisson.api.RRemoteService;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 
-public class Craken {
+import net.bleujin.rcraken.store.RedisNode;
 
-	private Config config;
-	private RedissonClient rclient;
-
-	private ConcurrentMap<String, Workspace> wss = new ConcurrentHashMap<>();
-	private CrakenNode cnode;
-	private Map<String, Integer> workers;
-
-	public Craken(Config config, Map<String, Integer> workers) {
-		this.config = config;
-		this.workers = workers ;
-	}
+public abstract class Craken {
 
 	public Craken start() {
 		return start(true);
 	}
 
-	public Craken start(boolean doStartNodeService) {
-		this.rclient = Redisson.create(config);
-		if (doStartNodeService) this.cnode = new CrakenNode(rclient, config, workers).start();
-		return this;
-	}
+	public abstract Craken start(boolean doStartNodeService) ;
 
 	
 	public ReadSession login(String wname) {
 		return findWorkspace(wname).readSession();
 	}
 
-	public Stream<Workspace> workspaces(){
-		return wss.values().stream() ;
-	}
+	protected abstract Workspace findWorkspace(String wname) ;
 	
-	private Workspace findWorkspace(String wname) {
-		if (wname.startsWith("_"))
-			throw new IllegalAccessError("illegal worksapce name");
-
-		wss.putIfAbsent(wname, new Workspace(wname, rclient).init());
-		return wss.get(wname);
-	}
-
-	public void shutdownSelf() {
-		if (cnode != null) cnode.shutdown(); 
-		rclient.shutdown();
-	}
+	public abstract void shutdownSelf() ;
 	
 	@Deprecated // test only
-	public void removeAll() {
-		rclient.getKeys().deleteByPattern("*") ;
-	}
+	public abstract void removeAll() ;
 
-	public RRemoteService remoteService(String name) {
-		return rclient.getRemoteService(name);
-	}
-
-	public CrakenNode node() {
-		if (this.rclient == null || this.cnode == null) throw new IllegalStateException("craken node not started");
-		return cnode ;
-	}
+	public abstract CrakenNode node() ;
 	
-	
-	public RedissonClient rclient() {
-		return rclient ;
-	}
 
 }

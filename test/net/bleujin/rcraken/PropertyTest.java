@@ -45,7 +45,7 @@ public class PropertyTest extends TestBaseCrakenRedis {
 				InputStream input = rsession.pathBy("/emp/bleujin").property("data").asStream() ;
 				Debug.line(IOUtil.toStringWithClose(input));
 				rsession.workspace().removeSelf() ; // removed all lob 
-				Debug.line(rsession.workspace().client().getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + "/*")) ;
+//				Debug.line(rsession.workspace().client().getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + "/*")) ;
 
 			} catch (IOException ex) {
 				ex.printStackTrace();
@@ -66,7 +66,7 @@ public class PropertyTest extends TestBaseCrakenRedis {
 			wsession.pathBy("/emp/bleujin").removeSelf();
 			return null ;
 		}).thenAccept(nil ->{
-			assertEquals(0, rsession.workspace().client().getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + "*").size()) ;
+//			assertEquals(0, rsession.workspace().client().getKeys().findKeysByPattern(rsession.workspace().lobPrefix() + "*").size()) ;
 		}) ;
 	}
 	

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +21,8 @@ import junit.framework.TestCase;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.CrakenNode;
+import net.bleujin.rcraken.store.RedisConfig;
+import net.bleujin.rcraken.store.RedisCraken;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.MapUtil;
@@ -35,8 +38,8 @@ public class CrakenExecutorTest {
 
 	@Test
 	public void testRemoteService() throws Exception {
-		Craken server = CrakenConfig.redisSingle().build().start();
-		Craken client = CrakenConfig.redisSingle().build().start();
+		RedisCraken server = (RedisCraken) CrakenConfig.redisSingle().build().start();
+		RedisCraken client = (RedisCraken) CrakenConfig.redisSingle().build().start();
 		try {
 			server.remoteService("bleujin.rs").register(RemoteInterface.class, new RemoteImpl());
 			RemoteInterface service = client.remoteService("bleujin.rs").get(RemoteInterface.class);
@@ -54,7 +57,7 @@ public class CrakenExecutorTest {
 		Craken craken = CrakenConfig.redisSingle().build().start();
 		CrakenNode cnode = craken.node() ;
 
-		RExecutorService es = cnode.executorService(CrakenConfig.DFT_WORKER_NAME);
+		ExecutorService es = cnode.executorService(RedisConfig.DFT_WORKER_NAME);
 
 		es.execute(new RunnableTask());
 		es.submit(new CallableTask()).get();
@@ -65,10 +68,10 @@ public class CrakenExecutorTest {
 
 	@Test
 	public void testScheduleExecutor() throws Exception {
-		Craken craken = CrakenConfig.redisSingle().worker(MapUtil.create("node.sworker", 2)).build().start();
+		Craken craken = ((RedisConfig)CrakenConfig.redisSingle()).worker(MapUtil.create("node.sworker", 2)).build().start();
 		CrakenNode cnode = craken.node();
 
-		RScheduledExecutorService es = cnode.executorService("node.sworker");
+		RScheduledExecutorService es = (RScheduledExecutorService)cnode.executorService("node.sworker");
 
 		es.schedule(new RunnableTask(), 10, TimeUnit.SECONDS);
 		es.schedule(new CallableTask(), 4, TimeUnit.MINUTES);

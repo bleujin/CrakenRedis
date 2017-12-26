@@ -1,61 +1,25 @@
 package net.bleujin.rcraken;
 
-import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.locks.ReadWriteLock;
 
-import org.redisson.RedissonNode;
-import org.redisson.api.RCountDownLatch;
 import org.redisson.api.RMap;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RScheduledExecutorService;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-import org.redisson.config.RedissonNodeConfig;
 
-public class CrakenNode {
+public interface CrakenNode {
 
-	private RedissonClient rclient;
-	private Config config;
-	private Map<String, Integer> workers;
-	private RedissonNode node;
-
-	public CrakenNode(RedissonClient rclient, Config config, Map<String, Integer> workers) {
-		this.rclient = rclient ;
-		this.config = config ;
-		this.workers = workers ;
-	}
-
-	CrakenNode start() {
-        RedissonNodeConfig nodeConfig = new RedissonNodeConfig(config);
-        nodeConfig.setExecutorServiceWorkers(workers);
-        this.node = RedissonNode.create(nodeConfig);
-        node.start();
-
-		return this;
-	}
-
-	public RScheduledExecutorService executorService() {
-		return executorService(CrakenConfig.DFT_WORKER_NAME) ;
-	}
+	CrakenNode start() ;
+	public ScheduledExecutorService executorService() ;
 	
-	public RScheduledExecutorService executorService(String workerName) {
-		return rclient.getExecutorService(workerName);
-	}
+	public ScheduledExecutorService executorService(String workerName) ;
 	
-	public RReadWriteLock rwLock(String rwName) {
-		return rclient.getReadWriteLock(rwName);
-	}
+	public ReadWriteLock rwLock(String rwName) ;
 	
-	public RCountDownLatch countdownLatch(String cdName) {
-		return rclient.getCountDownLatch(cdName);
-	}
+//	public CountDownLatch countdownLatch(String cdName) ;
 
-	void shutdown() {
-		node.shutdown(); 
-	}
+	void shutdown() ;
 
-	public <T, R> RMap<T, R> getMap(String name) {
-		return rclient.getMap(name);
-	}
+	public <T, R> RMap<T, R> getMap(String name) ;
 
 
 }

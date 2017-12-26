@@ -30,5 +30,9 @@ public class ParamMap {
 		return params.containsKey(name) ? params.get(name).toArray(new String[0]) : new String[0];
 	}
 	
+	public boolean contains(String name) {
+		return params.containsKey(name) ;
+	}
+	
 
 }

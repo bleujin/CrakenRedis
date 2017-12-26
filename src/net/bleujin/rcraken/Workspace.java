@@ -46,58 +46,22 @@ import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.Indexer;
 
-public class Workspace {
+public abstract class Workspace {
 
-	private String wname ;
-	private RedissonClient rclient ;
-	private LocalCachedMapOptions<String, String> mapOption ;
-	private Map<String, NodeListener> listeners = MapUtil.newMap() ;
-	private AtomicBoolean inited = new AtomicBoolean(false) ;
-	private ExecutorService es = new WithinThreadExecutor() ;
-	private RReadWriteLock rwlock ;
-	private Central central ;
-	private RMapCache<Object, Object> dataMap;
-	private Engine parseEngine ;
+	private String wname;
+	private Map<String, NodeListener> listeners = MapUtil.newMap();
+	private ExecutorService es = new WithinThreadExecutor();
+	private Central central;
+	private Engine parseEngine;
 	private TemplateFac templateFac;
 
-	Workspace(String wname, RedissonClient rclient) {
+	protected Workspace(String wname) {
 		this.wname = wname;
-		this.rclient = rclient;
-		this.mapOption = LocalCachedMapOptions.<String, String>defaults().evictionPolicy(EvictionPolicy.LRU) // LFU, LRU, SOFT, WEAK and NONE policies are available
-				.cacheSize(1000) // If cache size is 0 then local cache is unbounded.
-				// if value is `ON_CHANGE`, `ON_CHANGE_WITH_CLEAR_ON_RECONNECT` or `ON_CHANGE_WITH_LOAD_ON_RECONNECT`
-				// corresponding map entry is removed from cache across all RLocalCachedMap
-				// instances during every invalidation message sent on each map entry update/remove operation
-				.invalidationPolicy(InvalidationPolicy.ON_CHANGE).timeToLive(10, TimeUnit.SECONDS) // time to live for each map entry in local cache
-				.maxIdle(10, TimeUnit.SECONDS); // max idle time for each map entry in local cache
-		
-		this.rwlock = rclient.getReadWriteLock(wname + ".rwlock");
-		this.dataMap = rclient.getMapCache(nodeMapName());
 		this.parseEngine = Engine.createDefaultEngine();
-		this.templateFac = new TemplateFac() ;
+		this.templateFac = new TemplateFac();
 	}
 
 	public Workspace init() {
-		if (!inited.getAndSet(true)) {
-			dataMap.addListener(new EntryUpdatedListener<String, String>() {
-				@Override
-				public void onUpdated(EntryEvent<String, String> event) {
-					Workspace.this.onMerged(EventType.UPDATED, event.getKey(), event.getValue(), event.getOldValue());
-				}
-			});
-			dataMap.addListener(new EntryCreatedListener<String, String>() {
-				@Override
-				public void onCreated(EntryEvent<String, String> event) {
-					Workspace.this.onMerged(EventType.CREATED, event.getKey(), event.getValue(), event.getOldValue());
-				}
-			});
-			dataMap.addListener(new EntryRemovedListener<String, String>() {
-				@Override
-				public void onRemoved(EntryEvent<String, String> event) {
-					Workspace.this.onMerged(EventType.REMOVED, event.getKey(), event.getValue(), event.getOldValue());
-				}
-			});
-		}
 		return this;
 	}
 
@@ -124,203 +88,89 @@ public class Workspace {
 	}
 
 	ExecutorService executor() {
-		return es ;
+		return es;
 	}
-	
+
 	public Engine parseEngine() {
 		return parseEngine;
 	}
-	
+
 	public TemplateFac templateFac() {
-		return templateFac ; 
+		return templateFac;
 	}
 
-	
 	public Workspace executor(ExecutorService es) {
-		this.es = es ;
-		return this ;
-	}
-	
-	String nodeMapName(){
-		return wname + ".node" ;
-	}
-	
-	String struMapName() {
-		return wname + ".stru";
+		this.es = es;
+		return this;
 	}
 
-	String lobPrefix(){
-		return wname + ".lob" ;
-	}
+	protected abstract WriteSession writeSession(ReadSession rsession);
 
-	String seqPrefix(){
-		return wname + ".seq." ;
-	}
-	
-	String topicPrefix(){
-		return wname + ".topic." ;
-	}
-	
-	public LocalCachedMapOptions<String, String> mapOption() {
-		return mapOption;
-	}
+	protected abstract BatchSession batchSession(ReadSession rsession);
 
-	WriteSession writeSession(ReadSession rsession) {
-		return new WriteSession(this, rsession, rclient);
-	}
-	
-	BatchSession batchSession(ReadSession rsession) {
-		return new BatchSession(this, rsession, rclient);
-	}
+	protected abstract ReadSession readSession();
 
-	ReadSession readSession() {
-		return new ReadSession(this, rclient);
-	}
+	protected abstract <T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler);
 
-	<T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler) {
-		return CompletableFuture.supplyAsync(() -> {
-			wsession.attribute(WriteJob.class, tjob);
-			wsession.attribute(ExceptionHandler.class, ehandler);
-
-			RLock wlock = rwlock.writeLock();
-			try {
-				wlock.tryLock(10, TimeUnit.MINUTES); // 
-				T result = tjob.handle(wsession);
-				
-				Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
-				wsession.endTran();
-				return result;
-			} catch (Throwable ex) {
-				ehandler.handle(wsession, tjob, ex);
-				throw new IllegalStateException(ex) ; 
-			} finally {
-				wlock.unlock(); 
-			}
-		}, eservice) ;
-	}
-
-
-
-	
-	<T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) {
-		return CompletableFuture.supplyAsync(() -> {
-			bsession.attribute(BatchJob.class, bjob);
-			bsession.attribute(ExceptionHandler.class, ehandler);
-
-			RLock wlock = rwlock.writeLock();
-			try {
-				wlock.tryLock(10, TimeUnit.MINUTES); //
-				T result = bjob.handle(bsession);
-				RBatch batch = bsession.batch() ;
-//				batch.skipResult();// Synchronize write operations execution across defined amount of Redis slave nodes 2 slaves and 1 second timeout
-//				batch.syncSlaves(2, 1, TimeUnit.SECONDS) ;
-//				batch.timeout(2, TimeUnit.SECONDS); // Response timeout
-				batch.retryInterval(2, TimeUnit.SECONDS); // Retry interval for each attempt to send Redis commands batch
-				batch.retryAttempts(4); // Attempts amount to re-send Redis commands batch if it hasn't been sent already
-				batch.execute();
-				
-				Workspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
-				
-				bsession.endTran();
-				return result ;
-			} catch (Throwable ex) {
-				ehandler.handle(bsession, bjob, ex);
-				throw new IllegalStateException(ex) ; 
-			} finally {
-				wlock.unlock(); 
-			}
-		}, eservice) ;
-	}
-
-
+	protected abstract <T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler);
 
 	public void addListener(NodeListener nodeListener) {
 		listeners.put(nodeListener.id(), nodeListener);
 	}
 
-	public Sequence sequence(String name) {
-		return new Sequence(name, rclient.getAtomicLong(seqPrefix() + name));
-	}
+	public abstract Sequence sequence(String name);
 
-	public <T> Topic<T> topic(String name) {
-		return new Topic<T>(name, rclient.getTopic(topicPrefix() + name));
-	}
+	public abstract <T> Topic<T> topic(String name);
 
-	
-	public boolean removeSelf() {
-		rclient.getKeys().deleteByPattern(name() + ".*") ;
-		rclient.getKeys().deleteByPattern("{" + name() + ".*") ; // ?? 
-		
-		
-//		rclient.getMap(nodeMapName()).delete();
-//		rclient.getSetMultimap(struMapName()).delete();
-		if (central != null) central.destroySelf(); 
-		listeners.clear();
+	public abstract boolean removeSelf();
 
-		return true;
-	}
+	protected abstract OutputStream outputStream(String path);
 
-	OutputStream outputStream(String path) {
-		RBinaryStream binaryStream = rclient.getBinaryStream(lobPrefix() + path);
-		if (binaryStream.isExists()) {
-			binaryStream.delete();
-		}
-		return binaryStream.getOutputStream();
-	}
+	protected abstract InputStream inputStream(String path);
 
-	InputStream inputStream(String path) {
-		return rclient.getBinaryStream(lobPrefix() + path).getInputStream();
-	}
+	private List<IndexEvent> ievents = ListUtil.newList();
 
-	@Deprecated //test only
-	RedissonClient client() {
-		return rclient;
-	}
-
-	
-	private List<IndexEvent> ievents = ListUtil.newList() ;
 	private boolean hasIndexer() {
 		return listeners.containsKey(indexListenerId()) && central != null;
 	}
-	String indexListenerId() {
-		return name() + ".indexer" ;
+
+	protected String indexListenerId() {
+		return name() + ".indexer";
 	}
-	
-	
+
 	public Central central() {
-		return central ;
+		return central;
 	}
-	
-	
+
 	public Workspace indexCntral(Central central) {
-		this.central = central ;
+		this.central = central;
 		this.addListener(new NodeListener() {
 			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
 				if (fqn.absPath().startsWith("/__endtran")) {
-					List<IndexEvent> ies = Workspace.this.ievents ;
-					Workspace.this.ievents = ListUtil.newList() ;
-					
-					Indexer indexer = central.newIndexer() ;
+					List<IndexEvent> ies = Workspace.this.ievents;
+					Workspace.this.ievents = ListUtil.newList();
+
+					Indexer indexer = central.newIndexer();
 					indexer.index(isession -> {
 						for (IndexEvent ie : ies) {
 							if (ie.eventType() == EventType.REMOVED) {
-								isession.deleteById(ie.fqn().absPath()) ;
-								continue ;
+								isession.deleteById(ie.fqn().absPath());
+								continue;
 							}
-							WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
+							WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath());
 							JsonObject newvalue = ie.jsonValue();
 							for (String fname : newvalue.keySet()) {
-								Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname)) ;
-								property.indexTo(wdoc) ;
+								Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname));
+								property.indexTo(wdoc);
 							}
-							wdoc.update() ;
+							wdoc.update();
 						}
 						return null;
-					}) ;
-					return ;
+					});
+					return;
 				}
-				if (! jvalue.keySet().isEmpty() ) {
-					Workspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue)) ;
+				if (!jvalue.keySet().isEmpty()) {
+					Workspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue));
 				}
 			}
 
@@ -329,33 +179,34 @@ public class Workspace {
 				return indexListenerId();
 			}
 		});
-		
-		return this ;
+
+		return this;
 	}
-	
+
 	public Workspace reindex(boolean clearOld) {
-		if (! hasIndexer()) throw new IllegalStateException("central not exists") ;
-		Indexer indexer = central.newIndexer() ;
+		if (!hasIndexer())
+			throw new IllegalStateException("central not exists");
+		Indexer indexer = central.newIndexer();
 		indexer.index(isession -> {
-			if(clearOld) isession.deleteAll() ;
+			if (clearOld)
+				isession.deleteAll();
 			writeSession(readSession()).pathBy("/").walkBreadth().forEach(node -> {
 				try {
-					WriteDocument wdoc = isession.newDocument(node.fqn().absPath()).keyword(Defined.Index.PARENT, node.fqn().getParent().absPath()) ;
+					WriteDocument wdoc = isession.newDocument(node.fqn().absPath()).keyword(Defined.Index.PARENT, node.fqn().getParent().absPath());
 					node.properties().iterator().forEachRemaining(property -> property.indexTo(wdoc));
-					wdoc.update() ;
-				} catch(IOException e) {
-					throw new IllegalStateException(e) ;
+					wdoc.update();
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
 				}
 			});
-			
-			return null ;
-		}) ;
-		return this ;
+
+			return null;
+		});
+		return this;
 	}
-	
 
 	public void removeListener(String id) {
-		listeners.remove(id) ;
+		listeners.remove(id);
 	}
 
 }

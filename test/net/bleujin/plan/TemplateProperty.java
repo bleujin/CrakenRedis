@@ -11,6 +11,7 @@ import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.template.TemplateNode;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 
 public class TemplateProperty extends TestBaseCrakenRedis {
@@ -39,18 +40,15 @@ public class TemplateProperty extends TestBaseCrakenRedis {
 		assertEquals("children", tnode.templateName()) ;
 		
 		tnode.transform(writer);
-		writer.write("\n");
 		rsession.templateBy("/emp/bleujin.json").parameters("detail=yes").transform(writer); ;
 
 		rsession.tran(wsession ->{
 			wsession.pathBy("/emp/bleujin").property("json", "Hello ${self.asString(name)}, p : ${params.asString(detail)}").merge();
 			return null ;
 		}) ;
-		writer.write("\n");
 		rsession.templateBy("/emp/bleujin.json").parameters("detail=yes").transform(writer); ;
-		writer.write("\n");
 		rsession.templateBy("/emp/hero.json").parameters("detail=yes").transform(writer); ;
 		
-		writer.flush();
+		IOUtil.closeQuietly(writer);
 	}
 }
