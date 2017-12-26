@@ -1,10 +1,7 @@
 package net.bleujin.rcraken.store;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,34 +24,22 @@ import org.redisson.api.map.event.EntryUpdatedListener;
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
 import net.bleujin.rcraken.ExceptionHandler;
-import net.bleujin.rcraken.Fqn;
-import net.bleujin.rcraken.Property;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
-import net.bleujin.rcraken.def.Defined;
-import net.bleujin.rcraken.extend.IndexEvent;
-import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
-import net.bleujin.rcraken.extend.Sequence;
+import net.bleujin.rcraken.extend.RedisSequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.ListUtil;
-import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectId;
-import net.ion.nsearcher.common.WriteDocument;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.Indexer;
 
 public class RedisWorkspace extends Workspace{
 
 	private RedissonClient rclient ;
 	private LocalCachedMapOptions<String, String> mapOption ;
-	private Map<String, NodeListener> listeners = MapUtil.newMap() ;
 	private AtomicBoolean inited = new AtomicBoolean(false) ;
 	private RReadWriteLock rwlock ;
-	private Central central ;
 	private RMapCache<Object, Object> dataMap;
 
 	protected RedisWorkspace(String wname, RedissonClient rclient) {
@@ -100,15 +85,6 @@ public class RedisWorkspace extends Workspace{
 		return jsonValue == null ? null : JsonObject.fromString(jsonValue);
 	}
 
-	void onMerged(EventType etype, String _fqn, String _value, String _oldValue) {
-		Fqn fqn = Fqn.from(_fqn);
-		JsonObject value = toJson(_value);
-		JsonObject oldValue = toJson(_oldValue);
-
-		for (NodeListener nodeListener : listeners.values()) {
-			nodeListener.onChanged(etype, fqn, value, oldValue);
-		}
-	};
 
 	
 	String nodeMapName(){
@@ -203,13 +179,8 @@ public class RedisWorkspace extends Workspace{
 	}
 
 
-
-	public void addListener(NodeListener nodeListener) {
-		listeners.put(nodeListener.id(), nodeListener);
-	}
-
-	public Sequence sequence(String name) {
-		return new Sequence(name, rclient.getAtomicLong(seqPrefix() + name));
+	public RedisSequence sequence(String name) {
+		return new RedisSequence(name, rclient.getAtomicLong(seqPrefix() + name));
 	}
 
 	public <T> Topic<T> topic(String name) {
@@ -218,15 +189,11 @@ public class RedisWorkspace extends Workspace{
 
 	
 	public boolean removeSelf() {
+		super.removeSelf() ;
+		
 		rclient.getKeys().deleteByPattern(name() + ".*") ;
 		rclient.getKeys().deleteByPattern("{" + name() + ".*") ; // ?? 
 		
-		
-//		rclient.getMap(nodeMapName()).delete();
-//		rclient.getSetMultimap(struMapName()).delete();
-		if (central != null) central.destroySelf(); 
-		listeners.clear();
-
 		return true;
 	}
 
@@ -247,81 +214,4 @@ public class RedisWorkspace extends Workspace{
 		return rclient;
 	}
 
-	
-	private List<IndexEvent> ievents = ListUtil.newList() ;
-	private boolean hasIndexer() {
-		return listeners.containsKey(indexListenerId()) && central != null;
-	}
-	
-	
-	public Central central() {
-		return central ;
-	}
-	
-	
-	public Workspace indexCntral(Central central) {
-		this.central = central ;
-		this.addListener(new NodeListener() {
-			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
-				if (fqn.absPath().startsWith("/__endtran")) {
-					List<IndexEvent> ies = RedisWorkspace.this.ievents ;
-					RedisWorkspace.this.ievents = ListUtil.newList() ;
-					
-					Indexer indexer = central.newIndexer() ;
-					indexer.index(isession -> {
-						for (IndexEvent ie : ies) {
-							if (ie.eventType() == EventType.REMOVED) {
-								isession.deleteById(ie.fqn().absPath()) ;
-								continue ;
-							}
-							WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath()) ;
-							JsonObject newvalue = ie.jsonValue();
-							for (String fname : newvalue.keySet()) {
-								Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname)) ;
-								property.indexTo(wdoc) ;
-							}
-							wdoc.update() ;
-						}
-						return null;
-					}) ;
-					return ;
-				}
-				if (! jvalue.keySet().isEmpty() ) {
-					RedisWorkspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue)) ;
-				}
-			}
-
-			@Override
-			public String id() {
-				return indexListenerId();
-			}
-		});
-		
-		return this ;
-	}
-	
-	public Workspace reindex(boolean clearOld) {
-		if (! hasIndexer()) throw new IllegalStateException("central not exists") ;
-		Indexer indexer = central.newIndexer() ;
-		indexer.index(isession -> {
-			if(clearOld) isession.deleteAll() ;
-			writeSession(readSession()).pathBy("/").walkBreadth().forEach(node -> {
-				try {
-					WriteDocument wdoc = isession.newDocument(node.fqn().absPath()).keyword(Defined.Index.PARENT, node.fqn().getParent().absPath()) ;
-					node.properties().iterator().forEachRemaining(property -> property.indexTo(wdoc));
-					wdoc.update() ;
-				} catch(IOException e) {
-					throw new IllegalStateException(e) ;
-				}
-			});
-			
-			return null ;
-		}) ;
-		return this ;
-	}
-	
-
-	public void removeListener(String id) {
-		listeners.remove(id) ;
-	}
 }

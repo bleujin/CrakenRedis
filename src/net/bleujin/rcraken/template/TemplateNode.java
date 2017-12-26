@@ -1,21 +1,12 @@
 package net.bleujin.rcraken.template;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.script.StringInputStream;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;

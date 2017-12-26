@@ -1,18 +1,25 @@
 package net.bleujin.rcraken.store;
 
+import java.util.Map;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker.Maker;
-import org.redisson.api.RMap;
 
+import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.CrakenNode;
+import net.ion.framework.util.MapUtil;
 
 public class MapNode implements CrakenNode{
 
+	private Map<String, ScheduledExecutorService> ess = MapUtil.newMap() ;
+	private Map<String, ReadWriteLock> rws = MapUtil.newMap() ;
+	
 	public MapNode(DB db, Maker maker) {
-		// TODO Auto-generated constructor stub
+		
 	}
 
 	@Override
@@ -22,32 +29,33 @@ public class MapNode implements CrakenNode{
 
 	@Override
 	public ScheduledExecutorService executorService() {
-		// TODO Auto-generated method stub
-		return null;
+		if (! ess.containsKey(CrakenConfig.DFT_WORKER_NAME)) {
+			ess.put(CrakenConfig.DFT_WORKER_NAME, Executors.newScheduledThreadPool(3)) ;
+		}
+		return ess.get(CrakenConfig.DFT_WORKER_NAME) ;
 	}
 
 	@Override
 	public ScheduledExecutorService executorService(String workerName) {
-		// TODO Auto-generated method stub
-		return null;
+		if (! ess.containsKey(workerName)) {
+			ess.put(workerName, Executors.newScheduledThreadPool(3)) ;
+		}
+		return ess.get(workerName) ;
 	}
 
 	@Override
 	public ReadWriteLock rwLock(String rwName) {
-		// TODO Auto-generated method stub
-		return null;
+		ReadWriteLock result = rws.getOrDefault(rwName, new ReentrantReadWriteLock(true)) ;
+		synchronized (this) {
+			if (! rws.containsKey(rwName)) rws.put(rwName, result) ;
+		}
+		return result ;
 	}
 
 	@Override
 	public void shutdown() {
-		// TODO Auto-generated method stub
-		
+		ess.values().forEach( es -> es.shutdown());
 	}
 
-	@Override
-	public <T, R> RMap<T, R> getMap(String name) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

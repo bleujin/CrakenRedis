@@ -2,15 +2,8 @@ package net.bleujin.rcraken.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import net.ion.framework.db.IDBController;
-import net.ion.framework.db.Page;
-import net.ion.framework.db.Rows;
-import net.ion.framework.db.bean.ResultSetHandler;
-import net.ion.framework.db.procedure.IQueryable;
-import net.ion.framework.db.procedure.IUserProcedures;
-import net.ion.framework.db.procedure.Queryable;
 import net.ion.framework.db.procedure.UserProcedures;
 
 public class CrakenUserProcedures extends UserProcedures {

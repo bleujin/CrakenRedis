@@ -8,7 +8,6 @@ import net.ion.framework.db.procedure.IUserProcedureBatch;
 import net.ion.framework.db.procedure.IUserProcedures;
 import net.ion.framework.db.procedure.OracleRepositoryService;
 import net.ion.framework.db.procedure.RepositoryService;
-import net.ion.framework.db.procedure.UserProcedures;
 
 public class CrakenRepositoryService extends RepositoryService {
 

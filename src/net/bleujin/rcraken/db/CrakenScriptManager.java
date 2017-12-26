@@ -2,12 +2,10 @@ package net.bleujin.rcraken.db;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import net.bleujin.rcraken.ReadSession;
 import net.ion.framework.db.Rows;
-import net.ion.framework.db.procedure.IQueryable;
 
 public class CrakenScriptManager extends CrakenManager {
 

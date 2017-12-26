@@ -10,7 +10,6 @@ import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 
 public class RedisConfig implements CrakenConfig {
-	public final static String DFT_WORKER_NAME = "craken.worker";
 
 	private final Config config;
 	private Map<String, Integer> workers = Collections.singletonMap(DFT_WORKER_NAME, 2);

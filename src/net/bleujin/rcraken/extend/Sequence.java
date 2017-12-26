@@ -1,51 +1,25 @@
 package net.bleujin.rcraken.extend;
 
-import org.redisson.api.RAtomicLong;
+public interface Sequence {
 
-public class Sequence {
+	public String name();
 
-	private final String name;
-	private final RAtomicLong inner ;
-	public Sequence(String name, RAtomicLong inner) {
-		this.name = name ;
-		this.inner = inner ;
-	}
+	public long get();
 
-	public String name() {
-		return name ;
-	}
-	
-	public long get() {
-		return inner.get() ;
-	}
-	
-	public void set(long newValue) {
-		inner.set(newValue);
-	}
-	
-	public long incrementAndGet() {
-		return inner.incrementAndGet() ;
-	}
+	public void set(long newValue);
 
-	public long decrementAndGet() {
-		return inner.decrementAndGet() ;
-	}
-	public long getAndIncrement() {
-		return inner.getAndIncrement() ;
-	}
-	public long getAndDecrement() {
-		return inner.getAndDecrement() ;
-	}
-	public void delete() {
-		inner.delete() ;
-	}
-	
-	public long addAndGet(long delta){
-		return inner.addAndGet(delta) ;
-	}
+	public long incrementAndGet();
 
-	public long getAndAdd(long delta){
-		return inner.getAndAdd(delta) ;
-	}
+	public long decrementAndGet();
+
+	public long getAndIncrement();
+
+	public long getAndDecrement();
+
+	public void delete();
+
+	public long addAndGet(long delta);
+
+	public long getAndAdd(long delta);
 
 }

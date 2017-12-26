@@ -7,6 +7,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.MethodUtils;
+import org.apache.lucene.index.CorruptIndexException;
+
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
 import net.ion.framework.db.Rows;
@@ -17,9 +20,6 @@ import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-
-import org.apache.commons.beanutils.MethodUtils;
-import org.apache.lucene.index.CorruptIndexException;
 
 public class CrakenFnManager extends CrakenManager {
 

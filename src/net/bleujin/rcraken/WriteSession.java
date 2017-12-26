@@ -1,12 +1,8 @@
 package net.bleujin.rcraken;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.MapUtil;
@@ -37,24 +33,24 @@ public abstract class WriteSession {
 		return new WriteNode(this, fqn, ObjectUtil.coalesce(readDataBy(fqn), new JsonObject()));
 	}
 
-	protected abstract void merge(WriteNode wnode, Fqn fqn, JsonObject data) ;
+	protected abstract void merge(WriteNode wnode, Fqn fqn, JsonObject data);
+
+	protected abstract void removeChild(WriteNode wnode, Fqn fqn, JsonObject data);
+	
+	protected abstract void removeSelf(WriteNode wnode, Fqn fqn, JsonObject data);
 	
 	public void copySelf(WriteNode sourceNode, Fqn sourceFqn, JsonObject sourceData, String destPath) {
-		Fqn dest = Fqn.from(destPath) ;
+		Fqn dest = Fqn.from(destPath);
 		sourceNode.children().forEach(wn -> {
-			// if (exist(destPath)) throw new IllegalStateException("destPath already exist :" + destPath) ;
+			// if (exist(destPath)) throw new IllegalStateException("destPath already exist
+			// :" + destPath) ;
 			wn.copySelf(Fqn.from(dest, wn.fqn().name()).absPath());
 		});
-		merge(pathBy(destPath), dest, sourceData) ;
+		merge(pathBy(destPath), dest, sourceData);
 	}
 
-	
-	protected abstract void removeChild(WriteNode wnode, Fqn fqn, JsonObject data) ;
-
-	protected abstract void removeSelf(WriteNode wnode, Fqn fqn, JsonObject data) ;
-
 	public boolean hasAttribute(String name) {
-		return attrs.containsKey(name) ;
+		return attrs.containsKey(name);
 	}
 
 	public <T> void attribute(Class<T> clz, T obj) {
@@ -66,53 +62,55 @@ public abstract class WriteSession {
 	}
 
 	public void endTran() {
-		attrs.clear(); 
+		attrs.clear();
 	}
 
-	public  Map<String, Object> attrs(){
-		return attrs ;
+	public Map<String, Object> attrs() {
+		return attrs;
 	}
-	
+
 	public Workspace workspace() {
 		return wspace;
 	}
 
 	public WriteSession attribute(String name, Object value) {
-		attrs.put(name, value) ;
-		return this ;
+		attrs.put(name, value);
+		return this;
 	}
 
-	protected abstract Set<String> readStruBy(Fqn fqn) ;
-	
-	protected abstract JsonObject readDataBy(Fqn fqn) ;
-	
+	protected abstract Set<String> readStruBy(Fqn fqn);
+
+	protected abstract JsonObject readDataBy(Fqn fqn);
+
 	void descentantBreadth(Fqn fqn, List<String> fqns) {
-		for(String childName : readStruBy(fqn)) {
+		for (String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
-			fqns.add(child.absPath()) ;
+			fqns.add(child.absPath());
 			descentantBreadth(child, fqns);
 		}
 	}
 
 	void descentantDepth(Fqn fqn, List<String> fqns) {
-		for(String childName : readStruBy(fqn)) {
+		for (String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
-			fqns.add(child.absPath()) ;
+			fqns.add(child.absPath());
 		}
 
-		for(String childName : readStruBy(fqn)) {
+		for (String childName : readStruBy(fqn)) {
 			descentantDepth(Fqn.from(fqn, childName), fqns);
 		}
 	}
 
-	public abstract boolean exist(String path) ;
+	public abstract boolean exist(String path);
 
 	public void walkRef(WriteNode source, String relName, int limit, List<String> fqns) {
-		if (limit == 0) return ; 
-		for(String relPath : source.property(relName).asStrings()) {
+		if (limit == 0)
+			return;
+		for (String relPath : source.property(relName).asStrings()) {
 			Fqn rel = Fqn.from(relPath);
-			if (! source.session().exist(rel.absPath())) continue ;
-			fqns.add(rel.absPath()) ;
+			if (!source.session().exist(rel.absPath()))
+				continue;
+			fqns.add(rel.absPath());
 			walkRef(source.session().pathBy(rel), relName, --limit, fqns);
 		}
 	}

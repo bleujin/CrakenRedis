@@ -154,6 +154,7 @@ public class Property {
 		if (PType.Lob.name().equals(json.asString(Defined.Property.Type))) {
 			return rsession.workspace().inputStream(asString()) ;
 		} else {
+			if (asString() == null) throw new IllegalStateException("not found property :" + name) ;
 			return new StringBufferInputStream(asString()) ;
 		}
 	}

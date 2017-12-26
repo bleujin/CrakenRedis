@@ -1,19 +1,10 @@
 package net.bleujin.rcraken;
 
-import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.Spliterators;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;
-import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 
 public class BatchNode {
 

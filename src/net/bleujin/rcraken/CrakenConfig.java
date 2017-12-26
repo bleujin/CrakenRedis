@@ -1,16 +1,12 @@
 package net.bleujin.rcraken;
 
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.commons.collections.map.HashedMap;
-import org.redisson.config.Config;
+import java.io.File;
 
 import net.bleujin.rcraken.store.MapConfig;
 import net.bleujin.rcraken.store.RedisConfig;
-import net.ion.framework.util.MapUtil;
 
 public interface CrakenConfig {
+	public final static String DFT_WORKER_NAME = "craken.worker";
 
 	public static CrakenConfig redisSingle() {
 		return RedisConfig.redisSingle() ;
@@ -24,12 +20,12 @@ public interface CrakenConfig {
 		return RedisConfig.redisSingle() ;
 	}
 	
-	public static CrakenConfig redis(Config config) {
-		return RedisConfig.redis(config) ;
+	public static CrakenConfig mapMemory() {
+		return MapConfig.memory() ;
 	}
 
-	public static CrakenConfig mapMemory() {
-		return MapConfig.memory();
+	public static CrakenConfig mapFile(File file) {
+		return MapConfig.file(file) ;
 	}
 
 	public Craken build()  ;

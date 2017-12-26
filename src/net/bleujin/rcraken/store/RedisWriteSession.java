@@ -64,16 +64,6 @@ public class RedisWriteSession extends WriteSession{
 		return (RedisWorkspace)super.workspace() ;
 	}
 	
-	public void copySelf(WriteNode sourceNode, Fqn sourceFqn, JsonObject sourceData, String destPath) {
-		Fqn dest = Fqn.from(destPath) ;
-		sourceNode.children().forEach(wn -> {
-			// if (exist(destPath)) throw new IllegalStateException("destPath already exist :" + destPath) ;
-			wn.copySelf(Fqn.from(dest, wn.fqn().name()).absPath());
-		});
-		merge(pathBy(destPath), dest, sourceData) ;
-	}
-
-	
 	protected void removeChild(WriteNode wnode, Fqn fqn, JsonObject data) {
 		Set<String> rs = SetUtil.newSet() ;
 		decendant(fqn, rs); 

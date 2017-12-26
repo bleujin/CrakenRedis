@@ -5,28 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.redisson.api.LocalCachedMapOptions;
-import org.redisson.api.LocalCachedMapOptions.EvictionPolicy;
-import org.redisson.api.LocalCachedMapOptions.InvalidationPolicy;
-import org.redisson.api.RBatch;
-import org.redisson.api.RBinaryStream;
-import org.redisson.api.RListMultimapCache;
-import org.redisson.api.RLock;
-import org.redisson.api.RMapCache;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RedissonClient;
-import org.redisson.api.map.event.EntryCreatedListener;
-import org.redisson.api.map.event.EntryEvent;
-import org.redisson.api.map.event.EntryRemovedListener;
-import org.redisson.api.map.event.EntryUpdatedListener;
 
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.IndexEvent;
@@ -37,10 +17,8 @@ import net.bleujin.rcraken.extend.Topic;
 import net.bleujin.rcraken.template.TemplateFac;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
-import net.ion.framework.util.ObjectId;
 import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
@@ -54,6 +32,7 @@ public abstract class Workspace {
 	private Central central;
 	private Engine parseEngine;
 	private TemplateFac templateFac;
+	private List<IndexEvent> ievents = ListUtil.newList();
 
 	protected Workspace(String wname) {
 		this.wname = wname;
@@ -69,7 +48,7 @@ public abstract class Workspace {
 		return jsonValue == null ? null : JsonObject.fromString(jsonValue);
 	}
 
-	void onMerged(EventType etype, String _fqn, String _value, String _oldValue) {
+	protected void onMerged(EventType etype, String _fqn, String _value, String _oldValue) {
 		Fqn fqn = Fqn.from(_fqn);
 		JsonObject value = toJson(_value);
 		JsonObject oldValue = toJson(_oldValue);
@@ -122,15 +101,17 @@ public abstract class Workspace {
 
 	public abstract <T> Topic<T> topic(String name);
 
-	public abstract boolean removeSelf();
+	public boolean removeSelf() {
+		listeners.clear(); 
+		if (central != null) central.destroySelf(); 
+		return false ;
+	};
 
 	protected abstract OutputStream outputStream(String path);
 
 	protected abstract InputStream inputStream(String path);
 
-	private List<IndexEvent> ievents = ListUtil.newList();
-
-	private boolean hasIndexer() {
+	protected boolean hasIndexer() {
 		return listeners.containsKey(indexListenerId()) && central != null;
 	}
 

@@ -1,10 +1,7 @@
 package net.bleujin.rcraken;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
-
-import org.redisson.api.RMap;
 
 public interface CrakenNode {
 
@@ -19,7 +16,6 @@ public interface CrakenNode {
 
 	void shutdown() ;
 
-	public <T, R> RMap<T, R> getMap(String name) ;
 
 
 }

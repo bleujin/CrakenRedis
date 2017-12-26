@@ -3,12 +3,9 @@ package net.bleujin.rcraken;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Spliterators;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;

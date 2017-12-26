@@ -1,5 +1,7 @@
 package net.bleujin.rcraken.store;
 
+import java.io.File;
+
 import org.mapdb.DBMaker;
 import org.mapdb.DBMaker.Maker;
 
@@ -15,13 +17,18 @@ public class MapConfig implements CrakenConfig {
 		this.maker = maker ;
 	}
 
-
-
 	public static MapConfig memory() {
-		return new MapConfig(DBMaker.memoryDB());
+		return fromMaker(DBMaker.memoryDB()) ;
 	}
 
-	
+	public static MapConfig file(File file) {
+		return fromMaker(DBMaker.fileDB(file)) ;
+	}
+
+	public static MapConfig fromMaker(Maker maker) {
+		return new MapConfig(maker);
+	}
+
 	public Maker maker() {
 		return maker ;
 	}
