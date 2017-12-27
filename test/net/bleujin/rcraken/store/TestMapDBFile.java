@@ -6,13 +6,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mapdb.HTreeMap;
+import org.mapdb.DBMaker;
+import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
-import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.TestBaseCrakenRedis;
-import net.ion.framework.util.Debug;
 
 public class TestMapDBFile {
 	protected static Craken c;
@@ -20,7 +19,8 @@ public class TestMapDBFile {
 	
 	@BeforeAll
 	static void init() throws Exception {
-		c = CrakenConfig.mapFile(new File("./resource/mapdb/map.db")).build() ;
+		Maker maker = DBMaker.fileDB(new File("./resource/mapdb/map.db")).fileMmapEnableIfSupported() ;
+		c = MapConfig.fromMaker(maker).build() ;
 		c.start() ;
 		
 	}
@@ -46,6 +46,8 @@ public class TestMapDBFile {
 	
 	@Test
 	public void readDataAfterWrite() throws Exception {
+		rsession.pathBy("/").walkDepth().debugPrint();
+		rsession.workspace().removeSelf() ;
 		rsession.pathBy("/").walkDepth().debugPrint();
 	}
 	

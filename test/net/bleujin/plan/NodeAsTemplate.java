@@ -14,7 +14,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 
-public class TemplateProperty extends TestBaseCrakenRedis {
+public class NodeAsTemplate extends TestBaseCrakenRedis {
 
 	@Test
 	void directTransform() throws Exception {

@@ -7,15 +7,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.redisson.api.RSemaphore;
+
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
-public class WriteNode {
+public class WriteNode implements CommonNode {
 
 	private WriteSession wsession;
 	private Fqn fqn;
@@ -105,6 +108,15 @@ public class WriteNode {
 	public String asString(String name) {
 		return property(name).asString();
 	}
+	
+	public Object asValue(String name) {
+		return property(name).value() ;
+	}
+	
+	public <T> T defaultValue(String name, T dftValue) {
+		return (T) ObjectUtil.coalesce(asValue(name), dftValue) ;
+	}
+	
 
 	public Fqn fqn() {
 		return fqn;
@@ -175,6 +187,11 @@ public class WriteNode {
 	public WriteNode ref(String refName) {
 		return wsession.pathBy(asString(refName));
 	};
+
+	@Override
+	public boolean hasRef(String refName) {
+		return wsession.readSession().pathBy(asString(refName)).exist() ;
+	}
 
 	
 	public WriteNode parent() {

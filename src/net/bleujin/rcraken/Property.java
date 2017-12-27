@@ -1,10 +1,12 @@
 package net.bleujin.rcraken;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import net.bleujin.rcraken.def.Defined;
@@ -17,7 +19,7 @@ import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.nsearcher.common.WriteDocument;
 
-public class Property {
+public class Property implements Comparable{
 
 	private static final Property NOTFOUND = new Property(null, null, "N/A", JsonObject.create());
 
@@ -52,7 +54,6 @@ public class Property {
 			}
 		}, Unknown {
 			public void indexTo(WriteDocument wdoc, Property property) {
-				
 			}
 		};
 		
@@ -150,12 +151,12 @@ public class Property {
 		return json.asBoolean(Defined.Property.Value);
 	}
 
-	public InputStream asStream() {
+	public InputStream asStream() throws UnsupportedEncodingException {
 		if (PType.Lob.name().equals(json.asString(Defined.Property.Type))) {
 			return rsession.workspace().inputStream(asString()) ;
 		} else {
 			if (asString() == null) throw new IllegalStateException("not found property :" + name) ;
-			return new StringBufferInputStream(asString()) ;
+			return new ByteArrayInputStream(asString().getBytes("UTF-8")) ;
 		}
 	}
 
@@ -180,6 +181,25 @@ public class Property {
 
 	public void indexTo(WriteDocument wdoc) {
 		this.type().indexTo(wdoc, this);
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		if (o == null) return Integer.MIN_VALUE ;
+		if (o instanceof Property) {
+			Property that = (Property) o ;
+			if (this.type() != that.type()) return 0 ;
+			
+			if (this.value() instanceof Comparable && that.value() instanceof Comparable) {
+				return ((Comparable) this.value()).compareTo(that.value());
+			}
+		} else {
+			if (this.value() instanceof Comparable && o instanceof Comparable) {
+				if (o instanceof Integer) return ((Comparable) this.value()).compareTo( ((Integer)o).longValue());
+				return ((Comparable) this.value()).compareTo(o);
+			}
+		}
+		return Integer.MIN_VALUE ;
 	}
 
 

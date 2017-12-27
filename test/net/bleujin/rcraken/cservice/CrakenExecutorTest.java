@@ -58,6 +58,7 @@ public class CrakenExecutorTest {
 		CrakenNode cnode = craken.node() ;
 
 		ExecutorService es = cnode.executorService(RedisConfig.DFT_WORKER_NAME);
+		
 
 		es.execute(new RunnableTask());
 		es.submit(new CallableTask()).get();

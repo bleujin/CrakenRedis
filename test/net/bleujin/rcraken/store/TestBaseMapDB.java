@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
+import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 
@@ -15,6 +16,7 @@ public class TestBaseMapDB {
 	
 	protected static Craken c;
 	protected ReadSession rsession;
+	public static WriteJob<Void> SAMPLE = TestBaseCrakenRedis.SAMPLE ;
 	
 	@BeforeAll
 	static void init() throws Exception {

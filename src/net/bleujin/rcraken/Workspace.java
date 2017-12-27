@@ -103,7 +103,10 @@ public abstract class Workspace {
 
 	public boolean removeSelf() {
 		listeners.clear(); 
-		if (central != null) central.destroySelf(); 
+		if (central != null) {
+			central.newIndexer().index(isession -> isession.deleteAll()) ;
+			central.destroySelf(); 
+		}
 		return false ;
 	};
 

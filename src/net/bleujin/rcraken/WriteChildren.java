@@ -26,8 +26,8 @@ public class WriteChildren implements Iterable<WriteNode> {
 		stream().forEach(rnode -> rnode.debugPrint());
 	}
 
-	public Stream<WriteNode> stream() {
-		return StreamSupport.stream(this.spliterator(), false);
+	public WriteStream stream() {
+		return new WriteStream(wsession, StreamSupport.stream(this.spliterator(), false));
 	}
 	
 	public long size() {

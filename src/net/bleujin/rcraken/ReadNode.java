@@ -21,6 +21,7 @@ import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
@@ -48,6 +49,14 @@ public class ReadNode implements CommonNode {
 
 	public String asString(String name) {
 		return property(name).asString();
+	}
+	
+	public Object asValue(String name) {
+		return property(name).value() ;
+	}
+	
+	public <T> T defaultValue(String name, T dftValue) {
+		return (T) ObjectUtil.coalesce(asValue(name), dftValue) ;
 	}
 
 	public Fqn fqn() {
