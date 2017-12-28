@@ -3,6 +3,7 @@ package net.bleujin.rcraken.store;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.TestBaseCrakenRedis;
@@ -34,6 +35,14 @@ public class TestMapDB extends TestBaseMapDB{
 	@Test
 	public void indexData() throws Exception {
 		rsession.workspace().indexCntral(CentralConfig.newRam().build()) ;
+		rsession.tran(TestBaseCrakenRedis.SAMPLE).get() ;
+		
+		rsession.pathBy("/").childQuery("", true).find().debugPrint();
+	}
+
+	
+	@Test
+	public void indexDataWhenNotSet() throws Exception {
 		rsession.tran(TestBaseCrakenRedis.SAMPLE).get() ;
 		
 		rsession.pathBy("/").childQuery("", true).find().debugPrint();

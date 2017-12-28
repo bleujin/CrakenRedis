@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
@@ -123,7 +124,7 @@ public abstract class Workspace {
 	}
 
 	public Central central() {
-		return central;
+		return Optional.ofNullable(central).orElseThrow(() -> new IllegalStateException("central is blank. set central in workspace")) ;
 	}
 
 	public Workspace indexCntral(Central central) {

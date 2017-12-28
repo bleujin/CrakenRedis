@@ -29,7 +29,7 @@ import net.bleujin.rosetta.Parser;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.Debug;
 
-public abstract class AbstractStream<T extends CommonNode, R> {
+public abstract class AbstractStream<T extends CommonNode, RT> {
 
 	private Stream<T> stream;
 
@@ -49,36 +49,36 @@ public abstract class AbstractStream<T extends CommonNode, R> {
 		return stream.isParallel();
 	}
 
-	public R sequential() {
+	public RT sequential() {
 		stream = stream.sequential();
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R parallel() {
+	public RT parallel() {
 		stream = stream.parallel();
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R unordered() {
+	public RT unordered() {
 		stream = stream.unordered();
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R onClose(Runnable closeHandler) {
+	public RT onClose(Runnable closeHandler) {
 		stream = stream.onClose(closeHandler);
-		return (R) this;
+		return (RT) this;
 	}
 
 	public void close() {
 		stream.close();
 	}
 
-	public R filter(Predicate<? super T> predicate) {
+	public RT filter(Predicate<? super T> predicate) {
 		stream = stream.filter(predicate);
-		return (R) this;
+		return (RT) this;
 	}
 
-	public <R> Stream<R> map(Function<? super T, ? extends R> mapper) {
+	public <C> Stream<C> map(Function<? super T, ? extends C> mapper) {
 		return stream.map(mapper);
 	}
 
@@ -94,7 +94,7 @@ public abstract class AbstractStream<T extends CommonNode, R> {
 		return stream.mapToDouble(mapper);
 	}
 
-	public <R> Stream<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
+	public <C> Stream<C> flatMap(Function<? super T, ? extends Stream<? extends C>> mapper) {
 		return stream.flatMap(mapper);
 	}
 
@@ -110,33 +110,34 @@ public abstract class AbstractStream<T extends CommonNode, R> {
 		return stream.flatMapToDouble(mapper);
 	}
 
-	public R distinct() {
+	public RT distinct() {
 		stream = stream.distinct();
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R sorted() {
+	public RT sorted() {
 		stream = stream.sorted();
-		return (R) this;
+		return (RT) this;
 	}
 
-	public Stream<T> sorted(Comparator<? super T> comparator) {
-		return stream.sorted(comparator);
+	public RT sorted(Comparator<? super T> comparator) {
+		stream = stream.sorted(comparator);
+		return (RT) this ;
 	}
 
-	public R peek(Consumer<? super T> action) {
+	public RT peek(Consumer<? super T> action) {
 		stream = stream.peek(action);
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R limit(long maxSize) {
+	public RT limit(long maxSize) {
 		stream = stream.limit(maxSize);
-		return (R) this;
+		return (RT) this;
 	}
 
-	public R skip(long n) {
+	public RT skip(long n) {
 		stream = stream.skip(n);
-		return (R) this;
+		return (RT) this;
 	}
 
 	public void forEach(Consumer<? super T> action) {
@@ -213,88 +214,106 @@ public abstract class AbstractStream<T extends CommonNode, R> {
 		forEach(node -> Debug.line(node));
 	}
 
-	public R gt(String propId, Object value) {
+	public RT gt(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) > 0);
 	}
 
-	public R gte(String propId, Object value) {
+	public RT gte(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) >= 0);
 	}
 
-	public R lt(String propId, Object value) {
+	public RT lt(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) < 0);
 	}
 
-	public R lte(String propId, Object value) {
+	public RT lte(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) <= 0);
 	}
 
-	public R ne(String propId, Object value) {
+	public RT ne(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) != 0);
 	}
 
-	public R eq(String propId, Object value) {
+	public RT eq(String propId, Object value) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).compareTo(value) == 0);
 	}
 
-	public R notIn(String propId, String value) {
+	public RT notIn(String propId, String value) {
 		return filter(node -> node.hasProperty(propId) && ArrayUtil.indexOf(node.property(propId).asStrings(), value) < 0);
 	}
 
-	public R contains(String propId, String value) {
+	public RT contains(String propId, String value) {
 		return filter(node -> node.hasProperty(propId) && ArrayUtil.contains(node.property(propId).asStrings(), value));
 	}
 
-	public R hasRef(String refName, String targetPath) {
+	public RT hasRef(String refName, String targetPath) {
 		return filter(node -> node.hasRef(refName) && ArrayUtil.contains(node.property(refName).asStrings(), targetPath));
 	}
 
-	public R startsWith(String propId, String prefix) {
+	public RT startsWith(String propId, String prefix) {
 		return filter(node -> node.hasProperty(propId) && node.defaultValue(propId, "").startsWith(prefix));
 	}
 
-	public R endsWith(String propId, String suffix) {
+	public RT endsWith(String propId, String suffix) {
 		return filter(node -> node.hasProperty(propId) && node.defaultValue(propId, "").endsWith(suffix));
 	}
 
 	// Element
-	public R exists(String propId) {
-		return filter(node -> node.hasProperty(propId));
+	public RT hasProperty(String... propIds) {
+		return filter(node ->  Arrays.asList(propIds).stream().map(p -> node.hasProperty(p)).allMatch(Boolean.TRUE::equals) );
 	}
 
-	public R type(String propId, Class clz) {
+	public RT type(String propId, Class clz) {
 		return filter(node -> node.hasProperty(propId) && node.property(propId).value() != null && clz.isInstance(node.property(propId).value()));
 	}
 
-	public R size(String propId, int size) {
+	public RT size(String propId, int size) {
 		return filter(node -> node.property(propId).asStrings().length == size);
 	}
 
-	public R where(String expr) {
+	public RT where(String expr) {
 		Parser<Expression> parser = ExpressionParser.expression();
 		final Expression result = TerminalParser.parse(parser, expr);
 		return filter(node -> Boolean.TRUE.equals(result.value(node)));
 	}
 
 	// Logical
-	public R and(Predicate<T>... components) {
+	public RT and(Predicate<T>... components) {
 		return filter(node -> Arrays.asList(components).stream().map(p -> p.test(node)).allMatch(Boolean.TRUE::equals));
 	}
 
-	public R or(Predicate<T>... components) {
+	public RT or(Predicate<T>... components) {
 		return filter(node -> Arrays.asList(components).stream().map(p -> p.test(node)).anyMatch(Boolean.TRUE::equals));
 	}
 
-	public R nor(Predicate<T> left, Predicate<T> right) {
+	public RT nor(Predicate<T> left, Predicate<T> right) {
 		return filter(node -> Arrays.asList(left.test(node), right.test(node)).stream().distinct().count() == 2);
 	}
 
-	public R not(Predicate<T> components) {
-		return filter(node -> Arrays.asList(components).stream().map(p -> p.test(node)).noneMatch(Boolean.TRUE::equals));
+	public RT not(Predicate<T> components) {
+		return filter(node -> Arrays.asList(components).stream().map(p -> p.test(node)).allMatch(Boolean.FALSE::equals));
 	}
 
 	@Deprecated // use map
 	public <F> F transform(Function<Iterator<T>, F> fn) {
 		return fn.apply(iterator());
+	}
+	
+	public RT ascending(String propId) {
+		return sorted(new Comparator<T>() {
+			public int compare(T o1, T o2) {
+				if ( (!o1.hasProperty(propId)) || (!o2.hasProperty(propId))) return Integer.MIN_VALUE ;
+				return o1.property(propId).compareTo(o2.property(propId)) ;
+			}
+		}) ;
+	}
+
+	public RT descending(String propId) {
+		return sorted(new Comparator<T>() {
+			public int compare(T o1, T o2) {
+				if ( (!o1.hasProperty(propId)) || (!o2.hasProperty(propId))) return Integer.MIN_VALUE ;
+				return o2.property(propId).compareTo(o1.property(propId)) ;
+			}
+		}) ;
 	}
 }

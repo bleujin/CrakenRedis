@@ -10,11 +10,11 @@ public abstract class BatchSession {
 	private Workspace wspace;
 	private ReadSession rsession;
 	private Map<String, Object> attrs = MapUtil.newMap();
-	public BatchSession(Workspace wspace, ReadSession rsession) {
-		this.wspace = wspace ;
-		this.rsession = rsession ;
-	}
 
+	public BatchSession(Workspace wspace, ReadSession rsession) {
+		this.wspace = wspace;
+		this.rsession = rsession;
+	}
 
 	public ReadSession readSession() {
 		return rsession;
@@ -30,11 +30,10 @@ public abstract class BatchSession {
 		return new BatchNode(this, fqn, new JsonObject());
 	}
 
-	protected abstract void insert(BatchNode wnode, Fqn fqn, JsonObject data) ;
-	
-	
+	protected abstract void insert(BatchNode wnode, Fqn fqn, JsonObject data);
+
 	public boolean hasAttribute(String name) {
-		return attrs.containsKey(name) ;
+		return attrs.containsKey(name);
 	}
 
 	public <T> void attribute(Class<T> clz, T obj) {
@@ -46,7 +45,7 @@ public abstract class BatchSession {
 	}
 
 	public void endTran() {
-		attrs.clear(); 
+		attrs.clear();
 	}
 
 	public Workspace workspace() {
@@ -54,8 +53,8 @@ public abstract class BatchSession {
 	}
 
 	public BatchSession attribute(String name, Object value) {
-		attrs.put(name, value) ;
-		return this ;
+		attrs.put(name, value);
+		return this;
 	}
 
 }

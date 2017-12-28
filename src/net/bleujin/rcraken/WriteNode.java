@@ -18,7 +18,7 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 
-public class WriteNode implements CommonNode {
+public class WriteNode implements CommonNode, Comparable<WriteNode> {
 
 	private WriteSession wsession;
 	private Fqn fqn;
@@ -157,17 +157,30 @@ public class WriteNode implements CommonNode {
 	}
 
 	public WriteWalk walkBreadth() {
-		List<String> fqns = ListUtil.newList() ;
-		wsession.descentantBreadth(this.fqn, fqns);
-		return new WriteWalk(wsession, this.fqn, fqns);
+		return walkBreadth(false, 10) ;
 	}
 
 	public WriteWalk walkDepth() {
+		return walkDepth(false, 10) ;
+	}
+
+	public WriteWalk walkBreadth(boolean includeSelf, int maxlevel) {
 		List<String> fqns = ListUtil.newList() ;
-		wsession.descentantDepth(this.fqn, fqns);
+		if (includeSelf) fqns.add(fqn().absPath()) ;
+		
+		wsession.descentantBreadth(this.fqn, fqns, maxlevel);
 		return new WriteWalk(wsession, this.fqn, fqns);
 	}
 
+	public WriteWalk walkDepth(boolean includeSelf, int maxlevel) {
+		List<String> fqns = ListUtil.newList() ;
+		if (includeSelf) fqns.add(fqn().absPath()) ;
+		
+		wsession.descentantDepth(this.fqn, fqns, maxlevel);
+		return new WriteWalk(wsession, this.fqn, fqns);
+	}
+
+	
 	public WriteWalk refChildren(String relName, int limit) {
 		List<String> fqns = ListUtil.newList() ;
 		wsession.walkRef(this, relName, limit, fqns);
@@ -237,6 +250,9 @@ public class WriteNode implements CommonNode {
 
 
 
-
+	@Override
+	public int compareTo(WriteNode o) {
+		return fqn.absPath().compareTo(o.fqn.absPath());
+	}
 
 }

@@ -82,22 +82,26 @@ public abstract class WriteSession {
 
 	protected abstract JsonObject readDataBy(Fqn fqn);
 
-	void descentantBreadth(Fqn fqn, List<String> fqns) {
-		for (String childName : readStruBy(fqn)) {
+	void descentantBreadth(Fqn fqn, List<String> fqns, int depth) {
+		if (depth <= 0) return ;
+		
+		for(String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
-			fqns.add(child.absPath());
-			descentantBreadth(child, fqns);
+			fqns.add(child.absPath()) ;
+			descentantBreadth(child, fqns, --depth);
 		}
 	}
 
-	void descentantDepth(Fqn fqn, List<String> fqns) {
-		for (String childName : readStruBy(fqn)) {
+	void descentantDepth(Fqn fqn, List<String> fqns, int depth) {
+		if (depth <= 0) return ;
+		
+		for(String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
-			fqns.add(child.absPath());
+			fqns.add(child.absPath()) ;
 		}
 
-		for (String childName : readStruBy(fqn)) {
-			descentantDepth(Fqn.from(fqn, childName), fqns);
+		for(String childName : readStruBy(fqn)) {
+			descentantDepth(Fqn.from(fqn, childName), fqns, --depth);
 		}
 	}
 

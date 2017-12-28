@@ -27,7 +27,7 @@ import net.ion.framework.util.StringUtil;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.search.filter.TermFilter;
 
-public class ReadNode implements CommonNode {
+public class ReadNode implements CommonNode, Comparable<ReadNode> {
 
 	private ReadSession rsession;
 	private Fqn fqn;
@@ -109,17 +109,31 @@ public class ReadNode implements CommonNode {
 	}
 	
 	public ReadWalk walkBreadth() {
-		List<String> fqns = ListUtil.newList() ;
-		rsession.descentantBreadth(this.fqn, fqns);
-		return new ReadWalk(rsession, this.fqn, fqns);
+		return walkBreadth(false, 10) ;
 	}
 
 	public ReadWalk walkDepth() {
+		return walkDepth(false, 10) ;
+	}
+
+	public ReadWalk walkBreadth(boolean includeSelf, int maxlevel) {
 		List<String> fqns = ListUtil.newList() ;
-		rsession.descentantDepth(this.fqn, fqns);
+		if (includeSelf) fqns.add(fqn().absPath()) ;
+		
+		rsession.descentantBreadth(this.fqn, fqns, maxlevel);
 		return new ReadWalk(rsession, this.fqn, fqns);
 	}
 
+	public ReadWalk walkDepth(boolean includeSelf, int maxlevel) {
+		List<String> fqns = ListUtil.newList() ;
+		if (includeSelf) fqns.add(fqn().absPath()) ;
+		
+		rsession.descentantDepth(this.fqn, fqns, maxlevel);
+		return new ReadWalk(rsession, this.fqn, fqns);
+	}
+
+	
+	
 	public ReadWalk refChildren(String relName, int limit) {
 		List<String> fqns = ListUtil.newList() ;
 		rsession.walkRef(this, relName, limit, fqns);
@@ -236,5 +250,10 @@ public class ReadNode implements CommonNode {
 		json.put("path", fqn.absPath()) ;
 		json.put("property", this.data) ;
 		return json ;
+	}
+
+	@Override
+	public int compareTo(ReadNode o) {
+		return fqn.absPath().compareTo(o.fqn.absPath());
 	}
 }

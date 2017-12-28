@@ -6,8 +6,10 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import javax.crypto.BadPaddingException;
@@ -62,6 +64,10 @@ public abstract class ReadSession {
 		return tran(tjob, ehandler);
 	}
 
+	public <T> T tranSync(WriteJob<T> tjob) throws Exception {
+		return tran(tjob, ehandler).get();
+	}
+	
 	public <T> CompletableFuture<T> tran(WriteJob<T> tjob, ExecutorService eservice) {
 		return wspace.tran(wspace.writeSession(this), tjob, eservice, ehandler);
 	}
@@ -90,22 +96,26 @@ public abstract class ReadSession {
 	protected abstract Set<String> readStruBy(Fqn fqn) ;
 	
 	
-	void descentantBreadth(Fqn fqn, List<String> fqns) {
+	void descentantBreadth(Fqn fqn, List<String> fqns, int depth) {
+		if (depth <= 0) return ;
+		
 		for(String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
 			fqns.add(child.absPath()) ;
-			descentantBreadth(child, fqns);
+			descentantBreadth(child, fqns, --depth);
 		}
 	}
 
-	void descentantDepth(Fqn fqn, List<String> fqns) {
+	void descentantDepth(Fqn fqn, List<String> fqns, int depth) {
+		if (depth <= 0) return ;
+		
 		for(String childName : readStruBy(fqn)) {
 			Fqn child = Fqn.from(fqn, childName);
 			fqns.add(child.absPath()) ;
 		}
 
 		for(String childName : readStruBy(fqn)) {
-			descentantDepth(Fqn.from(fqn, childName), fqns);
+			descentantDepth(Fqn.from(fqn, childName), fqns, --depth);
 		}
 	}
 
@@ -130,8 +140,7 @@ public abstract class ReadSession {
 
 	public Searcher newSearcher() {
 		try {
-			Central central = workspace().central();
-			if (central == null) throw new IllegalStateException("this workspace not indexed") ;
+			Central central = workspace().central() ;
 			return central.newSearcher();
 		} catch (IOException ex) {
 			throw new IllegalStateException(ex) ;
