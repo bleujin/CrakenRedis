@@ -39,4 +39,5 @@ public class StreamTest extends TestBaseMapDB {
 		rsession.root().walkBreadth(true, 1).stream().debugPrint(); 
 		rsession.root().walkBreadth(false, 2).stream().debugPrint();
 	}
+
 }

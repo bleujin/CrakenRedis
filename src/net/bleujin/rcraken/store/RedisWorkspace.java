@@ -124,6 +124,8 @@ public class RedisWorkspace extends Workspace{
 	}
 
 	protected <T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		if (eservice.isTerminated() || eservice.isShutdown()) return CompletableFuture.completedFuture(null) ;
+		
 		return CompletableFuture.supplyAsync(() -> {
 			wsession.attribute(WriteJob.class, tjob);
 			wsession.attribute(ExceptionHandler.class, ehandler);
@@ -149,6 +151,8 @@ public class RedisWorkspace extends Workspace{
 
 	
 	protected <T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		if (eservice.isTerminated() || eservice.isShutdown()) return CompletableFuture.completedFuture(null) ;
+		
 		return CompletableFuture.supplyAsync(() -> {
 			bsession.attribute(BatchJob.class, bjob);
 			bsession.attribute(ExceptionHandler.class, ehandler);

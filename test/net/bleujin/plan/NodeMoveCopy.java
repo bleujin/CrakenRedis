@@ -20,7 +20,6 @@ public class NodeMoveCopy extends TestBaseCrakenRedis {
 			
 			
 			wsession.pathBy("/emp").copySelf("/emp2") ;
-			return null ;
 		}).thenAccept(nil ->{
 			assertEquals(true, rsession.exist("/emp2"));
 			assertEquals(4, rsession.pathBy("/emp").walkBreadth().size()); 
@@ -37,9 +36,7 @@ public class NodeMoveCopy extends TestBaseCrakenRedis {
 			wsession.pathBy("/emp/jin").property("name", "jin").property("age", 25).merge() ;
 			wsession.pathBy("/emp/hero/address").property("name", "hero").property("age", 30).merge() ;
 			
-			
 			wsession.pathBy("/emp").moveSelf("/emp2") ;
-			return null ;
 		}).thenAccept(nil ->{
 			assertEquals(false, rsession.exist("/emp"));
 			assertEquals(4, rsession.pathBy("/emp2").walkBreadth().size()); 

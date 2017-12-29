@@ -46,5 +46,4 @@ public class ReadStream extends AbstractStream<ReadNode, ReadStream> implements 
 		return result ;
 	}
 
-
 }

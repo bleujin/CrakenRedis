@@ -20,12 +20,10 @@ public class NodeAsTemplate extends TestBaseCrakenRedis {
 	void directTransform() throws Exception {
 		rsession.tran(SAMPLE).thenAccept(nil -> {
 			ReadNode self = rsession.pathBy("/emp");
-			
+			//self.children().stream().where("age", 10).debugPrint();
 			Engine engine = rsession.workspace().parseEngine();
-//			String result = engine.transform("${foreach self.children().stream().filter(node -> node.property(\"age\").asLong() > 20).collect(Collectors.toList()) child \n}<tr><td>${child.asString(name)}</td><td>${child.property(age).asLong()}</td></tr>${end}", MapUtil.<String, Object>create("self", self)) ;
-//			Debug.line(result) ;
-			
-			Debug.line(engine.transform("[${foreach self.children() child ,}${child.toJson()}${end}]", MapUtil.<String, Object>create("self", self))) ;
+
+			Debug.line(engine.transform("[${foreach self.children().stream().gte(age,10).toList() child \n}${child.toJson()}${end}]", MapUtil.<String, Object>create("self", self))) ;
 		}) ;
 	} // i need template engine with lambda expression
 

@@ -17,6 +17,8 @@ import org.mapdb.HTreeMap;
 import org.mapdb.MapModificationListener;
 import org.mapdb.Serializer;
 
+import com.google.common.util.concurrent.Futures;
+
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
 import net.bleujin.rcraken.ExceptionHandler;
@@ -103,6 +105,8 @@ public class MapWorkspace extends Workspace{
 	}
 
 	protected <T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		if (eservice.isTerminated() || eservice.isShutdown()) return CompletableFuture.completedFuture(null) ;
+		
 		return CompletableFuture.supplyAsync(() -> {
 			wsession.attribute(WriteJob.class, tjob);
 			wsession.attribute(ExceptionHandler.class, ehandler);
@@ -129,7 +133,9 @@ public class MapWorkspace extends Workspace{
 
 
 	
-	protected <T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) { 
+	protected <T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) {
+		if (eservice.isTerminated() || eservice.isShutdown()) return CompletableFuture.completedFuture(null) ;
+		
 		return CompletableFuture.supplyAsync(() -> {
 			bsession.attribute(BatchJob.class, bjob);
 			bsession.attribute(ExceptionHandler.class, ehandler);
