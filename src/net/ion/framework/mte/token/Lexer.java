@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.ion.framework.mte.util.Util;
+import net.ion.framework.util.ArrayUtil;
+import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.StringUtil;
 
 public class Lexer {
@@ -82,37 +84,12 @@ public class Lexer {
 				}
 			}
 			if (cmd.equalsIgnoreCase(ForEachToken.FOREACH)) {
-				final String varName = split.get(2);
-				// we might also have separator data but as the separator itself can contain spaces and the number of spaces between the previous
-				// parts is unknown, we need to do this smarter
-				int gapCount = 0;
-				int separatorBegin = 0;
-				while (separatorBegin < input.length()) {
-					char c = input.charAt(separatorBegin);
-					separatorBegin++;
-					if (Character.isWhitespace(c)) {
-						gapCount++;
-						if (gapCount == 3) {
-							break;
-						} else {
-							while (Character.isWhitespace(c = input.charAt(separatorBegin)))
-								separatorBegin++;
-						}
-					}
-				}
-
-				String separator = input.substring(separatorBegin);
-				if (separator != null) {
-					separator = Util.NO_QUOTE_MINI_PARSER.unescape(separator);
-				}
-				
-//				return new ForEachToken(objectExpression, varName, separator.length() != 0 ? separator : null);
+				String remain = StringUtil.substringAfter(input, ForEachToken.FOREACH) ;
+				List<String> result = ListUtil.newList();
+				parseRemain(result, remain);
 				// TODO : we need to do this smarter
-				String expr =  StringUtil.substringBetween(input, "foreach ", " child") ; 
-				String vname = "child" ;
-				String sep = StringUtil.substringAfter(input, " child") ;
-				return new ForEachToken(expr, vname, sep.length() != 0 ? sep : null);
-				
+
+				return new ForEachToken(result.get(0).trim(), (result.size() > 1) ? result.get(1).trim() : "", (result.size() > 2) ? result.get(2) : null);
 			}
 		}
 
@@ -175,6 +152,28 @@ public class Lexer {
 		final StringToken stringToken = new StringToken(untrimmedInput, variableName, defaultValue, prefix, suffix, rendererName, parameters);
 		return stringToken;
 
+	}
+
+	private void parseRemain(List<String> result, String input) {
+	    char[] START_PAREN = new char[] {'('};
+	    char[] END_PAREN   = new char[] {')'};
+	    
+	    int point = 0 ;
+	    int cpos = 0 ;
+	    StringBuilder expression = new StringBuilder() ;
+		for(char c : input.toCharArray()) {
+			if (ArrayUtil.contains(START_PAREN, c)) point++ ;
+			else if (ArrayUtil.contains(END_PAREN, c)) point-- ;
+			else if (cpos == input.length()-1) {
+				result.add(input);
+			} else if (point == 0 && Character.isWhitespace(c) && (!expression.toString().trim().isEmpty())) {
+				result.add(expression.toString()) ;
+				parseRemain(result, input.substring(cpos));
+				break ;
+			} 
+			expression.append(c) ;
+			cpos++ ;
+		}
 	}
 
 }

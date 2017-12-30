@@ -60,10 +60,11 @@ public class TestMapDB extends TestBaseMapDB{
 	public void directTransform() throws Exception {
 		rsession.tran(SAMPLE).thenAccept(nil -> {
 			ReadNode self = rsession.pathBy("/emp");
-			//self.children().stream().where("age", 10).debugPrint();
+//			self.children().stream().filter(n -> n.property("age").asInt() > 10).debugPrint();
 			
 			Engine engine = rsession.workspace().parseEngine();
-			Debug.line(engine.transform("${foreach self.children().stream().where(\"this.age>20 and this.name='jin'\").toList() child \n}${child}${end}", MapUtil.<String, Object>create("self", self))) ;
+			Debug.line(engine.transform("${foreach self.children().stream().where(\"this.age > 20\").toList() child \n}${child}${end}", MapUtil.<String, Object>create("self", self))) ;
+//			Debug.line(engine.transform("${foreach self.children().stream().filter(n -> n.property(\"age\").asInt() > 10).toList() child \n}${child}${end}", MapUtil.<String, Object>create("self", self))) ;
 		}) ;
 	} // i need template engine with lambda expression
 
