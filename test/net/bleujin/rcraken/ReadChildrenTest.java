@@ -1,7 +1,9 @@
 package net.bleujin.rcraken;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -64,4 +66,14 @@ public class ReadChildrenTest extends TestBaseCrakenRedis {
 		}) ;
 	}
 
+	@Test
+	public void testTransform() throws Exception {
+		rsession.tran(SAMPLE).thenAccept(nil -> {
+			String result = rsession.pathBy("/emp").children().stream().transform((iter) -> {
+				iter.iterator().forEachRemaining(System.out::println);
+				return "hello";
+			}) ;
+			Debug.line(result);
+		}) ;
+	}
 }

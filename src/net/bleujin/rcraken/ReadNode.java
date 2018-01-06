@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -255,5 +256,9 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 	@Override
 	public int compareTo(ReadNode o) {
 		return fqn.absPath().compareTo(o.fqn.absPath());
+	}
+
+	public <F> F transformer(Function<ReadNode, F> fn) {
+		return fn.apply(this);
 	}
 }

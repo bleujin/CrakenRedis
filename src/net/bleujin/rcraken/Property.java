@@ -21,7 +21,7 @@ import net.ion.nsearcher.common.WriteDocument;
 
 public class Property implements Comparable{
 
-	private static final Property NOTFOUND = new Property(null, null, "N/A", JsonObject.create());
+	public static final Property NOTFOUND = new Property(null, null, "N/A", JsonObject.create());
 
 	private final ReadSession rsession;
 	private final Fqn fqn;
@@ -36,6 +36,10 @@ public class Property implements Comparable{
 		}, Long {
 			public void indexTo(WriteDocument wdoc, Property property) {
 				wdoc.number(property.name, property.asLong()) ;
+			}
+		}, Double {
+			public void indexTo(WriteDocument wdoc, Property property) {
+				wdoc.number(property.name, java.lang.Double.valueOf(property.asDouble()).intValue()) ;
 			}
 		}, Date {
 			public void indexTo(WriteDocument wdoc, Property property) {
@@ -138,6 +142,11 @@ public class Property implements Comparable{
 	public long asLong() {
 		return json.asLong(Defined.Property.Value);
 	}
+
+	public double asDouble() {
+		return json.asDouble(Defined.Property.Value);
+	}
+
 
 	public int asInt() {
 		return json.asInt(Defined.Property.Value);

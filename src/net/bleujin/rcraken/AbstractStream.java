@@ -31,7 +31,7 @@ import net.bleujin.rosetta.Parser;
 import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.Debug;
 
-public abstract class AbstractStream<T extends CommonNode, RT> {
+public abstract class AbstractStream<T extends CommonNode, RT> implements Iterable<T> {
 
 	private Stream<T> stream;
 
@@ -296,9 +296,8 @@ public abstract class AbstractStream<T extends CommonNode, RT> {
 		return filter(node -> Arrays.asList(components).stream().map(p -> p.test(node)).allMatch(Boolean.FALSE::equals));
 	}
 
-	@Deprecated // use map
-	public <F> F transform(Function<Iterator<T>, F> fn) {
-		return fn.apply(iterator());
+	public <F> F transform(Function<Iterable<T>, F> fn) {
+		return fn.apply(this);
 	}
 	
 	public RT ascending(String propId) {

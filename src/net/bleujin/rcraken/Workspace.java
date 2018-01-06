@@ -10,6 +10,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 
 import net.bleujin.rcraken.def.Defined;
+import net.bleujin.rcraken.extend.CDDHandler;
+import net.bleujin.rcraken.extend.CDDModifiedEvent;
+import net.bleujin.rcraken.extend.CDDRemovedEvent;
 import net.bleujin.rcraken.extend.IndexEvent;
 import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
@@ -24,6 +27,7 @@ import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.Indexer;
+import net.ion.radon.util.uriparser.URIPattern;
 
 public abstract class Workspace {
 
@@ -98,6 +102,28 @@ public abstract class Workspace {
 		listeners.put(nodeListener.id(), nodeListener);
 	}
 
+	public void add(CDDHandler cddHandler) {
+		addListener(new NodeListener() {
+			@Override
+			public String id() {
+				return cddHandler.id();
+			}
+
+			@Override
+			public void onChanged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
+				if (fqn.isPattern(cddHandler.pathPattern())) {
+					Map<String, String> resolveMap = fqn.resolve(cddHandler.pathPattern()) ;
+					if (etype == EventType.REMOVED) {
+						cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, value)) ;
+					} else if (etype == EventType.UPDATED ){
+						cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue)) ;
+					}
+				}
+			}
+			
+		});
+	}
+	
 	public abstract Sequence sequence(String name);
 
 	public abstract <T> Topic<T> topic(String name);
@@ -193,5 +219,6 @@ public abstract class Workspace {
 	public void removeListener(String id) {
 		listeners.remove(id);
 	}
+
 
 }

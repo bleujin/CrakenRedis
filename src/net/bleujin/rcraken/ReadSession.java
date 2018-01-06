@@ -59,6 +59,11 @@ public abstract class ReadSession {
 	}
 
 	public abstract boolean exist(String path) ;
+	
+	public boolean exist(Fqn fqn) {
+		return exist(fqn.absPath());
+	}
+
 
 	public <T> CompletableFuture<T> tran(WriteJob<T> tjob) {
 		return tran(tjob, ehandler);
@@ -200,6 +205,7 @@ public abstract class ReadSession {
 		String templateName = StringUtil.substringAfterLast(path, ".") ;
 		return workspace().templateFac().newNode(this, Fqn.from(absPath), templateName);
 	}
+
 
 
 

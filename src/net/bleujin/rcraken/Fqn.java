@@ -3,6 +3,7 @@ package net.bleujin.rcraken;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
@@ -17,7 +18,11 @@ import com.google.common.collect.Iterables;
 import net.bleujin.rcraken.def.Defined;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.util.ArrayUtil;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
+import net.ion.radon.util.uriparser.URIPattern;
+import net.ion.radon.util.uriparser.URIResolveResult;
+import net.ion.radon.util.uriparser.URIResolver;
 
 public class Fqn implements Serializable {
 
@@ -285,6 +290,24 @@ public class Fqn implements Serializable {
 		result.add(new TermQuery(new Term(Defined.Index.PARENT, this.toString())), Occur.SHOULD);
 		return result;
 		// return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
+	}
+
+	public boolean isPattern(String fqnPattern) {
+		return new URIPattern(fqnPattern).match(this.toString());
+	}
+	
+	public boolean isPattern(URIPattern uriPattern) {
+		return uriPattern.match(this.toString());
+	}
+	public Map<String, String> resolve(String fqnPattern){
+		URIResolveResult resolver = new URIResolver(toString()).resolve(new URIPattern(fqnPattern));
+		Map<String, String> result = MapUtil.newMap() ;
+		
+		for(String name : resolver.names()){
+			result.put(name, ObjectUtil.toString(resolver.get(name))) ;
+		}
+		
+		return result ;
 	}
 
 }

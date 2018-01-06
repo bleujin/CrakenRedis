@@ -25,8 +25,11 @@ public abstract class WriteSession {
 
 	public WriteNode pathBy(String path) {
 		Fqn fqn = Fqn.from(path);
-
 		return pathBy(fqn);
+	}
+
+	public WriteNode pathBy(String... elements) {
+		return pathBy(Fqn.fromElements(elements));
 	}
 
 	public WriteNode pathBy(Fqn fqn) {

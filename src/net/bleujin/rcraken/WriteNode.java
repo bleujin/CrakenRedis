@@ -13,6 +13,7 @@ import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -50,6 +51,12 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		JsonObject jvalue = new JsonObject().put("type", PType.Date.toString()).put("value", value.getTimeInMillis());
 		return property(name, jvalue);
 	}
+	
+	public WriteNode property(String name, double value) {
+		JsonObject jvalue = new JsonObject().put("type", PType.Double.toString()).put("value", value);
+		return property(name, jvalue);
+	}
+
 
 	public WriteNode property(String name, InputStream value) {
 		String pvalue = fqn.absPath() + "$" + name;
@@ -67,7 +74,11 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		return property(name, jvalue);
 	}
 	
-	public WriteNode property(String name, String value, String... values) {
+	public WriteNode property(String name, String... values) {
+		return property(name, values[0], ArrayUtil.newSubArray(values, 1, values.length)) ;
+	}
+	
+	private WriteNode property(String name, String value, String... values) {
 		JsonObject jvalue = new JsonObject().put("type", PType.String.toString()).put("value", value) ;
 		jvalue.add("values", new JsonArray());
 		for (String v : values) {
@@ -254,5 +265,10 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	public int compareTo(WriteNode o) {
 		return fqn.absPath().compareTo(o.fqn.absPath());
 	}
+
+	public ReadNode toReadNode() {
+		return wsession.readSession().pathBy(fqn);
+	}
+
 
 }

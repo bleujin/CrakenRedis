@@ -20,13 +20,19 @@ public class PropertyTest extends TestBaseCrakenRedis {
 	@Test
 	public void primitiveProperty() throws Exception {
 		rsession.tran(wsession -> {
-			wsession.pathBy("/property").property("string", "bleujin").property("boolean", true).property("calendar", Calendar.getInstance()).property("long", Long.MAX_VALUE).property("integer", Integer.MAX_VALUE * 1L).merge() ;
+			wsession.pathBy("/property").property("string", "bleujin")
+				.property("boolean", true)
+				.property("calendar", Calendar.getInstance())
+				.property("long", Long.MAX_VALUE)
+				.property("double", Double.valueOf("3.5"))
+				.property("integer", Integer.MAX_VALUE * 1L).merge() ;
 			return null ;
 		}).thenAccept(nil ->{
 			ReadNode found = rsession.pathBy("/property") ;
 			assertEquals("bleujin", found.property("string").asString());
 			assertEquals(true, found.property("boolean").asBoolean());
 			assertEquals(Long.MAX_VALUE, found.property("long").asLong());
+			assertEquals(Double.valueOf("3.5"), Double.valueOf(found.property("long").asDouble()));
 			assertEquals(Integer.MAX_VALUE, found.property("integer").asLong());
 			assertEquals(Calendar.getInstance().get(Calendar.DATE), found.property("calendar").asDate().get(Calendar.DATE));
 		}) ;
