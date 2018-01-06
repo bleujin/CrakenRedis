@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
 public class NodeMoveCopy extends TestBaseCrakenRedis {

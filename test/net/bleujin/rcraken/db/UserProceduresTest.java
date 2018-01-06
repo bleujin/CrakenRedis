@@ -1,5 +1,6 @@
 package net.bleujin.rcraken.db;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.ion.framework.db.Rows;
@@ -9,7 +10,8 @@ public class UserProceduresTest extends TestBaseFnManager {
 
 	
 	
-	@Test
+	@Test 
+	@Disabled("not supported")
 	public void testCreateUserProcedures() throws Exception {
 		IUserProcedures upts = dc.createUserProcedures("addJob");
 		upts.add(dc.createUserProcedure("dummy@addPersonWITH(?,?,?)").addParam("bleujin").addParam(20).addParam("seoul"));

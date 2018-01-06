@@ -11,7 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import net.bleujin.rcraken.ReadNode;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseMapDB;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;

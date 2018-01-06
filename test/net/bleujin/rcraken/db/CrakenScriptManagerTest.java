@@ -12,33 +12,27 @@ import org.junit.jupiter.api.Test;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
+import net.bleujin.rcraken.tbase.TestBaseMapDB;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedureBatch;
 import net.ion.framework.db.servant.StdOutServant;
 import net.ion.framework.util.Debug;
 
-public class CrakenScriptManagerTest  {
+public class CrakenScriptManagerTest extends TestBaseMapDB {
 
 	protected DBController dc;
-	private Craken craken;
-	protected ReadSession session;
 
 	@BeforeEach
-	protected void setUp() throws Exception {
-		this.craken = CrakenConfig.redisSingle().build() ;
-		this.session = craken.start().login("test") ;
-		session.workspace().removeSelf() ;
-		
-		CrakenScriptManager dbm = CrakenScriptManager.create(session, Executors.newScheduledThreadPool(1), new File("./test/net/bleujin/rcraken/db")) ;
+	protected void setUpManger() throws Exception {
+		CrakenScriptManager dbm = CrakenScriptManager.create(rsession, Executors.newScheduledThreadPool(1), new File("./test/net/bleujin/rcraken/db")) ;
 		this.dc = new DBController("craken", dbm, new StdOutServant());
 		dc.initSelf() ;
 	}
 	
 	@AfterEach
-	protected void tearDown() throws Exception {
+	protected void tearDownManager() throws Exception {
 		dc.destroySelf();
-		craken.shutdownSelf();
 	}
 	
 	

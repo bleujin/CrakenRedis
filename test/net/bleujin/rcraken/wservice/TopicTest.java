@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RTopic;
 import org.redisson.api.listener.MessageListener;
 
-import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.extend.Topic;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
 public class TopicTest extends TestBaseCrakenRedis {

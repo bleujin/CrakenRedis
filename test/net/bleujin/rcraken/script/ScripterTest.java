@@ -2,6 +2,8 @@ package net.bleujin.rcraken.script;
 
 import java.io.StringReader;
 
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.ion.framework.util.Debug;
@@ -28,7 +30,7 @@ public class ScripterTest {
 		Debug.line(result, script.compiled().getClass());
 	}
 
-	@Test
+	@Test @Disabled("groovy jar needed")
 	public void testGScript() throws Exception {
 		Scripter ge = Scripter.groovy();
 		String hello = IOUtil.toStringWithClose(getClass().getResourceAsStream("helloworld.groovy"));

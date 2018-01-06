@@ -4,8 +4,8 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.convert.FieldDefinition;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.db.Rows;
 
 public class AdRowsTest extends TestBaseCrakenRedis {

@@ -19,8 +19,8 @@ import org.redisson.config.Config;
 import org.redisson.config.RedissonNodeConfig;
 
 import junit.framework.TestCase;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.store.RedisNode;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
 public class MapReduceTest extends TestBaseCrakenRedis {

@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.CronSchedule;
 import org.redisson.api.RExecutorService;
@@ -29,7 +31,7 @@ import net.ion.framework.util.MapUtil;
 
 public class CrakenExecutorTest {
 
-	@Test
+	@Test @Disabled("cluster mode redis needed")
 	public void testCluster() throws Exception {
 		Craken craken = CrakenConfig.redisCluster("redis://127.0.0.1:6701", "redis://127.0.0.1:6702", "redis://127.0.0.1:6703").build().start();
 		Thread.sleep(1000);

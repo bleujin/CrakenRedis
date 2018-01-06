@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 

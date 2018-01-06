@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.extend.Sequence;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 
 public class SequenceTest extends TestBaseCrakenRedis {
 

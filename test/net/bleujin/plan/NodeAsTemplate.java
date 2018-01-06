@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadNode;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.bleujin.rcraken.template.TemplateNode;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
@@ -42,7 +42,6 @@ public class NodeAsTemplate extends TestBaseCrakenRedis {
 
 		rsession.tran(wsession ->{
 			wsession.pathBy("/emp/bleujin").property("json", "Hello ${self.asString(name)}, p : ${params.asString(detail)}").merge();
-			return null ;
 		}) ;
 		rsession.templateBy("/emp/bleujin.json").parameters("detail=yes").transform(writer); ;
 		rsession.templateBy("/emp/hero.json").parameters("detail=yes").transform(writer); ;

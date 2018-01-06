@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.config.CentralConfig;

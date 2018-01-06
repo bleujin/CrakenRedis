@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.store;
+package net.bleujin.rcraken.tbase;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 

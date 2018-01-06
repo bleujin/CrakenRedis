@@ -11,7 +11,7 @@ import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 
 public class TestMapDBFile {
 	protected static Craken c;

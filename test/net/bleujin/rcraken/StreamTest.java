@@ -1,12 +1,8 @@
 package net.bleujin.rcraken;
 
-import java.util.Comparator;
-
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.Property.PType;
-import net.bleujin.rcraken.store.TestBaseMapDB;
-import net.ion.framework.util.Debug;
+import net.bleujin.rcraken.tbase.TestBaseMapDB;
 
 public class StreamTest extends TestBaseMapDB {
 

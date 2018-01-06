@@ -12,21 +12,20 @@ import net.ion.framework.util.Debug;
 public class ReadMe {
 
 	@Test
-	public void testRedis() throws Exception {
+	public void withRedis() throws Exception {
 		Craken c = CrakenConfig.redisSingle().build().start();
 		stdTest(c); 
 	}
 	
 	@Test
-	public void testMapDB() throws Exception {
+	public void withMapDB() throws Exception {
 		Craken c = CrakenConfig.mapMemory().build().start();
 		stdTest(c); 
 	}
 	
 	
 	
-
-	private void stdTest(Craken c) throws InterruptedException, ExecutionException {
+	void stdTest(Craken c) throws InterruptedException, ExecutionException {
 		ReadSession rsession = c.login("testworkspace");
 		rsession.workspace().removeSelf(); // clear workspace
 

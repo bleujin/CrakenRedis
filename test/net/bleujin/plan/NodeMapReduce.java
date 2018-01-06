@@ -8,8 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.mapreduce.RMapReduce;
 
-import net.bleujin.rcraken.TestBaseCrakenRedis;
-
+import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
 
 public class NodeMapReduce extends TestBaseCrakenRedis{
