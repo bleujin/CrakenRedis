@@ -27,7 +27,7 @@ public class TestMapDBFile {
 	
 	@AfterAll
 	static void done() throws Exception {
-		c.shutdownSelf();
+		c.shutdown();
 	}
 
 

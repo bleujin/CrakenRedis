@@ -35,7 +35,7 @@ public class TestBaseCrakenRedis {
 	
 	@AfterAll
 	static void done() throws Exception {
-		c.shutdownSelf();
+		c.shutdown();
 	}
 
 

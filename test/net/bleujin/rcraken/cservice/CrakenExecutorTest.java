@@ -35,7 +35,7 @@ public class CrakenExecutorTest {
 	public void testCluster() throws Exception {
 		Craken craken = CrakenConfig.redisCluster("redis://127.0.0.1:6701", "redis://127.0.0.1:6702", "redis://127.0.0.1:6703").build().start();
 		Thread.sleep(1000);
-		craken.shutdownSelf();
+		craken.shutdown();
 	}
 
 	@Test
@@ -48,8 +48,8 @@ public class CrakenExecutorTest {
 			assertEquals(42, service.myMethod(21L).longValue());
 
 		} finally {
-			client.shutdownSelf();
-			server.shutdownSelf();
+			client.shutdown();
+			server.shutdown();
 		}
 	}
 
@@ -66,7 +66,7 @@ public class CrakenExecutorTest {
 		es.submit(new CallableTask()).get();
 
 		es.awaitTermination(1, TimeUnit.SECONDS);
-		craken.shutdownSelf();
+		craken.shutdown();
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class CrakenExecutorTest {
 		es.schedule(new RunnableTask(), CronSchedule.weeklyOnDayAndHourAndMinute(12, 4, Calendar.MONDAY, Calendar.FRIDAY));
 
 		es.awaitTermination(1, TimeUnit.SECONDS);
-		craken.shutdownSelf();
+		craken.shutdown();
 	}
 
 	public interface RemoteInterface {

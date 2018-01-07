@@ -52,7 +52,7 @@ public class ReadMe {
 			.sorted((n1, n2) -> n2.property("age").asInt() - n1.property("age").asInt())
 			.forEach(System.out::println);
 		
-		c.shutdownSelf();
+		c.shutdown();
 	}
 
 }

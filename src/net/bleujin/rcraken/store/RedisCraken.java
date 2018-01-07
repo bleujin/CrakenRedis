@@ -50,7 +50,7 @@ public class RedisCraken extends Craken{
 		return wss.get(wname);
 	}
 
-	public void shutdownSelf() {
+	public void shutdown() {
 		if (cnode != null) cnode.shutdown(); 
 		rclient.shutdown();
 	}

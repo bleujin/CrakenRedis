@@ -15,7 +15,7 @@ public abstract class Craken {
 
 	protected abstract Workspace findWorkspace(String wname) ;
 	
-	public abstract void shutdownSelf() ;
+	public abstract void shutdown() ;
 	
 	@Deprecated // test only
 	public abstract void removeAll() ;

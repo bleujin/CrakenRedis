@@ -84,6 +84,18 @@ public abstract class ReadSession {
 	public <T> T tranSync(WriteJob<T> tjob) throws Exception {
 		return tran(tjob, ehandler).get();
 	}
+
+	public void tranSync(WriteJobNoReturn tjob) throws Exception {
+		tran(new WriteJob<Void>() {
+			@Override
+			public Void handle(WriteSession wsession) throws Exception {
+				tjob.handle(wsession);
+				return null;
+			}
+			
+		}, ehandler).get() ;
+	}
+
 	
 	public <T> CompletableFuture<T> tran(WriteJob<T> tjob, ExecutorService eservice) {
 		return wspace.tran(wspace.writeSession(this), tjob, eservice, ehandler);

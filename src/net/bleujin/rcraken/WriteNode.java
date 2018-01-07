@@ -87,11 +87,23 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		return property(name, jvalue);
 	}
 	
+	public WriteNode increase(String name) {
+		long current = property(name).asLong() ;
+		return property(name, ++current) ;
+	}
+
+	
 	public JsonObject unset(String name) {
 		JsonElement removed = jsonData.remove(name) ;
 		return removed.getAsJsonObject();
 	}
 
+	public WriteNode unsetWith(String name) {
+		JsonElement removed = jsonData.remove(name) ;
+		return this;
+	}
+
+	
 	public WriteNode encrypt(String key, String value) throws IOException {
 		return property(key, wsession.readSession().encrypt(value)) ;
 	}
@@ -219,6 +231,7 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 
 	
 	public WriteNode parent() {
+		this.merge(); 
 		return wsession.pathBy(fqn.getParent());
 	}
 
@@ -269,6 +282,7 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	public ReadNode toReadNode() {
 		return wsession.readSession().pathBy(fqn);
 	}
+
 
 
 }

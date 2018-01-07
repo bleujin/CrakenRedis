@@ -24,7 +24,7 @@ public class MapConfig implements CrakenConfig {
 	}
 
 	public static MapConfig file(File file) {
-		return fromMaker(DBMaker.fileDB(file)) ;
+		return fromMaker(DBMaker.fileDB(file).closeOnJvmShutdown().fileMmapEnableIfSupported().transactionEnable()) ;
 	}
 
 	public static MapConfig fromMaker(Maker maker) {

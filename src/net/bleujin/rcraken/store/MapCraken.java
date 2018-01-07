@@ -48,7 +48,7 @@ public class MapCraken extends Craken {
 		return wss.get(wname);
 	}
 
-	public void shutdownSelf() {
+	public void shutdown() {
 		if (cnode != null) cnode.shutdown();
 		
 		db.close();

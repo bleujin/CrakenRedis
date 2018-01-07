@@ -23,6 +23,10 @@ public abstract class WriteSession {
 		return rsession;
 	}
 
+	public WriteNode root() {
+		return pathBy("/");
+	}
+
 	public WriteNode pathBy(String path) {
 		Fqn fqn = Fqn.from(path);
 		return pathBy(fqn);
@@ -121,5 +125,6 @@ public abstract class WriteSession {
 			walkRef(source.session().pathBy(rel), relName, --limit, fqns);
 		}
 	}
+
 
 }
