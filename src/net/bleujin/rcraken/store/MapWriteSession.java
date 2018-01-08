@@ -97,7 +97,11 @@ public class MapWriteSession extends WriteSession {
 			});
 		});
 		Fqn parent = fqn.getParent() ;
-		if(! fqn.isRoot()) struMap.get(parent.absPath()).remove(fqn.name()) ;
+		if(! fqn.isRoot()) {
+			Set<String> childSet = struMap.get(parent.absPath()) ;
+			childSet.remove(fqn.name()) ;
+			struMap.put(parent.absPath(), childSet) ;
+		}
 	}
 
 	void decendant(Fqn parent, Set<String> rs) {
