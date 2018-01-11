@@ -42,7 +42,7 @@ public class TestBaseCrakenRedis {
 	@BeforeEach
 	void setUp(){
 		rsession = c.login("testworkspace") ;
-//		rsession.workspace().removeSelf() ;
+		rsession.workspace().removeSelf() ;
 	}
 	
 	

@@ -27,7 +27,7 @@ public class IndexSearchTest extends TestBaseCrakenRedis {
 	@Test
 	public void indexWhenSettingCentral() throws Exception {
 		Central central = CentralConfig.newRam().build() ;
-		
+
 		rsession.workspace().indexCntral(central) ;
 		for (int i = 0; i < 10; i++) {
 			rsession.tran(SAMPLE) ;

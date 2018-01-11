@@ -1,9 +1,11 @@
 package net.bleujin.rcraken;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.awt.image.SampleModel;
 import java.util.concurrent.Future;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test;import com.sun.xml.internal.ws.api.server.WSEndpoint;
 
 import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
 import net.ion.framework.util.Debug;
@@ -13,12 +15,14 @@ public class WriteNodeTest extends TestBaseCrakenRedis {
 	@Test
 	public void testRefTo() throws Exception {
 		rsession.tran(wsession -> {
-			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero").merge();
+			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero", "/emp/bleujin").merge();
 			wsession.pathBy("/emp/hero").property("name", "hero").merge();
 			return null;
 		}).thenAccept(nill ->{
 			ReadNode hero = rsession.pathBy("/emp/bleujin").ref("friend") ;
 			hero.debugPrint();
+			
+			rsession.pathBy("/emp/bleujin").hasRef("friend") ;
 		}) ;
 	}
 
@@ -73,5 +77,17 @@ public class WriteNodeTest extends TestBaseCrakenRedis {
 		
 		rsession.pathBy("/").children().debugPrint(); 
 	}
+	
+	
+	@Test
+	public void testAppend() throws Exception {
+		rsession.tran(wsession -> {
+			wsession.pathBy("/appendtest").append("name", "bleujin").merge() ;
+			wsession.pathBy("/appendtest").append("name", "jin", "hero").merge() ;
+		}) ;
+		
+		assertEquals(3, rsession.pathBy("/appendtest").property("name").asSet().size()) ;
+	}
+	
 
 }

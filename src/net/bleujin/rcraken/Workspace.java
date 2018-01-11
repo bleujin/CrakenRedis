@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+
+import com.sun.xml.internal.ws.api.server.WSEndpoint;
 
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.CDDHandler;
@@ -113,10 +116,18 @@ public abstract class Workspace {
 			public void onChanged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
 				if (fqn.isPattern(cddHandler.pathPattern())) {
 					Map<String, String> resolveMap = fqn.resolve(cddHandler.pathPattern()) ;
+					final AtomicReference<WriteJobNoReturn> referChain = new AtomicReference<WriteJobNoReturn>() ;
 					if (etype == EventType.REMOVED) {
-						cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, value)) ;
+						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, value))) ;
 					} else if (etype == EventType.UPDATED ){
-						cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue)) ;
+						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue))) ;
+					}
+					
+					if (referChain.get() != null) {
+						readSession().tran(wsession -> {
+							referChain.get().handle(wsession);
+							return null;
+						}) ;
 					}
 				}
 			}

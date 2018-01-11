@@ -65,13 +65,21 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		return property(name, jvalue);
 	}
 
-	public WriteNode refTo(String name, String fqn, String... fqns) {
-		JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn);
-		jvalue.add("values", new JsonArray());
-		for (String fv : fqns) {
-			jvalue.accumulate("values", fv) ;	
+	public WriteNode refTo(String refName, String fqn, String... fqns) {
+		if (hasProperty(refName)) {
+			JsonObject jvalue = jsonData.asJsonObject(refName) ;
+			JsonArray jarray = jvalue.has("values") ? jvalue.asJsonArray("values") : new JsonArray() ;
+			jarray.adds(fqn) ; jarray.adds(fqns) ;
+			jvalue.add("values", jarray);
+		} else {
+			JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn);
+			jvalue.add("values", new JsonArray());
+			for (String fv : fqns) {
+				jvalue.accumulate("values", fv) ;	
+			}
+			property(refName, jvalue);
 		}
-		return property(name, jvalue);
+		return this ;
 	}
 	
 	public WriteNode property(String name, String... values) {
@@ -86,6 +94,19 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		}
 		return property(name, jvalue);
 	}
+	
+	public WriteNode append(String name, String... values) {
+		if (hasProperty(name)) {
+			JsonObject jvalue = jsonData.asJsonObject(name) ;
+			JsonArray jarray = jvalue.has("values") ? jvalue.asJsonArray("values") : new JsonArray() ;
+			jarray.adds(values) ;
+			jvalue.add("values", jarray);
+		} else {
+			property(name, values) ;
+		}
+		return this;
+	}
+
 	
 	public WriteNode increase(String name) {
 		long current = property(name).asLong() ;
@@ -282,6 +303,7 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	public ReadNode toReadNode() {
 		return wsession.readSession().pathBy(fqn);
 	}
+
 
 
 
