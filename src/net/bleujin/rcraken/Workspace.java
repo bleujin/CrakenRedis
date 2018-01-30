@@ -10,8 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.sun.xml.internal.ws.api.server.WSEndpoint;
-
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.CDDHandler;
 import net.bleujin.rcraken.extend.CDDModifiedEvent;
@@ -26,11 +24,11 @@ import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.WithinThreadExecutor;
 import net.ion.nsearcher.common.WriteDocument;
 import net.ion.nsearcher.config.Central;
 import net.ion.nsearcher.index.Indexer;
-import net.ion.radon.util.uriparser.URIPattern;
 
 public abstract class Workspace {
 
@@ -118,7 +116,7 @@ public abstract class Workspace {
 					Map<String, String> resolveMap = fqn.resolve(cddHandler.pathPattern()) ;
 					final AtomicReference<WriteJobNoReturn> referChain = new AtomicReference<WriteJobNoReturn>() ;
 					if (etype == EventType.REMOVED) {
-						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, value))) ;
+						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, ObjectUtil.coalesce(value, oldValue)))) ;
 					} else if (etype == EventType.UPDATED ){
 						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue))) ;
 					}
@@ -191,7 +189,7 @@ public abstract class Workspace {
 					});
 					return;
 				}
-				if (!jvalue.keySet().isEmpty()) {
+				if (jvalue != null && !jvalue.keySet().isEmpty()) {
 					Workspace.this.ievents.add(IndexEvent.create(etype, fqn, jvalue));
 				}
 			}

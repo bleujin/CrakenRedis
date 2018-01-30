@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.cservice;
+package net.bleujin.rcraken.redis;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,10 +20,10 @@ import org.redisson.config.RedissonNodeConfig;
 
 import junit.framework.TestCase;
 import net.bleujin.rcraken.store.RedisNode;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class MapReduceTest extends TestBaseCrakenRedis {
+public class MapReduceTest extends TestBaseRCraken {
 	// https://github.com/redisson/redisson/wiki/9.-distributed-services
 
 	@Test

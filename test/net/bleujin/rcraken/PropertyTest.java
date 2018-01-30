@@ -10,12 +10,13 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 
-public class PropertyTest extends TestBaseCrakenRedis {
+public class PropertyTest extends TestBaseRCraken {
 
 	@Test
 	public void primitiveProperty() throws Exception {

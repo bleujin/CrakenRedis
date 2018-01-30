@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class ReadNodeTest extends TestBaseCrakenRedis{
+public class ReadNodeTest extends TestBaseRCraken{
 
 	@Test
 	public void parentExist() throws Exception {

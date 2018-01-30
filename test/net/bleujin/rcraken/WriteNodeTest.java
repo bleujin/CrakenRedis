@@ -7,10 +7,11 @@ import java.util.concurrent.Future;
 
 import org.junit.jupiter.api.Test;import com.sun.xml.internal.ws.api.server.WSEndpoint;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class WriteNodeTest extends TestBaseCrakenRedis {
+public class WriteNodeTest extends TestBaseRCraken {
 
 	@Test
 	public void testRefTo() throws Exception {
@@ -28,16 +29,16 @@ public class WriteNodeTest extends TestBaseCrakenRedis {
 
 	@Test
 	public void testSpeed() throws Exception {
-		long start = System.currentTimeMillis() ;
-		for (int i = 0; i < 100 ; i++) {
+		for (int i = 0; i < 5 ; i++) {
+			long start = System.currentTimeMillis() ;
 			final int age = i ;
 			rsession.tran(wsession -> {
 				wsession.pathBy("/emp/bleujin").property("age", age).merge(); ;
 				wsession.pathBy("/emp/hero").property("age", 30).merge(); ;
 				return null;
 			}) ;
+			Debug.line(System.currentTimeMillis() - start);
 		}
-		Debug.line(System.currentTimeMillis() - start);
 		rsession.pathBy("/").walkDepth().debugPrint();
 	}
 	

@@ -5,9 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.extend.Sequence;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 
-public class SequenceTest extends TestBaseCrakenRedis {
+public class SequenceTest extends TestBaseRCraken {
 
 	@Test
 	public void createSeq() throws Exception {

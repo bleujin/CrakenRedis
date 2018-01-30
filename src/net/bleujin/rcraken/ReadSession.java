@@ -81,6 +81,11 @@ public abstract class ReadSession {
 	}
 
 
+	// for script ambiguously
+	public <T> T tranScript(WriteJob<T> tjob) throws Exception {
+		return tran(tjob, ehandler).get();
+	}
+
 	public <T> T tranSync(WriteJob<T> tjob) throws Exception {
 		return tran(tjob, ehandler).get();
 	}

@@ -9,10 +9,11 @@ import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class ConvertTest extends TestBaseCrakenRedis{
+public class ConvertTest extends TestBaseRCraken{
 
 	@Test
 	public void flatBean() throws Exception {

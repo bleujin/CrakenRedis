@@ -71,6 +71,8 @@ public class MapWriteSession extends WriteSession {
 		Set<String> rs = SetUtil.newSet() ;
 		decendant(fqn, rs); 
 
+		Set<String> cnames = wnode.childrenNames() ;
+		
 		rs.forEach(path -> {
 			dataMap.remove(path); 
 			struMap.remove(path);
@@ -80,6 +82,9 @@ public class MapWriteSession extends WriteSession {
 				}
 			});
 		});
+		Set<String> childSet = struMap.get(fqn.absPath()) ;
+		childSet.removeAll(cnames) ;
+		struMap.put(fqn.absPath(), childSet) ;
 	}
 
 	protected void removeSelf(WriteNode wnode, Fqn fqn, JsonObject data) {

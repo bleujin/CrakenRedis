@@ -40,7 +40,7 @@ public class CDDModifiedEvent {
 		return ObjectUtil.coalesce(newProperties.get(propId), Property.NOTFOUND) ;
 	}
 
-	public Object oldProperty(String propId) {
+	public Property oldProperty(String propId) {
 		return ObjectUtil.coalesce(oldProperties.get(propId), Property.NOTFOUND) ;
 	}
 

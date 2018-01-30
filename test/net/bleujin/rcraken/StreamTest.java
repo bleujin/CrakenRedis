@@ -2,9 +2,10 @@ package net.bleujin.rcraken;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.tbase.TestBaseMapDB;
+import net.bleujin.rcraken.mapdb.TestBaseMapDB;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 
-public class StreamTest extends TestBaseMapDB {
+public class StreamTest extends TestBaseRCraken {
 
 	@Test
 	public void testChildren() throws Exception {

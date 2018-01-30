@@ -11,7 +11,7 @@ import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.ion.framework.util.Debug;
 
 public class TestMapDBFile {
@@ -40,14 +40,14 @@ public class TestMapDBFile {
 	
 	@Test
 	public void writeData() throws Exception {
-		rsession.tran(TestBaseCrakenRedis.SAMPLE).get() ;
+		rsession.tran(TestBaseRedis.SAMPLE).get() ;
 		rsession.pathBy("/").walkDepth().debugPrint();
 	}
 
 	
 	@Test
 	public void deleteData() throws Exception {
-		rsession.tran(TestBaseCrakenRedis.SAMPLE).get() ;
+		rsession.tran(TestBaseRedis.SAMPLE).get() ;
 		rsession.tranSync(wsession -> {
 			wsession.pathBy("/emp").removeSelf(); 
 		}) ;

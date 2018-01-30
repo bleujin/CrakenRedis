@@ -8,10 +8,11 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class ReadChildrenTest extends TestBaseCrakenRedis {
+public class ReadChildrenTest extends TestBaseRCraken {
 
 	@Test
 	public void readChildren() throws Exception {

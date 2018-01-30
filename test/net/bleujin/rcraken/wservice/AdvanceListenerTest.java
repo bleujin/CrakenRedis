@@ -11,38 +11,21 @@ import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.CDDHandler;
 import net.bleujin.rcraken.extend.CDDModifiedEvent;
 import net.bleujin.rcraken.extend.CDDRemovedEvent;
-import net.bleujin.rcraken.tbase.TestBaseMapDB;
+import net.bleujin.rcraken.extend.ModifyCDDHandler;
+import net.bleujin.rcraken.mapdb.TestBaseMapDB;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class AdvanceListenerTest extends TestBaseMapDB {
+public class AdvanceListenerTest extends TestBaseRCraken {
 
 	
 	@Test
 	public void chainWrite() throws Exception { // like trigger.
-		rsession.workspace().add(new CDDHandler() {
-			@Override
-			public String pathPattern() {
-				return "/emp/{userid}";
-			}
-			
-			@Override
+		rsession.workspace().add(new ModifyCDDHandler("/emp/{userid}") {
 			public WriteJobNoReturn modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-				return new WriteJobNoReturn() {
-					@Override
-					public void handle(WriteSession wsession) throws Exception {
-						wsession.pathBy("/dept/dev").refTo("dept", "/emp/" + resolveMap.get("userid")).merge();
-					}
-				};
-			}
-			
-			@Override
-			public String id() {
-				return "cdd.chain";
-			}
-			
-			@Override
-			public WriteJobNoReturn deleted(Map<String, String> resolveMap, CDDRemovedEvent event) {
-				return null;
+				return (wsession -> {
+					wsession.pathBy("/dept/dev").refTo("dept", "/emp/" + resolveMap.get("userid")).merge();
+				});
 			}
 		});
 		

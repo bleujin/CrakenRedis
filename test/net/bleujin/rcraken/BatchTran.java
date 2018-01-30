@@ -16,12 +16,13 @@ import com.sun.corba.se.spi.orbutil.threadpool.Work;
 
 import net.bleujin.rcraken.extend.NodeListener;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 import net.ion.nsearcher.config.CentralConfig;
 
-public class BatchTran extends TestBaseCrakenRedis {
+public class BatchTran extends TestBaseRCraken {
 
 	@Test
 	public void batchTran() throws Exception {

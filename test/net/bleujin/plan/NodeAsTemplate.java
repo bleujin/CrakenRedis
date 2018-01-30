@@ -7,14 +7,15 @@ import java.io.OutputStreamWriter;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadNode;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.bleujin.rcraken.template.TemplateNode;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
 
-public class NodeAsTemplate extends TestBaseCrakenRedis {
+public class NodeAsTemplate extends TestBaseRCraken {
 
 	@Test
 	void directTransform() throws Exception {

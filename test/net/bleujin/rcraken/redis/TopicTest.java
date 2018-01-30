@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.wservice;
+package net.bleujin.rcraken.redis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,10 +9,10 @@ import org.redisson.api.RTopic;
 import org.redisson.api.listener.MessageListener;
 
 import net.bleujin.rcraken.extend.Topic;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class TopicTest extends TestBaseCrakenRedis {
+public class TopicTest extends TestBaseRCraken {
 
 	@Test
 	public void createTopic() throws Exception {

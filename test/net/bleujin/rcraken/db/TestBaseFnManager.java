@@ -11,31 +11,17 @@ import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.WriteNode;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.servant.StdOutServant;
 
-public class TestBaseFnManager {
+public class TestBaseFnManager extends TestBaseRCraken{
 
-	static Craken craken;
-	
 	protected DBController dc;
-	protected ReadSession session;
 
-	@BeforeAll
-	static void init() {
-		craken = CrakenConfig.redisSingle().build().start() ;
-	}
-	
-	@AfterAll
-	static void done() {
-		craken.shutdown();
-	}
-	
 	@BeforeEach
 	protected void setUp() throws Exception {
-		this.session = craken.login("test") ;
-
 		CrakenFnManager dbm = registerFunction() ;
 		this.dc = new DBController("craken", dbm, new StdOutServant());
 		dc.initSelf() ;
@@ -47,7 +33,7 @@ public class TestBaseFnManager {
 	}
 
 	private CrakenFnManager registerFunction() {
-		CrakenFnManager dbm = new CrakenFnManager(this.craken, "test") ;
+		CrakenFnManager dbm = new CrakenFnManager(this.c, "test") ;
 		
 		dbm.register("dummy", new QueryPackage(){
 			

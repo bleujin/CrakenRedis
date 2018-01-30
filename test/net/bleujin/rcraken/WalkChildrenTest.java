@@ -4,11 +4,12 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.Debug;
 
-public class WalkChildrenTest extends TestBaseCrakenRedis{
+public class WalkChildrenTest extends TestBaseRCraken{
 
 	@Test
 	public void testWalkChildren() throws Exception {

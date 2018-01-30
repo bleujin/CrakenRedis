@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.cservice;
+package net.bleujin.rcraken.redis;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

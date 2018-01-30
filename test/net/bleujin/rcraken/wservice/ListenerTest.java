@@ -10,11 +10,12 @@ import net.bleujin.rcraken.extend.CDDHandler;
 import net.bleujin.rcraken.extend.CDDModifiedEvent;
 import net.bleujin.rcraken.extend.CDDRemovedEvent;
 import net.bleujin.rcraken.extend.NodeListener;
-import net.bleujin.rcraken.tbase.TestBaseCrakenRedis;
+import net.bleujin.rcraken.redis.TestBaseRedis;
+import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 
-public class ListenerTest extends TestBaseCrakenRedis {
+public class ListenerTest extends TestBaseRCraken {
 
 	@Test
 	public void fireWhenMerge() throws Exception {
@@ -50,7 +51,7 @@ public class ListenerTest extends TestBaseCrakenRedis {
 				return "/emp/{userid}";
 			}
 			public WriteJobNoReturn modified(Map<String, String> resolveMap, CDDModifiedEvent event) {
-				Debug.line("modified", resolveMap, event.newProperty("name").asString(), event.oldProperty("name"));
+				Debug.line("modified", resolveMap, event.newProperty("name").asString(), event.oldProperty("name").asString());
 				return null;
 			}
 			public String id() {

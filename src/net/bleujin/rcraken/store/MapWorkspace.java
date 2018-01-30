@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import org.apache.ecs.html.Map;
+import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.MapModificationListener;
@@ -31,6 +33,7 @@ import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 
 public class MapWorkspace extends Workspace{
 
@@ -113,7 +116,7 @@ public class MapWorkspace extends Workspace{
 
 			Lock wlock = rwlock.writeLock();
 			try {
-				wlock.tryLock(10, TimeUnit.MINUTES); // 
+				wlock.tryLock(10, TimeUnit.MINUTES); //
 				T result = tjob.handle(wsession);
 				
 				MapWorkspace.this.dataMap.put("__endtran_", "{}");
@@ -174,7 +177,12 @@ public class MapWorkspace extends Workspace{
 		super.removeSelf() ;
 		db.getAllNames().forEach(s -> {
 			if (s.startsWith(name() + ".")) {
-				db.hashMap(s).createOrOpen().clear(); 
+				Object e = db.get(s) ;
+				if (Map.class.isInstance(e)) {
+					db.hashMap(s).createOrOpen().clear(); 
+				} else if (Atomic.Long.class.isInstance(e)) {
+					((Atomic.Long)e).set(0);
+				}
 			}
 		});
 		
