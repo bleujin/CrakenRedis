@@ -23,6 +23,7 @@ import com.google.common.util.concurrent.Futures;
 
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
+import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ExceptionHandler;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
@@ -44,8 +45,8 @@ public class MapWorkspace extends Workspace{
 	private ReadWriteLock rwlock;
 	private HTreeMap<String, byte[]> binaryData;
 	
-	public MapWorkspace(String wname, MapNode mnode, DB db) {
-		super(wname) ;
+	public MapWorkspace(CrakenNode cnode, String wname, MapNode mnode, DB db) {
+		super(cnode, wname) ;
 		this.db = db;
 		this.rwlock = mnode.rwLock(wname + ".rwlock");
 		this.binaryData = db.hashMap(lobMapName()).keySerializer(Serializer.STRING).valueSerializer(Serializer.BYTE_ARRAY).createOrOpen() ;
@@ -104,7 +105,7 @@ public class MapWorkspace extends Workspace{
 	}
 
 	protected ReadSession readSession() {
-		return new MapReadSession(this, db);
+		return new MapReadSession(node(), this, db);
 	}
 
 	protected <T> CompletableFuture<T> tran(WriteSession wsession, WriteJob<T> tjob, ExecutorService eservice, ExceptionHandler ehandler) {

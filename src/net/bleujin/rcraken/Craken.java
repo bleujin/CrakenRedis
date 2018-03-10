@@ -20,7 +20,4 @@ public abstract class Craken {
 	@Deprecated // test only
 	public abstract void removeAll() ;
 
-	public abstract CrakenNode node() ;
-	
-
 }

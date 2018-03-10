@@ -223,6 +223,10 @@ public abstract class ReadSession {
 		return workspace().templateFac().newNode(this, Fqn.from(absPath), templateName);
 	}
 
+	public CrakenNode node() {
+		return wspace.node();
+	}
+
 
 
 

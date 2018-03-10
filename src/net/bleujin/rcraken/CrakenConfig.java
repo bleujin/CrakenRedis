@@ -33,6 +33,10 @@ public interface CrakenConfig {
 
 	public Craken build(Map<String, Integer> workers);
 
+	public static CrakenSwarm makeSwarm(String wname, CrakenConfig cconfig) {
+		return CrakenSwarm.create().makeSwarm(wname, cconfig);
+	}
+
 
 
 }

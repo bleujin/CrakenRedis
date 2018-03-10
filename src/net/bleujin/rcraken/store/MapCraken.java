@@ -40,11 +40,11 @@ public class MapCraken extends Craken {
 		return findWorkspace(wname).readSession();
 	}
 
-	protected MapWorkspace findWorkspace(String wname) {
+	protected synchronized MapWorkspace findWorkspace(String wname) {
 		if (wname.startsWith("_"))
 			throw new IllegalAccessError("illegal worksapce name");
-
-		wss.putIfAbsent(wname, (MapWorkspace)new MapWorkspace(wname, mnode, db).init());
+		
+		wss.putIfAbsent(wname, (MapWorkspace)new MapWorkspace(node(), wname, mnode, db).init());
 		return wss.get(wname);
 	}
 

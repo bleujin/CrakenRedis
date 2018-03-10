@@ -13,6 +13,7 @@ import org.mapdb.Serializer;
 import org.mapdb.serializer.GroupSerializerObjectArray;
 import org.mapdb.serializer.SerializerUtils;
 
+import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.ReadSession;
@@ -25,7 +26,7 @@ public class MapReadSession extends ReadSession {
 	private HTreeMap<String, String> dataMap;
 	private HTreeMap<String, Set<String>> struMap;
 
-	protected MapReadSession(MapWorkspace wspace, DB db) {
+	protected MapReadSession(CrakenNode cnode, MapWorkspace wspace, DB db) {
 		super(wspace);
 		this.db = db;
 		this.dataMap = db.hashMap(wspace.nodeMapName()).keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).createOrOpen() ;

@@ -28,7 +28,7 @@ public class MapReduceTest extends TestBaseRCraken {
 
 	@Test
 	public void testFirst() throws Exception {
-		RMap<String, String> map = ((RedisNode)c.node()).getMap("mapreduce");
+		RMap<String, String> map = ((RedisNode)c.login("test").node()).getMap("mapreduce");
 		map.put("line1", "Alice was beginning to get very tired");
 		map.put("line2", "of sitting by her sister on the bank and");
 		map.put("line3", "of having nothing to do once or twice she");

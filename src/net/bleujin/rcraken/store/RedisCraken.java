@@ -42,11 +42,11 @@ public class RedisCraken extends Craken{
 		return findWorkspace(wname).readSession();
 	}
 
-	protected RedisWorkspace findWorkspace(String wname) {
+	protected synchronized RedisWorkspace findWorkspace(String wname) {
 		if (wname.startsWith("_"))
 			throw new IllegalAccessError("illegal worksapce name");
-
-		wss.putIfAbsent(wname, (RedisWorkspace)new RedisWorkspace(wname, rclient).init());
+		
+		wss.putIfAbsent(wname, (RedisWorkspace)new RedisWorkspace(node(), wname, rclient).init());
 		return wss.get(wname);
 	}
 

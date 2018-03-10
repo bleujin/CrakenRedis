@@ -23,6 +23,7 @@ import org.redisson.api.map.event.EntryUpdatedListener;
 
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
+import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ExceptionHandler;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
@@ -42,8 +43,8 @@ public class RedisWorkspace extends Workspace{
 	private RReadWriteLock rwlock ;
 	private RMapCache<Object, Object> dataMap;
 
-	protected RedisWorkspace(String wname, RedissonClient rclient) {
-		super(wname) ;
+	protected RedisWorkspace(CrakenNode cnode, String wname, RedissonClient rclient) {
+		super(cnode, wname) ;
 		this.rclient = rclient;
 		this.mapOption = LocalCachedMapOptions.<String, String>defaults().evictionPolicy(EvictionPolicy.LRU) // LFU, LRU, SOFT, WEAK and NONE policies are available
 				.cacheSize(1000) // If cache size is 0 then local cache is unbounded.

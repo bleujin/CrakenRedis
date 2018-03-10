@@ -29,7 +29,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.MapUtil;
 
-public class CrakenExecutorTest {
+public class ExecutorTest {
 
 	@Test @Disabled("cluster mode redis needed")
 	public void testCluster() throws Exception {
@@ -57,7 +57,7 @@ public class CrakenExecutorTest {
 	@Test
 	public void testExecutor() throws Exception {
 		Craken craken = CrakenConfig.redisSingle().build().start();
-		CrakenNode cnode = craken.node() ;
+		CrakenNode cnode = craken.login("test").node() ;
 
 		ExecutorService es = cnode.executorService(RedisConfig.DFT_WORKER_NAME);
 		
@@ -72,7 +72,7 @@ public class CrakenExecutorTest {
 	@Test
 	public void testScheduleExecutor() throws Exception {
 		Craken craken = CrakenConfig.redisSingle().build(MapUtil.create("node.sworker", 2)).start();
-		CrakenNode cnode = craken.node();
+		CrakenNode cnode = craken.login("test").node();
 
 		RScheduledExecutorService es = (RScheduledExecutorService)cnode.executorService("node.sworker");
 

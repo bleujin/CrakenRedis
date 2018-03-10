@@ -32,6 +32,7 @@ import net.ion.nsearcher.index.Indexer;
 
 public abstract class Workspace {
 
+	private CrakenNode cnode;
 	private String wname;
 	private Map<String, NodeListener> listeners = MapUtil.newMap();
 	private ExecutorService es = new WithinThreadExecutor();
@@ -40,7 +41,8 @@ public abstract class Workspace {
 	private TemplateFac templateFac;
 	private List<IndexEvent> ievents = ListUtil.newList();
 
-	protected Workspace(String wname) {
+	protected Workspace(CrakenNode cnode, String wname) {
+		this.cnode = cnode ;
 		this.wname = wname;
 		this.parseEngine = Engine.createDefaultEngine();
 		this.templateFac = new TemplateFac();
@@ -227,6 +229,10 @@ public abstract class Workspace {
 
 	public void removeListener(String id) {
 		listeners.remove(id);
+	}
+
+	public CrakenNode node() {
+		return cnode;
 	}
 
 

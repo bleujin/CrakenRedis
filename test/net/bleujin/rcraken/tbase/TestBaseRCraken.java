@@ -32,7 +32,7 @@ public class TestBaseRCraken {
 //		c = CrakenConfig.mapMemory().build() ;
 //		c = CrakenConfig.redisSingle().build() ;
 		c = CrakenConfig.mapFile(new File("./resource/map.db")).build() ;
-				
+		
 		
 		c.start() ;
 		
