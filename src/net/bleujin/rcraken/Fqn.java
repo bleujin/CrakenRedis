@@ -122,6 +122,11 @@ public class Fqn implements Serializable {
 		return toString();
 	}
 
+	public String struPath() {
+		return toString() + "/";
+	}
+
+	
 	public JsonPrimitive toJson() {
 		return new JsonPrimitive(toString());
 	}
