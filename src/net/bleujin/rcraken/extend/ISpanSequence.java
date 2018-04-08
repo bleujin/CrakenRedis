@@ -2,6 +2,7 @@ package net.bleujin.rcraken.extend;
 
 import org.infinispan.Cache;
 
+
 public class ISpanSequence implements Sequence {
 
 	public ISpanSequence(String seqName, Cache<String, String> cache) {
