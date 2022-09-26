@@ -1,6 +1,7 @@
 package net.bleujin.rcraken.tbase;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -29,9 +30,9 @@ public class TestBaseRCraken {
 	
 	@BeforeAll
 	static void init() throws Exception {
-//		c = CrakenConfig.mapMemory().build() ;
+		c = CrakenConfig.mapMemory().build() ;
 //		c = CrakenConfig.redisSingle().build() ;
-		c = CrakenConfig.mapFile(new File("./resource/map.db")).build() ;
+//		c = CrakenConfig.mapFile(new File("./resource/map.db")).build() ;
 		
 		
 		c.start() ;
@@ -50,7 +51,7 @@ public class TestBaseRCraken {
 	}
 
 	@AfterEach
-	void tearDown() {
+	void tearDown() throws IOException {
 		rsession.workspace().removeSelf() ;
 	}
 	

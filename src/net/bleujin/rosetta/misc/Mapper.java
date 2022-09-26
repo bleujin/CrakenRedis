@@ -480,7 +480,7 @@ public abstract class Mapper<T> {
 	 * Parser&lt;IfElseExpression&gt; expression = curry(IfElseExpression.class).sequence(_(word(&quot;if&quot;)), expr, _(word(&quot;else&quot;)), expr);
 	 * </pre>
 	 */
-	public static final Parser<?> _(Parser<?> parser) {
+	public static final Parser<?> wrap_(Parser<?> parser) {
 		return parser.map(SKIP);
 	}
 

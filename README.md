@@ -1,4 +1,4 @@
-# CrakenRedis
+# CrakenRedis(with JDK 1.8)
 
 
 I wonder if I can have a more simple API(CRUD, Index/Search) when Based on redis,

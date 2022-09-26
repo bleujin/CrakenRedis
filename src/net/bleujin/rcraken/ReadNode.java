@@ -1,5 +1,6 @@
 package net.bleujin.rcraken;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -11,13 +12,13 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.QueryWrapperFilter;
 import org.apache.lucene.search.TermQuery;
 
 import net.bleujin.rcraken.convert.FieldDefinition;
 import net.bleujin.rcraken.convert.ToBeanStrategy;
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.ChildQueryRequest;
+import net.bleujin.searcher.SearchController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -25,8 +26,6 @@ import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.search.filter.TermFilter;
 
 public class ReadNode implements CommonNode, Comparable<ReadNode> {
 
@@ -172,15 +171,15 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 	}
 
 	
-	public ChildQueryRequest childQuery(String query) {
+	public ChildQueryRequest childQuery(String query) throws IOException {
 		if (StringUtil.isBlank(query))
 			return childQuery(new TermQuery(new Term(Defined.Index.PARENT, this.fqn().toString())));
 
-		Central central = rsession.workspace().central();
-		Analyzer analyzer = central.searchConfig().queryAnalyzer();
+		SearchController central = rsession.workspace().central();
+		Analyzer analyzer = central.sconfig().defaultAnalyzer();
 		try {
-			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
-			result.filter(new TermFilter(Defined.Index.PARENT, this.fqn().toString()));
+			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.sconfig().defaultParser().parse(query));
+			result.filter(new TermQuery(new Term(Defined.Index.PARENT, this.fqn().toString())));
 
 			return result;
 		} catch (ParseException e) {
@@ -188,34 +187,34 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 		}
 	}
 	
-	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) {
+	public ChildQueryRequest childTermQuery(String name, String value, boolean includeDecentTree) throws IOException {
 		if (StringUtil.isBlank(name) || StringUtil.isBlank(value)) throw new IllegalStateException(String.format("not defined name or value[%s:%s]", name, value)) ;
 		
 		final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), new TermQuery(new Term(name, value)));
 		if (includeDecentTree){
-			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+			result.filter(this.fqn().childrenQuery());
 		} else {
-			result.filter(new TermFilter(Defined.Index.PARENT, this.fqn().toString()));
+			result.filter(new TermQuery(new Term(Defined.Index.PARENT, this.fqn().toString())));
 		}
 		return result;
 	}
 
-	public ChildQueryRequest childQuery(Query query) {
+	public ChildQueryRequest childQuery(Query query) throws IOException {
 		return ChildQueryRequest.create(rsession, rsession.newSearcher(), query);
 	}
 
-	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) {
+	public ChildQueryRequest childQuery(Query query, boolean includeDecentTree) throws IOException {
 		if (!includeDecentTree)
 			return childQuery(query);
 
-		Analyzer analyzer = session().workspace().central().searchConfig().queryAnalyzer();
+		Analyzer analyzer = session().workspace().central().sconfig().defaultAnalyzer() ;
 		final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), query);
-		result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+		result.filter(this.fqn().childrenQuery());
 
 		return result;
 	}
 
-	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) {
+	public ChildQueryRequest childQuery(String query, boolean includeDecentTree) throws IOException {
 		if (!includeDecentTree)
 			return childQuery(query);
 
@@ -223,10 +222,10 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 			return childQuery(this.fqn().childrenQuery());
 
 		try {
-			Central central = rsession.workspace().central();
-			Analyzer analyzer = central.searchConfig().queryAnalyzer();
-			final ChildQueryRequest result = ChildQueryRequest.create(rsession, rsession.newSearcher(), central.searchConfig().parseQuery(central.indexConfig(), analyzer, query));
-			result.filter(new QueryWrapperFilter(this.fqn().childrenQuery()));
+			SearchController central = rsession.workspace().central();
+			Analyzer analyzer = central.sconfig().defaultAnalyzer();
+			final ChildQueryRequest result = ChildQueryRequest.create(rsession, central.newSearcher(), central.sconfig().defaultParser().parse(query));
+			result.filter(this.fqn().childrenQuery());
 			return result;
 		} catch (ParseException ex) {
 			throw new IllegalStateException(ex) ;

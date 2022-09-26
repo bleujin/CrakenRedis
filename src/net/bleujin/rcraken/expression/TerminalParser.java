@@ -41,11 +41,11 @@ public final class TerminalParser {
 	}
 
 	public static Parser<?> term(String term) {
-		return Mapper._(TERMS.token(term));
+		return Mapper.wrap_(TERMS.token(term));
 	}
 
 	public static Parser<?> phrase(String phrase) {
-		return Mapper._(TERMS.phrase(phrase.split("\\s")));
+		return Mapper.wrap_(TERMS.phrase(phrase.split("\\s")));
 	}
 
 

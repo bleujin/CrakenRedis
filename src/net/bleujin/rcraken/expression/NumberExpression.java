@@ -1,6 +1,6 @@
 package net.bleujin.rcraken.expression;
 
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
 
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
@@ -23,7 +23,7 @@ public final class NumberExpression extends ValueObject implements Expression , 
 	}
 	
 	@Override
-	public Filter filter(Op operand, QualifiedNameExpression qne) {
+	public Query filter(Op operand, QualifiedNameExpression qne) {
 		String field = qne.lastName();
 		long longValue = Long.parseLong(number) ;
 		if( operand == Op.EQ){

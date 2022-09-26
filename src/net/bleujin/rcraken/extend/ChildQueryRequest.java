@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.ecs.xml.XML;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.TermQuery;
 
 import com.google.common.base.Splitter;
 
@@ -15,25 +17,23 @@ import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.convert.Filters;
+import net.bleujin.searcher.SearchRequestWrapper;
+import net.bleujin.searcher.Searcher;
+import net.bleujin.searcher.common.IKeywordField;
+import net.bleujin.searcher.search.SearchResponse;
+import net.bleujin.searcher.search.filter.FilterUtil;
 import net.ion.framework.db.Page;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.search.SearchRequest;
-import net.ion.nsearcher.search.SearchResponse;
-import net.ion.nsearcher.search.Searcher;
-import net.ion.nsearcher.search.filter.FilterUtil;
-import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
-import net.ion.nsearcher.search.filter.TermFilter;
 
 public class ChildQueryRequest {
 
 	private ReadSession session;
-	private SearchRequest request;
+	private SearchRequestWrapper srequest;
 
 	protected ChildQueryRequest(ReadSession session, Query query, Searcher searcher) {
 		this.session = session;
-		this.request = searcher.createRequest(query).selections(IKeywordField.DocKey);
+		this.srequest = searcher.createRequest(query).selections(IKeywordField.DocKey);
 	}
 
 	public static ChildQueryRequest create(ReadSession session, Searcher searcher, Query query) {
@@ -41,7 +41,7 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest refTo(String refName, Fqn target) {
-		filter(new TermFilter("@" + refName, target.toString()));
+		filter(new TermQuery(new Term("@" + refName, target.toString())));
 		return this;
 	}
 
@@ -172,7 +172,7 @@ public class ChildQueryRequest {
 
 	public ChildQueryRequest where(String fnString) {
 		if (StringUtil.isBlank(fnString))
-			return filter(new MatchAllDocsFilter());
+			return filter(new MatchAllDocsQuery());
 		filter(Filters.where(fnString));
 		return this;
 	}
@@ -183,17 +183,17 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest query(String query) throws ParseException {
-		filter(Filters.query(session.workspace().central().searchConfig(), session.workspace().central().indexConfig(), query));
+		filter(Filters.query(session.workspace().central().sconfig().defaultParser(), query));
 		return this;
 	}
 
 	public ChildQueryRequest skip(int skip) {
-		request.skip(skip);
+		srequest.skip(skip);
 		return this;
 	}
 
 	public Query query() {
-		return request.query();
+		return srequest.query();
 	}
 
 	public ChildQueryRequest page(Page page) {
@@ -202,93 +202,89 @@ public class ChildQueryRequest {
 	}
 
 	public ChildQueryRequest offset(int offset) {
-		request.offset(offset);
+		srequest.offset(offset);
 		return this;
 	}
 
 	public int skip() {
-		return request.skip();
+		return srequest.skip();
 	}
 
 	public int offset() {
-		return request.offset();
+		return srequest.offset();
 	}
 
 	public Sort sort() {
-		return request.sort();
+		return srequest.sort();
 	}
 
 	public int limit() {
-		return request.limit();
+		return skip() + offset();
 	}
 
 	public ChildQueryRequest ascending(String field) {
-		request.ascending(field);
+		srequest.ascending(field);
 		return this;
 	}
 
 	public ChildQueryRequest descending(String field) {
-		request.descending(field);
+		srequest.descending(field);
 		return this;
 	}
 
 	public ChildQueryRequest ascendingNum(String field) {
-		request.ascending(field + " _number");
+		srequest.ascendingNum(field);
 		return this;
 	}
 
 	public ChildQueryRequest descendingNum(String field) {
-		request.descending(field + " _number");
+		srequest.descendingNum(field);
 		return this;
 	}
 
 	public void setParam(String key, Object value) {
-		request.setParam(key, value);
+		srequest.setParam(key, value);
 	}
 
 	public Object getParam(String key) {
-		return request.getParam(key);
+		return srequest.getParam(key);
 	}
 
-	public ChildQueryRequest filter(Filter... filters) {
+	public ChildQueryRequest filter(Query... filters) {
 		if (filters == null)
 			return this;
 
-		Filter compositeFilter = (request.getFilter() == null) ? FilterUtil.and(filters) : FilterUtil.and(request.getFilter(), FilterUtil.and(filters));
-		request.setFilter(compositeFilter);
+		Query compositeFilter = (srequest.filter() == Searcher.MatchAllDocsQuery) ? FilterUtil.and(filters) : FilterUtil.and(srequest.filter(), FilterUtil.and(filters));
+		srequest.filter(compositeFilter);
 		return this;
 	}
 
-	public Filter getFilter() {
-		return request.getFilter();
+	public Query getFilter() {
+		return srequest.filter();
 	}
 
 	public ChildQueryResponse find() throws IOException {
 		// field=asc && field2=desc...
-		request.selections(IKeywordField.DocKey);
+		srequest.selections(IKeywordField.DocKey);
 
-		try {
-			final SearchResponse response = request.find() ;
-			return ChildQueryResponse.create(session, response);
-		} catch (ParseException ex) {
-			throw new IOException(ex);
-		}
+		final SearchResponse response = srequest.find() ;
+		return ChildQueryResponse.create(session, response);
 	}
 
 	public ReadNode findOne() throws IOException {
 		return find().first();
 	}
 
-	public SearchRequest request() {
-		return request;
+	public SearchRequestWrapper request() {
+		return srequest;
 	}
 
 	public XML toXML() {
-		return request.toXML();
+		return srequest.toXML();
 	}
 
 	public String toString() {
-		return request.toString();
+		return srequest.toString();
 	}
 
 	public ChildQueryRequest sort(String sexpression) {
@@ -300,9 +296,9 @@ public class ChildQueryRequest {
 			if (exp.length != 1 && exp.length != 2)
 				throw new IllegalArgumentException("illegal sort expression : " + exp.toString());
 			if (exp.length == 1) {
-				request.ascending(exp[0]);
+				srequest.ascending(exp[0]);
 			} else if (exp.length == 2) {
-				request = ("desc".equalsIgnoreCase(exp[1])) ? request.descending(exp[0]) : request.ascending(exp[0]);
+				srequest = ("desc".equalsIgnoreCase(exp[1])) ? srequest.descending(exp[0]) : srequest.ascending(exp[0]);
 			}
 		}
 		

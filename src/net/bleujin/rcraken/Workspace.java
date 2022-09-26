@@ -20,15 +20,14 @@ import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.bleujin.rcraken.template.TemplateFac;
+import net.bleujin.searcher.SearchController;
+import net.bleujin.searcher.common.WriteDocument;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.WithinThreadExecutor;
-import net.ion.nsearcher.common.WriteDocument;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.index.Indexer;
 
 public abstract class Workspace {
 
@@ -36,13 +35,13 @@ public abstract class Workspace {
 	private String wname;
 	private Map<String, NodeListener> listeners = MapUtil.newMap();
 	private ExecutorService es = new WithinThreadExecutor();
-	private Central central;
+	private SearchController central;
 	private Engine parseEngine;
 	private TemplateFac templateFac;
 	private List<IndexEvent> ievents = ListUtil.newList();
 
 	protected Workspace(CrakenNode cnode, String wname) {
-		this.cnode = cnode ;
+		this.cnode = cnode;
 		this.wname = wname;
 		this.parseEngine = Engine.createDefaultEngine();
 		this.templateFac = new TemplateFac();
@@ -115,37 +114,37 @@ public abstract class Workspace {
 			@Override
 			public void onChanged(EventType etype, Fqn fqn, JsonObject value, JsonObject oldValue) {
 				if (fqn.isPattern(cddHandler.pathPattern())) {
-					Map<String, String> resolveMap = fqn.resolve(cddHandler.pathPattern()) ;
-					final AtomicReference<WriteJobNoReturn> referChain = new AtomicReference<WriteJobNoReturn>() ;
+					Map<String, String> resolveMap = fqn.resolve(cddHandler.pathPattern());
+					final AtomicReference<WriteJobNoReturn> referChain = new AtomicReference<WriteJobNoReturn>();
 					if (etype == EventType.REMOVED) {
-						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, ObjectUtil.coalesce(value, oldValue)))) ;
-					} else if (etype == EventType.UPDATED ){
-						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue))) ;
+						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, ObjectUtil.coalesce(value, oldValue))));
+					} else if (etype == EventType.UPDATED) {
+						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue)));
 					}
-					
+
 					if (referChain.get() != null) {
 						readSession().tran(wsession -> {
 							referChain.get().handle(wsession);
 							return null;
-						}) ;
+						});
 					}
 				}
 			}
-			
+
 		});
 	}
-	
+
 	public abstract Sequence sequence(String name);
 
 	public abstract <T> Topic<T> topic(String name);
 
-	public boolean removeSelf() {
-		listeners.clear(); 
+	public boolean removeSelf() throws IOException {
+		listeners.clear();
 		if (central != null) {
-			central.newIndexer().index(isession -> isession.deleteAll()) ;
-			central.destroySelf(); 
+			central.index(isession -> isession.deleteAll());
+			central.destroySelf();
 		}
-		return false ;
+		return false;
 	};
 
 	protected abstract OutputStream outputStream(String path);
@@ -160,11 +159,11 @@ public abstract class Workspace {
 		return name() + ".indexer";
 	}
 
-	public Central central() {
-		return Optional.ofNullable(central).orElseThrow(() -> new IllegalStateException("central is blank. set central in workspace")) ;
+	public SearchController central() {
+		return Optional.ofNullable(central).orElseThrow(() -> new IllegalStateException("central is blank. set central in workspace"));
 	}
 
-	public Workspace indexCntral(Central central) {
+	public Workspace indexCntral(SearchController central) {
 		this.central = central;
 		this.addListener(new NodeListener() {
 			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
@@ -172,23 +171,27 @@ public abstract class Workspace {
 					List<IndexEvent> ies = Workspace.this.ievents;
 					Workspace.this.ievents = ListUtil.newList();
 
-					Indexer indexer = central.newIndexer();
-					indexer.index(isession -> {
-						for (IndexEvent ie : ies) {
-							if (ie.eventType() == EventType.REMOVED) {
-								isession.deleteById(ie.fqn().absPath());
-								continue;
+					try {
+						central.index(isession -> {
+							for (IndexEvent ie : ies) {
+								if (ie.eventType() == EventType.REMOVED) {
+									isession.deleteById(ie.fqn().absPath());
+									continue;
+								}
+								WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath());
+								JsonObject newvalue = ie.jsonValue();
+								for (String fname : newvalue.keySet()) {
+									Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname));
+									property.indexTo(wdoc);
+								}
+								wdoc.update();
 							}
-							WriteDocument wdoc = isession.newDocument(ie.fqn().absPath()).keyword(Defined.Index.PARENT, ie.fqn().getParent().absPath());
-							JsonObject newvalue = ie.jsonValue();
-							for (String fname : newvalue.keySet()) {
-								Property property = Property.create(null, ie.fqn(), fname, newvalue.asJsonObject(fname));
-								property.indexTo(wdoc);
-							}
-							wdoc.update();
-						}
-						return null;
-					});
+							return null;
+						});
+					} catch (IOException ex) {
+						throw new IllegalStateException(ex);
+					}
+
 					return;
 				}
 				if (jvalue != null && !jvalue.keySet().isEmpty()) {
@@ -208,22 +211,21 @@ public abstract class Workspace {
 	public Workspace reindex(boolean clearOld) {
 		if (!hasIndexer())
 			throw new IllegalStateException("central not exists");
-		Indexer indexer = central.newIndexer();
-		indexer.index(isession -> {
-			if (clearOld)
-				isession.deleteAll();
-			writeSession(readSession()).pathBy("/").walkBreadth().forEach(node -> {
-				try {
+		try {
+			central.index(isession -> {
+				if (clearOld)
+					isession.deleteAll();
+				
+				for (WriteNode node : writeSession(readSession()).pathBy("/").walkBreadth()) {
 					WriteDocument wdoc = isession.newDocument(node.fqn().absPath()).keyword(Defined.Index.PARENT, node.fqn().getParent().absPath());
 					node.properties().iterator().forEachRemaining(property -> property.indexTo(wdoc));
 					wdoc.update();
-				} catch (IOException e) {
-					throw new IllegalStateException(e);
 				}
+				return null;
 			});
-
-			return null;
-		});
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex);
+		}
 		return this;
 	}
 
@@ -234,6 +236,5 @@ public abstract class Workspace {
 	public CrakenNode node() {
 		return cnode;
 	}
-
 
 }

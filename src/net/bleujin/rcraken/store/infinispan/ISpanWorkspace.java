@@ -211,7 +211,7 @@ public class ISpanWorkspace extends Workspace{
 	}
 
 	
-	public boolean removeSelf() {
+	public boolean removeSelf() throws IOException {
 		super.removeSelf() ;
 		nmap.clear();
 		

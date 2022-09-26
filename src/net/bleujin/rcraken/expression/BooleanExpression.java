@@ -1,6 +1,6 @@
 package net.bleujin.rcraken.expression;
 
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
 
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
@@ -22,7 +22,7 @@ public class BooleanExpression extends ValueObject implements Expression , Const
 	}
 	
 	@Override
-	public Filter filter(Op operand, QualifiedNameExpression qne) {
+	public Query filter(Op operand, QualifiedNameExpression qne) {
 		String field = qne.lastName();
 		if( operand == Op.EQ){
 			return Filters.eq(qne.lastName(), bvalue.toString()) ;

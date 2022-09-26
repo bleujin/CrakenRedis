@@ -6,10 +6,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import javax.crypto.BadPaddingException;
@@ -21,12 +19,12 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import net.bleujin.rcraken.template.TemplateNode;
+import net.bleujin.searcher.SearchController;
+import net.bleujin.searcher.Searcher;
 import net.ion.framework.file.HexUtil;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.search.Searcher;
 
 public abstract class ReadSession {
 
@@ -172,13 +170,9 @@ public abstract class ReadSession {
 		// this.dataMap = rclient.getMapCache(wspace.name(), wspace.mapOption()) ;
 	}
 
-	public Searcher newSearcher() {
-		try {
-			Central central = workspace().central() ;
-			return central.newSearcher();
-		} catch (IOException ex) {
-			throw new IllegalStateException(ex) ;
-		}
+	public Searcher newSearcher() throws IOException {
+		SearchController central = workspace().central() ;
+		return central.newSearcher();
 	}
 
 	

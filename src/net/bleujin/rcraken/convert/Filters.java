@@ -4,16 +4,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.lang.reflect.MethodUtils;
+import org.apache.lucene.document.NumericDocValuesField;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queries.FilterClause;
-import org.apache.lucene.queries.TermsFilter;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.FieldValueFilter;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.NumericRangeFilter;
-import org.apache.lucene.search.QueryWrapperFilter;
-import org.apache.lucene.search.TermRangeFilter;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.DocValuesFieldExistsQuery;
+import org.apache.lucene.search.MatchAllDocsQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermInSetQuery;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TermRangeQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.util.BytesRef;
 
@@ -21,99 +24,94 @@ import net.bleujin.rcraken.expression.Expression;
 import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.TerminalParser;
 import net.bleujin.rosetta.Parser;
+import net.bleujin.searcher.search.SearchConfig;
+import net.bleujin.searcher.search.filter.FilterUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.StringUtil;
-import net.ion.nsearcher.config.IndexConfig;
-import net.ion.nsearcher.config.SearchConfig;
-import net.ion.nsearcher.search.filter.BooleanFilter;
-import net.ion.nsearcher.search.filter.FilterUtil;
-import net.ion.nsearcher.search.filter.MatchAllDocsFilter;
-import net.ion.nsearcher.search.filter.TermFilter;
 
 public class Filters {
 
-	public static Filter eq(String field, Object value) {
-		return new TermFilter(field, ObjectUtil.toString(value)) ;
+	public static Query eq(String field, Object value) {
+		return new TermQuery(new Term(field, ObjectUtil.toString(value))) ;
 	}
 
-	public static Filter ne(String field, String value) {
-		final BooleanFilter inner = new BooleanFilter();
-		inner.add(new FilterClause(new TermFilter(field, ObjectUtil.toString(value)), Occur.MUST_NOT)) ;
+	public static Query ne(String field, String value) {
+		final BooleanQuery inner = new BooleanQuery.Builder().add(new BooleanClause(new TermQuery(new Term(field, ObjectUtil.toString(value))), Occur.MUST_NOT)).build() ;
 
 		return inner;
 	}
 
-	public static Filter gte(String field, long min) {
-		return NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, true, true) ;
+	public static Query gte(String field, long min) {
+		return NumericDocValuesField.newSlowRangeQuery(field, min, Long.MAX_VALUE) ;
 	}
 
-	public static Filter gte(String field, String lowerTerm) {
-		return new TermRangeFilter(field, new BytesRef(lowerTerm), null, true, false) ;
+	public static Query gte(String field, String lowerTerm) {
+		return new TermRangeQuery(field, new BytesRef(lowerTerm), null, true, false) ;
 	}
 
-	public static Filter gt(String field, long min) {
-		return NumericRangeFilter.newLongRange(field, min, Long.MAX_VALUE, false, true) ;
+	public static Query gt(String field, long min) {
+		return NumericDocValuesField.newSlowRangeQuery(field, min+1, Long.MAX_VALUE) ;
 	}
 
-	public static Filter wildcard(String field, Object value) {
-		return new QueryWrapperFilter(new WildcardQuery(new Term(field, ObjectUtil.toString(value)))) ;
+	public static Query wildcard(String field, Object value) {
+		return new WildcardQuery(new Term(field, ObjectUtil.toString(value))) ;
 	}
 
-	public static Filter query(SearchConfig sconfig, IndexConfig iconfig, String query) throws ParseException {
-		return new QueryWrapperFilter(sconfig.parseQuery(iconfig, query)) ;
+	public static Query query(QueryParser parser, String query) throws ParseException {
+		return parser.parse(query) ;
 	}
 
-	public static Filter lte(String field, long max) {
-		return NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, true) ;
+	public static Query lte(String field, long max) {
+		return NumericDocValuesField.newSlowRangeQuery(field, Long.MIN_VALUE, max) ;
 	}
 
-	public static Filter gt(String field, String lowerTerm) {
-		return new TermRangeFilter(field, new BytesRef(lowerTerm), null, false, false) ;
+	public static Query gt(String field, String lowerTerm) {
+		return new TermRangeQuery(field, new BytesRef(lowerTerm), null, false, false) ;
 	}
 
-	public static Filter lte(String field, String higherTerm) {
-		return new TermRangeFilter(field, null, new BytesRef(higherTerm), false, true) ;
+	public static Query lte(String field, String higherTerm) {
+		return new TermRangeQuery(field, null, new BytesRef(higherTerm), false, true) ;
 	}
 
-	public static Filter in(String field, String[] values) {
-		List<Term> terms = ListUtil.newList() ;
+	public static Query in(String field, String[] values) {
+		List<BytesRef> vref = ListUtil.newList() ;
 		for (String value : values) {
-			terms.add(new Term(field, value)) ;
+			vref.add(new BytesRef(value)) ;
 		}
 		
-		return new TermsFilter(terms);
+		return new TermInSetQuery(field, vref);
 	}
 
-	public static Filter between(String field, long min, long max) {
-		return NumericRangeFilter.newLongRange(field, min, max, true, true) ;
+	public static Query between(String field, long min, long max) {
+		return NumericDocValuesField.newSlowRangeQuery(field, min, max) ;
 	}
 
-	public static Filter lt(String field, long max) {
-		return NumericRangeFilter.newLongRange(field, Long.MIN_VALUE, max, true, false) ;
+	public static Query lt(String field, long max) {
+		return NumericDocValuesField.newSlowRangeQuery(field, Long.MIN_VALUE, max-1) ;
 	}
 
-	public static Filter lt(String field, String higherTerm) {
-		return new TermRangeFilter(field, null, new BytesRef(higherTerm), false, false) ;
+	public static Query lt(String field, String higherTerm) {
+		return new TermRangeQuery(field, null, new BytesRef(higherTerm), false, false) ;
 	}
 
-	public static Filter between(String field, String minTerm, String maxTerm) {
-		return FilterUtil.and(TermRangeFilter.Less(field, new BytesRef(maxTerm)), TermRangeFilter.More(field, new BytesRef(minTerm))) ;
+	public static Query between(String field, String minTerm, String maxTerm) {
+		return new TermRangeQuery(field, new BytesRef(minTerm), new BytesRef(maxTerm), true, true) ;
 	}
 	
-	public static Filter exists(String field){
-		return new FieldValueFilter(field) ;
+	public static Query exists(String field){
+		return new DocValuesFieldExistsQuery(field) ;
 	}
 
 
-	public static Filter where(String fnString) {
-		if (StringUtil.isBlank(fnString)) return new MatchAllDocsFilter() ;
+	public static Query where(String fnString) {
+		if (StringUtil.isBlank(fnString)) return new MatchAllDocsQuery() ;
 		
 		Parser<Expression> parser = ExpressionParser.expression();
 		Expression result = TerminalParser.parse(parser, fnString);
 		
 		try {
-			return (Filter) MethodUtils.invokeMethod(result, "filter", new Object[0]) ;
+			return (Query) MethodUtils.invokeMethod(result, "filter", new Object[0]) ;
 		} catch (NoSuchMethodException e) {
 			throw new IllegalArgumentException("can't make filter : " + fnString) ;
 		} catch (IllegalAccessException e) {
@@ -124,18 +122,17 @@ public class Filters {
 	}
 
 	
-	public static Filter not(Filter filter){
-		BooleanFilter result = new BooleanFilter();
-		result.add(new FilterClause(filter, Occur.MUST_NOT)) ;
+	public static Query not(Query filter){
+		BooleanQuery result = new BooleanQuery.Builder().add(new BooleanClause(filter, Occur.MUST_NOT)).build() ;
 		return result ;
 	}
 	
 	
-	public static Filter and(Filter... filters){
+	public static Query and(Query... filters){
 		return FilterUtil.and(filters) ;
 	}
 
-	public static Filter or(Filter... filters){
+	public static Query or(Query... filters){
 		return FilterUtil.or(filters) ;
 	}
 	

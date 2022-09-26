@@ -3,7 +3,7 @@ package net.bleujin.rcraken.expression;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.lang.reflect.MethodUtils;
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
 
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
@@ -23,9 +23,9 @@ public final class UnaryExpression extends ValueObject implements Expression {
 	}
 	
 	
-	public Filter filter(){
+	public Query filter(){
 		try {
-			Filter filter = (Filter) MethodUtils.invokeMethod(operand, "filter", new Object[0]);
+			Query filter = (Query) MethodUtils.invokeMethod(operand, "filter", new Object[0]);
 			return Filters.not(filter) ;
 		} catch (NoSuchMethodException e) {
 			throw new IllegalArgumentException("can't make filter : " + operand) ;

@@ -5,16 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
+import net.bleujin.searcher.SearchControllerConfig;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.MapUtil;
-import net.ion.nsearcher.config.CentralConfig;
 
 public class TestMapDB extends TestBaseMapDB {
 
@@ -39,7 +40,7 @@ public class TestMapDB extends TestBaseMapDB {
 
 	@Test
 	public void indexData() throws Exception {
-		rsession.workspace().indexCntral(CentralConfig.newRam().build());
+		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build(OpenMode.CREATE_OR_APPEND));
 		rsession.tran(TestBaseRedis.SAMPLE).get();
 
 		rsession.pathBy("/").childQuery("", true).find().debugPrint();

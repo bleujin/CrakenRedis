@@ -1,21 +1,17 @@
 package net.bleujin.rcraken.wservice;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
-import net.ion.framework.util.Debug;
-import net.ion.nsearcher.config.Central;
-import net.ion.nsearcher.config.CentralConfig;
+import net.bleujin.searcher.SearchController;
+import net.bleujin.searcher.SearchControllerConfig;
 
 public class IndexSearchTest extends TestBaseRCraken {
 
 	
 	@Test
 	public void indexWithEachCraken() throws Exception {
-		Central central = CentralConfig.newRam().build() ;
+		SearchController central = SearchControllerConfig.newRam().build() ;
 		rsession.workspace().indexCntral(central) ;
 		
 		rsession.tran(SAMPLE) ;
@@ -27,7 +23,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	
 	@Test
 	public void indexWhenSettingCentral() throws Exception {
-		Central central = CentralConfig.newRam().build() ;
+		SearchController central = SearchControllerConfig.newRam().build() ;
 
 		rsession.workspace().indexCntral(central) ;
 		for (int i = 0; i < 10; i++) {
@@ -45,7 +41,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	
 	@Test
 	public void searchInWriteSession() throws Exception {
-		Central central = CentralConfig.newRam().build() ;
+		SearchController central = SearchControllerConfig.newRam().build() ;
 		rsession.workspace().indexCntral(central) ;
 		rsession.tran(SAMPLE) ;
 		
@@ -64,7 +60,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	void reindex() throws Exception {
 		rsession.tran(SAMPLE) ;
 		
-		Central central = CentralConfig.newRam().build() ;
+		SearchController central = SearchControllerConfig.newRam().build() ;
 		rsession.workspace().indexCntral(central).reindex(true) ;
 		
 		rsession.pathBy("/emp").childQuery("age:[25 TO 30]").find().debugPrint();

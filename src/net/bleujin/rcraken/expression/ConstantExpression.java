@@ -1,8 +1,8 @@
 package net.bleujin.rcraken.expression;
 
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
 
 public interface ConstantExpression {
-	public Filter filter(Op op, QualifiedNameExpression qne) ; 
+	public Query  filter(Op op, QualifiedNameExpression qne) ; 
 	public Object constantValue() ;
 }

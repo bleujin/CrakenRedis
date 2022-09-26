@@ -3,6 +3,7 @@ package net.bleujin.rcraken;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ public class ReadMe {
 	
 	
 	
-	void stdTest(Craken c) throws InterruptedException, ExecutionException {
+	void stdTest(Craken c) throws InterruptedException, ExecutionException, IOException {
 		ReadSession rsession = c.login("testworkspace");
 		rsession.workspace().removeSelf(); // clear workspace
 

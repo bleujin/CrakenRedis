@@ -6,10 +6,10 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import net.bleujin.rcraken.def.Defined;
+import net.bleujin.searcher.common.WriteDocument;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.parse.gson.JsonPrimitive;
 import net.ion.framework.parse.gson.internal.LazilyParsedNumber;
@@ -17,7 +17,6 @@ import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
-import net.ion.nsearcher.common.WriteDocument;
 
 public class Property implements Comparable{
 

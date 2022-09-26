@@ -4,17 +4,10 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.sun.xml.internal.ws.api.server.WSEndpoint;
-
 import net.bleujin.rcraken.WriteJobNoReturn;
-import net.bleujin.rcraken.WriteSession;
-import net.bleujin.rcraken.extend.CDDHandler;
 import net.bleujin.rcraken.extend.CDDModifiedEvent;
-import net.bleujin.rcraken.extend.CDDRemovedEvent;
 import net.bleujin.rcraken.extend.ModifyCDDHandler;
-import net.bleujin.rcraken.mapdb.TestBaseMapDB;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
-import net.ion.framework.util.Debug;
 
 public class AdvanceListenerTest extends TestBaseRCraken {
 

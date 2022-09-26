@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.lang.reflect.MethodUtils;
-import org.apache.lucene.search.Filter;
+import org.apache.lucene.search.Query;
 
 import net.bleujin.rcraken.CommonNode;
 import net.bleujin.rcraken.convert.Filters;
@@ -29,11 +29,11 @@ public final class BinaryExpression extends ValueObject implements Expression {
 		return operator.compute(left.value(node), right.value(node)) ;	
 	}
 	
-	public Filter filter(){
+	public Query filter(){
 		try {
 			if (Op.AND == operator || Op.OR == operator){
-				Filter f1 = (Filter) MethodUtils.invokeMethod(left, "filter", new Object[0]) ;
-				Filter f2 = (Filter) MethodUtils.invokeMethod(right, "filter", new Object[0]) ;
+				Query f1 = (Query) MethodUtils.invokeMethod(left, "filter", new Object[0]) ;
+				Query f2 = (Query) MethodUtils.invokeMethod(right, "filter", new Object[0]) ;
 				if (operator == Op.AND) return Filters.and(f1, f2) ;
 				if (operator == Op.OR) return Filters.or(f1, f2) ;
 			} else if (Op.EQ == operator || Op.LT == operator || Op.LE == operator || Op.GT == operator || Op.GE == operator || Op.CONTAIN == operator){

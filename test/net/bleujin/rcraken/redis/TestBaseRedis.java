@@ -1,5 +1,7 @@
 package net.bleujin.rcraken.redis;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +35,7 @@ public class TestBaseRedis {
 
 
 	@BeforeEach
-	void setUp(){
+	void setUp() throws IOException{
 		rsession = c.login("testworkspace") ;
 		rsession.workspace().removeSelf() ;
 	}

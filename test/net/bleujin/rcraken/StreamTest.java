@@ -2,7 +2,6 @@ package net.bleujin.rcraken;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.mapdb.TestBaseMapDB;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 
 public class StreamTest extends TestBaseRCraken {
@@ -14,6 +13,10 @@ public class StreamTest extends TestBaseRCraken {
 		rsession.root().walkBreadth().stream().gte("age", 20).eq("name", "bleujin").debugPrint();
 		
 		rsession.root().walkBreadth().stream().and(node -> node.property("age").asInt() >= 20, node -> node.property("name").asString().equals("bleujin")).debugPrint();
+		
+		
+//		String moduleName = String.class.getModule().getName();
+//		System.out.println("Module name: " + moduleName);
 		
 		rsession.root().walkBreadth().stream().where("this.age >= 20 and this.name = 'bleujin'").debugPrint();
 	}

@@ -23,13 +23,13 @@ import net.bleujin.rcraken.convert.AdNodeRows;
 import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.SelectProjection;
 import net.bleujin.rosetta.Parser;
+import net.bleujin.searcher.common.IKeywordField;
+import net.bleujin.searcher.common.ReadDocument;
+import net.bleujin.searcher.search.SearchRequest;
+import net.bleujin.searcher.search.SearchResponse;
 import net.ion.framework.db.Rows;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
-import net.ion.nsearcher.common.IKeywordField;
-import net.ion.nsearcher.common.ReadDocument;
-import net.ion.nsearcher.search.SearchRequest;
-import net.ion.nsearcher.search.SearchResponse;
 
 public class ChildQueryResponse {
 
@@ -88,7 +88,7 @@ public class ChildQueryResponse {
 		found().stream().forEach(fqn -> Debug.line(session.pathBy(fqn)));
 	}
 
-	public int totalCount() {
+	public long totalCount() {
 		return response.totalCount();
 	}
 	public long elapsedTime() {
@@ -101,10 +101,6 @@ public class ChildQueryResponse {
 
 	public XML toXML() {
 		return response.toXML() ;
-	}
-
-	public void awaitPostFuture() throws InterruptedException, ExecutionException {
-		response.awaitPostFuture() ;
 	}
 
 	public <T> T transformer(Function<ChildQueryResponse, T> function) {

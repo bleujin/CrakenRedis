@@ -174,7 +174,7 @@ public class MapWorkspace extends Workspace{
 	}
 
 	
-	public boolean removeSelf() {
+	public boolean removeSelf() throws IOException {
 		super.removeSelf() ;
 		db.getAllNames().forEach(s -> {
 			if (s.startsWith(name() + ".")) {

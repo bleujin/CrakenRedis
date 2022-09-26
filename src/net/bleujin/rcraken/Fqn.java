@@ -290,10 +290,10 @@ public class Fqn implements Serializable {
 	}
 
 	public Query childrenQuery() {
-		BooleanQuery result = new BooleanQuery();
+		BooleanQuery.Builder result = new BooleanQuery.Builder() ;
 		result.add(new WildcardQuery(new Term(Defined.Index.PARENT, this.startWith())), Occur.SHOULD);
 		result.add(new TermQuery(new Term(Defined.Index.PARENT, this.toString())), Occur.SHOULD);
-		return result;
+		return result.build();
 		// return new WildcardQuery(new Term(DocEntry.PARENT, this.startWith())) ;
 	}
 

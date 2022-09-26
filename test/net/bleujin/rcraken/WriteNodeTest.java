@@ -2,12 +2,8 @@ package net.bleujin.rcraken;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.awt.image.SampleModel;
-import java.util.concurrent.Future;
+import org.junit.jupiter.api.Test;
 
-import org.junit.jupiter.api.Test;import com.sun.xml.internal.ws.api.server.WSEndpoint;
-
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 

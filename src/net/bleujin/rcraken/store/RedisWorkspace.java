@@ -1,5 +1,6 @@
 package net.bleujin.rcraken.store;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
@@ -193,7 +194,7 @@ public class RedisWorkspace extends Workspace{
 	}
 
 	
-	public boolean removeSelf() {
+	public boolean removeSelf() throws IOException {
 		super.removeSelf() ;
 		
 		rclient.getKeys().deleteByPattern(name() + ".*") ;

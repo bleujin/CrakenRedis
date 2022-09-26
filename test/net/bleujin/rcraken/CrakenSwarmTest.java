@@ -1,6 +1,7 @@
 package net.bleujin.rcraken;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +10,7 @@ import net.bleujin.rcraken.store.MapConfig;
 public class CrakenSwarmTest {
 
 	@Test
-	public void makeTest() {
+	public void makeTest() throws IOException {
 		
 		Craken craken = CrakenConfig
 			.makeSwarm("memory", MapConfig.memory())
