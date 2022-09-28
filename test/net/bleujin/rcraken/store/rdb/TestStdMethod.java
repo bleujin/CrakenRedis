@@ -12,6 +12,7 @@ import org.mapdb.DBMaker.Maker;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.store.MapConfig;
+import net.ion.framework.util.Debug;
 
 public class TestStdMethod {
 
@@ -48,6 +49,8 @@ public class TestStdMethod {
 	
 	@Test
 	public void testStdRead() throws Exception {
-		rsession.pathBy("/").children().debugPrint();
+		//rsession.pathBy("/").children().debugPrint();
+		
+		Debug.line(rsession.exist("/emp"), rsession.exist("/demp")) ;
 	}
 }

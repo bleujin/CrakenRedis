@@ -32,7 +32,7 @@ AS $BODY$
 $BODY$;
 
 
-CREATE OR REPLACE FUNCTION public.craken$struBy(v_wsname varchar, v_fqn varchar)
+CREATE OR REPLACE FUNCTION public.craken$struBy(v_wsname varchar, v_fqnStru varchar)
     RETURNS refcursor
     LANGUAGE 'plpgsql'
     COST 100
@@ -42,7 +42,7 @@ AS $BODY$
 		rtn_cursor refcursor := 'rcursor';
 	BEGIN
 		OPEN rtn_cursor FOR
-		Select fqn from craken_tblc where wsname = v_wsname and fqn like v_fqn || '/%' ;
+		Select fqn from craken_tblc where wsname = v_wsname and fqn like v_fqnStru || '%' ;
 		
 		return rtn_cursor; 
 	END 
@@ -72,7 +72,7 @@ AS $BODY$
 $BODY$;
 
 
-select craken$dataBy('testworkspace', '/emp/bleujin') ;
+select craken$existBy('testworkspace', '/emp') ;
 fetch all from rcursor
 
 select * from craken_tblc
@@ -88,8 +88,9 @@ AS $BODY$
 		rtn_cursor refcursor := 'rcursor';
 	BEGIN
 		OPEN rtn_cursor FOR
-		Select jdata
-		from craken_tblc where wsname = v_wsname and fqn = v_fqn ;
+		Select jdata from craken_tblc where wsname = v_wsname and fqn = v_fqn 
+		union all 
+		Select jdata from craken_tblc where wsname = v_wsname and fqn like v_fqn || '/%' limit 1;
 		
 		return rtn_cursor; 
 	END 
@@ -155,7 +156,7 @@ AS $function$
 	END $function$
 ;
 
-select craken$struby('my', '/') ;
+select craken$struby('testworkspace', '/') ;
 fetch all from rcursor ;
 
 select craken$dataWith('my', '/', '{}')
