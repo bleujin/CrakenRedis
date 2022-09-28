@@ -31,7 +31,7 @@ public class PGReadSession extends ReadSession{
 	protected Set<String> readStruBy(Fqn fqn) {
 		
 		List<Fqn> list = ListUtil.newList() ;
-		workspace.execQuery(dc.createUserProcedure("craken@struBy(?,?)").addParam(workspace.name()).addParam(fqn.absPath()), new ResultSetHandler<Void>() {
+		workspace.execQuery(dc.createUserProcedure("craken@struBy(?,?)").addParam(workspace.name()).addParam(fqn.struPath()), new ResultSetHandler<Void>() {
 			@Override
 			public Void handle(ResultSet rs) throws SQLException {
 				while(rs.next()) {
@@ -46,7 +46,8 @@ public class PGReadSession extends ReadSession{
 			Fqn current = child ;
 			do{
 				// childs.add(current.absPath()) ; 
-				childs.add( current.getSubFqn(1, current.size()).absPath().substring(1) ) ;
+				if (fqn.equals(current.getParent()))
+					childs.add( current.getSubFqn(fqn.size(), current.size()).absPath().substring(1) ) ;
 				current = current.getParent() ;
 			} while (! current.equals(fqn)) ;
 		}) ;

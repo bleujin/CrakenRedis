@@ -48,6 +48,6 @@ public class TestStdMethod {
 	
 	@Test
 	public void testStdRead() throws Exception {
-		rsession.pathBy("/emp").children().debugPrint();
+		rsession.pathBy("/").children().debugPrint();
 	}
 }

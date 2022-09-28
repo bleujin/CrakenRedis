@@ -18,7 +18,7 @@ public class TestReadStru {
 	
 	@Test
 	public void readStru() {
-		
+		Fqn root = Fqn.from("/") ;
 		Fqn a = Fqn.from("/a") ;
 		Fqn c = Fqn.from("/a/b/c") ;
 		Fqn e = Fqn.from("/a/b/c/d/e") ;
@@ -31,10 +31,11 @@ public class TestReadStru {
 			Fqn current = fqn ;
 			do{
 				// childs.add(current.absPath()) ; 
-				childs.add( current.getSubFqn(1, current.size()).absPath().substring(1) ) ;
+				if (root.equals(current.getParent()))
+					childs.add( current.getSubFqn(root.size(), current.size()).absPath().substring(1) ) ;
 
 				current = current.getParent() ;
-			} while (! current.equals(a)) ;
+			} while (! current.equals(root)) ;
 		}) ;
 		
 		Debug.line(childs);

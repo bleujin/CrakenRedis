@@ -123,6 +123,7 @@ public class Fqn implements Serializable {
 	}
 
 	public String struPath() {
+		if (isRoot()) return "/" ;
 		return toString() + "/";
 	}
 
