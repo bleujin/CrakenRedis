@@ -1,4 +1,4 @@
-package net.bleujin.rcraken.store;
+package net.bleujin.rcraken.store.rdb;
 
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -6,25 +6,21 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.mapdb.DB;
-import org.mapdb.DBMaker.Maker;
-
-import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.CrakenNode;
 import net.ion.framework.util.MapUtil;
 
-public class MapNode implements CrakenNode{
+public class PGNode implements CrakenNode {
 
 	private Map<String, ScheduledExecutorService> ess = MapUtil.newMap() ;
 	private Map<String, ReadWriteLock> rws = MapUtil.newMap() ;
 	private Map<String, Integer> workers;
 	
-	public MapNode(Map<String, Integer> workers) {
+	public PGNode(Map<String, Integer> workers) {
 		this.workers = workers ;
 	}
 
 	@Override
-	public MapNode start() {
+	public PGNode start() {
 		return this;
 	}
 
@@ -56,6 +52,5 @@ public class MapNode implements CrakenNode{
 	public void shutdown() {
 		ess.values().forEach( es -> es.shutdown());
 	}
-
 
 }

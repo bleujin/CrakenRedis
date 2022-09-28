@@ -31,7 +31,7 @@ public class MapCraken extends Craken {
 
 	public MapCraken start(boolean doStartNodeService) {
 		this.db = maker.make() ;
-		if (doStartNodeService) this.mnode = new MapNode(db, maker, workers).start();
+		if (doStartNodeService) this.mnode = new MapNode(workers).start();
 		return this;
 	}
 
