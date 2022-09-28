@@ -30,29 +30,20 @@ public class PGReadSession extends ReadSession{
 	@Override
 	protected Set<String> readStruBy(Fqn fqn) {
 		
-		List<Fqn> list = ListUtil.newList() ;
-		workspace.execQuery(dc.createUserProcedure("craken@struBy(?,?)").addParam(workspace.name()).addParam(fqn.struPath()), new ResultSetHandler<Void>() {
+		Set<String> set = new TreeSet<String>() ;
+		workspace.execQuery(dc.createUserProcedure("craken@struBy(?,?)").addParam(workspace.name()).addParam(fqn.absPath()), new ResultSetHandler<Void>() {
 			@Override
 			public Void handle(ResultSet rs) throws SQLException {
 				while(rs.next()) {
-					list.add(Fqn.from(rs.getString("fqn"))) ;
+					Fqn current = Fqn.from(rs.getString("fqn"));
+					set.add(current.getSubFqn(fqn.size(), current.size()).absPath().substring(1) ) ;
+					
 				}
 				return null ;
 			}
 		}) ;
 		
-		SortedSet<String> childs = new TreeSet<String>();
-		list.stream().forEach(child ->{
-			Fqn current = child ;
-			do{
-				// childs.add(current.absPath()) ; 
-				if (fqn.equals(current.getParent()))
-					childs.add( current.getSubFqn(fqn.size(), current.size()).absPath().substring(1) ) ;
-				current = current.getParent() ;
-			} while (! current.equals(fqn)) ;
-		}) ;
-		
-		return childs;
+		return set;
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class PGWriteSession extends WriteSession {
 
 	@Override
 	protected void merge(WriteNode wnode, Fqn fqn, JsonObject data) {
-		workspace.execUpdate(dc.createUserProcedure("craken@dataWith(?,?,?)").addParam(workspace.name()).addParam(fqn.absPath()).addParam(data.toString())) ;
+		workspace.execUpdate(dc.createUserProcedure("craken@dataWith(?,?,?,?)").addParam(workspace.name()).addParam(fqn.absPath()).addParam(data.toString()).addParam(fqn.getParent().absPath())) ;
 	}
 
 	@Override

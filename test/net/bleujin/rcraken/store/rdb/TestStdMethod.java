@@ -49,7 +49,7 @@ public class TestStdMethod {
 	
 	@Test
 	public void testStdRead() throws Exception {
-		//rsession.pathBy("/").children().debugPrint();
+		rsession.pathBy("/emp").children().debugPrint();
 		
 		Debug.line(rsession.exist("/emp"), rsession.exist("/demp")) ;
 	}

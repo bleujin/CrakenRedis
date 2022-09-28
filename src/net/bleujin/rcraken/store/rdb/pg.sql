@@ -2,12 +2,12 @@
 
 -- DROP FUNCTION IF EXISTS public."test$arrayby"(character varying[]);
 
-
 CREATE TABLE IF NOT EXISTS public.craken_tblc
 (
-    wsname character varying COLLATE pg_catalog."default" NOT NULL,
-    fqn character varying COLLATE pg_catalog."default" NOT NULL,
+    wsname character varying NOT NULL,
+    fqn character varying NOT NULL,
     jdata jsonb,
+	parent character varying,
     CONSTRAINT craken_tblc_pkey PRIMARY KEY (wsname, fqn)
 )
 
@@ -32,7 +32,7 @@ AS $BODY$
 $BODY$;
 
 
-CREATE OR REPLACE FUNCTION public.craken$struBy(v_wsname varchar, v_fqnStru varchar)
+CREATE OR REPLACE FUNCTION public.craken$struBy(v_wsname varchar, v_fqn varchar)
     RETURNS refcursor
     LANGUAGE 'plpgsql'
     COST 100
@@ -42,7 +42,7 @@ AS $BODY$
 		rtn_cursor refcursor := 'rcursor';
 	BEGIN
 		OPEN rtn_cursor FOR
-		Select fqn from craken_tblc where wsname = v_wsname and fqn like v_fqnStru || '%' ;
+		Select fqn from craken_tblc where wsname = v_wsname and parent = v_fqn  ;
 		
 		return rtn_cursor; 
 	END 
@@ -88,9 +88,7 @@ AS $BODY$
 		rtn_cursor refcursor := 'rcursor';
 	BEGIN
 		OPEN rtn_cursor FOR
-		Select jdata from craken_tblc where wsname = v_wsname and fqn = v_fqn 
-		union all 
-		Select jdata from craken_tblc where wsname = v_wsname and fqn like v_fqn || '/%' limit 1;
+		Select jdata from craken_tblc where wsname = v_wsname and fqn = v_fqn  ;
 		
 		return rtn_cursor; 
 	END 
@@ -98,7 +96,7 @@ $BODY$;
 
 
 
-CREATE OR REPLACE FUNCTION public.craken$dataWith(v_wsname varchar, v_fqn varchar, v_jdata varchar)
+CREATE OR REPLACE FUNCTION public.craken$dataWith(v_wsname varchar, v_fqn varchar, v_jdata varchar, v_parent varchar)
     RETURNS integer
     LANGUAGE 'plpgsql'
     COST 100
@@ -106,9 +104,17 @@ CREATE OR REPLACE FUNCTION public.craken$dataWith(v_wsname varchar, v_fqn varcha
 AS $BODY$
 	BEGIN
 		with upset as (update craken_tblc set jdata = v_jdata::jsonb where wsname = v_wsname and fqn = v_fqn returning *)
-		insert into craken_tblc(wsname, fqn, jdata)
-		select v_wsname, v_fqn, v_jdata::jsonb
+		insert into craken_tblc(wsname, fqn, jdata, parent)
+		select v_wsname, v_fqn, v_jdata::jsonb, v_parent
 		where not exists(select * from upset) ;
+		
+		insert into craken_tblc(wsname, fqn, jdata, parent)
+		select v_wsname, fqn, '{}'::jsonb, COALESCE(lead(fqn) over(), '*') as parent
+		from (
+		SELECT util$nvl(array_to_string(trim_array(string_to_array(v_fqn, '/'), (row_number() over())::integer - 1), '/'), '/') fqn
+		from (select unnest(string_to_array(v_fqn, '/')) ele) b
+			) b
+		where not exists(select 1 from craken_tblc where fqn = b.fqn) ;
 		
 		return 1; 
 	END 
@@ -164,3 +170,17 @@ select craken$dataWith('my', '/', '{}')
 
 select craken$existby('my', '/') ;
 fetch all from rcursor ;
+
+select fqn, COALESCE(lead(fqn) over(), '*') as parent
+from (
+SELECT util$nvl(array_to_string(trim_array(string_to_array('/a/b/a/d', '/'), (row_number() over())::integer - 1), '/'), '/') fqn
+from (select unnest(string_to_array('/a/b/a/d', '/')) ele) b
+	) b
+where not exists(select 1 from craken_tblc where fqn = b.fqn)
+	
+select * from craken_tblc
+
+delete from craken_tblc
+	
+	
+	
