@@ -1,5 +1,6 @@
 package net.bleujin.rcraken.store.rdb;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -13,9 +14,11 @@ public class PGCraken extends Craken {
 	private DBController dc;
 	private Map<String, Integer> workers;
 	private PGNode pgnode;
+	private PGConfig config;
 
-	public PGCraken(DBController dc, Map<String, Integer> workers) {
+	public PGCraken(DBController dc, PGConfig config, Map<String, Integer> workers) {
 		this.dc = dc;
+		this.config = config ;
 		this.workers = workers ;
 	}
 
@@ -35,7 +38,13 @@ public class PGCraken extends Craken {
 
 	@Override
 	protected Workspace findWorkspace(String wname) {
-		return new PGWorkspace(dc, pgnode, wname);
+		File wrootDir = new File(config.lobRootDir(), wname) ;
+		if (! wrootDir.exists()) {
+			boolean created = wrootDir.mkdirs() ;
+			if (! created) throw new IllegalStateException("workpace's rootDir cant created") ;
+		}
+		
+		return new PGWorkspace(dc, config, wrootDir, pgnode, wname);
 	}
 
 	@Override

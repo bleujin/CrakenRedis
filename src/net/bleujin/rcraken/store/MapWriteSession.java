@@ -1,5 +1,7 @@
 package net.bleujin.rcraken.store;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +20,7 @@ import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.WriteNode;
 import net.bleujin.rcraken.WriteSession;
+import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.IOUtil;
 import net.ion.framework.util.SetUtil;
@@ -27,9 +30,11 @@ public class MapWriteSession extends WriteSession {
 	private HTreeMap<String, String> dataMap;
 	private HTreeMap<String, Set<String>> struMap;
 	private HTreeMap<String, byte[]> binaryData;
+	private MapWorkspace workspace;
 	
 	protected MapWriteSession(MapWorkspace wspace, ReadSession rsession, DB db) {
 		super(wspace, rsession);
+		this.workspace = wspace ;
 		this.dataMap = db.hashMap(wspace.nodeMapName()).keySerializer(Serializer.STRING).valueSerializer(Serializer.STRING).createOrOpen() ;
 		this.struMap = db.hashMap(wspace.struMapName()).keySerializer(Serializer.STRING).valueSerializer(new SerializerPath()).createOrOpen() ;
 		this.binaryData = db.hashMap(wspace.lobMapName()).keySerializer(Serializer.STRING).valueSerializer(Serializer.BYTE_ARRAY).createOrOpen() ;
@@ -49,14 +54,18 @@ public class MapWriteSession extends WriteSession {
 		dataMap.put(fqn.absPath(), data.toString());
 		
 		// handle lob
-		childJson(data).filter(p -> "Lob".equals(p.asString("type"))&& hasAttribute(p.asString("value"))).forEach(p -> {
-			if (attrs().get(p.asString("value")) instanceof InputStream) {
-		        try {
-		        	InputStream input = (InputStream) attrs().get(p.asString("value")) ;
-		        	OutputStream output = workspace().outputStream(p.asString("value"));
-					IOUtil.copyNClose(input, output);
+		wnode.properties().filter(p -> PType.Lob.equals(p.type())&& hasAttribute(p.asString())).forEach(p ->{
+			if (attrs().get(p.asString()) instanceof InputStream) {
+	        	InputStream input = (InputStream) attrs().get(p.asString()) ;
+	        	String targetDir = fqn.getParent().isRoot() ? "" : fqn.getParent().absPath() ;
+	        	File dir = new File(workspace.workspaceRootDir(), targetDir) ;
+	        	if (!dir.exists()) dir.mkdirs() ;
+	        	File targetFile = new File(dir, fqn.name() + "." + p.name()) ; // rootDir/wname/fqn's parent/nodename.pname
+	        	try {
+					IOUtil.copyNCloseSilent(input, new FileOutputStream(targetFile)) ;
 				} catch (IOException ex) {
-					attrs().put(p.asString("value"), ex.getMessage()) ;
+					attrs().put(p.name(), ex.getMessage()) ;
+					throw new IllegalStateException(ex) ;
 				}
 			}
 		});
@@ -116,18 +125,6 @@ public class MapWriteSession extends WriteSession {
 			rs.add(childFqn.absPath()) ;
 			decendant(childFqn, rs);
 		}
-	}
-	
-	private Stream<JsonObject> childJson(final JsonObject parent){
-		Iterator<String> keyIter = parent.keySet().iterator() ;
-		return StreamSupport.stream(Spliterators.spliterator(new Iterator<JsonObject>() {
-			public boolean hasNext() {
-				return keyIter.hasNext();
-			}
-			public JsonObject next() {
-				return parent.asJsonObject(keyIter.next());
-			}
-		}, parent.keySet().size(), 0), false);
 	}
 
 	protected Set<String> readStruBy(Fqn fqn) {

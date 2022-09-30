@@ -1,5 +1,6 @@
 package net.bleujin.rcraken.store.rdb;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
@@ -18,6 +19,8 @@ public class PGConfig implements CrakenConfig {
 	private String userId ;
 	private String userPwd ;
 	
+	private File lobRootDir ;
+	
 	public PGConfig jdbcURL(String jdbcURL) {
 		this.jdbcURL = jdbcURL ;
 		return this ;
@@ -32,11 +35,24 @@ public class PGConfig implements CrakenConfig {
 		this.userPwd = userPwd ;
 		return this ;
 	}
+	
+	public PGConfig lobRootDir(File rootDir) {
+		if (! rootDir.exists()) {
+			rootDir.mkdirs() ;
+		}
+		this.lobRootDir = rootDir ;
+		return this ;
+	}
+	
+	public File lobRootDir() {
+		return lobRootDir ;
+	}
 
 	public Craken testBuild() {
 		this.jdbcURL = "jdbc:postgresql://127.0.0.1:5432/ics6" ;
 		this.userId = "postgres" ;
 		this.userPwd = "redf" ;
+		this.lobRootDir = new File("./resource/lob") ;
 		
 		return this.build() ;
 	}
@@ -48,10 +64,10 @@ public class PGConfig implements CrakenConfig {
 
 	@Override
 	public Craken build(Map<String, Integer> workers) {
-		if (StringUtil.isBlank(jdbcURL) || StringUtil.isBlank(userId) || StringUtil.isBlank(userPwd)) throw new IllegalStateException("not setted jdbc info") ;
+		if (StringUtil.isBlank(jdbcURL) || StringUtil.isBlank(userId) || StringUtil.isBlank(userPwd) || lobRootDir == null) throw new IllegalStateException("not setted config info") ;
 		
 		DBManager dbm = new PostSqlDBManager("jdbc:postgresql://127.0.0.1:5432/ics6", "postgres", "redf") ;
-		return new PGCraken(new DBController(dbm), workers);
+		return new PGCraken(new DBController(dbm), this, workers);
 	}
 
 }

@@ -1,5 +1,6 @@
 package net.bleujin.rcraken.store;
 
+import java.io.File;
 import java.util.Map;
 
 import org.mapdb.DB;
@@ -19,9 +20,11 @@ public class MapCraken extends Craken {
 	private Map<String, MapWorkspace> wss = MapUtil.newMap() ;
 	private MapNode mnode;
 	private Map<String, Integer> workers;
+	private MapConfig config;
 
-	public MapCraken(Maker maker, Map<String, Integer> workers) {
+	public MapCraken(Maker maker, MapConfig config, Map<String, Integer> workers) {
 		this.maker = maker;
+		this.config = config ;
 		this.workers = workers ;
 	}
 
@@ -44,7 +47,13 @@ public class MapCraken extends Craken {
 		if (wname.startsWith("_"))
 			throw new IllegalAccessError("illegal worksapce name");
 		
-		wss.putIfAbsent(wname, (MapWorkspace)new MapWorkspace(node(), wname, mnode, db).init());
+		File wrootDir = new File(config.lobRootDir(), wname) ;
+		if (! wrootDir.exists()) {
+			boolean created = wrootDir.mkdirs() ;
+			if (! created) throw new IllegalStateException("workpace's rootDir cant created") ;
+		}
+		
+		wss.putIfAbsent(wname, (MapWorkspace)new MapWorkspace(node(), wname, wrootDir, mnode, db).init());
 		return wss.get(wname);
 	}
 

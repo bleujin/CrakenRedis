@@ -1,6 +1,7 @@
 package net.bleujin.rcraken;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -159,7 +160,7 @@ public class Property implements Comparable{
 		return json.asBoolean(Defined.Property.Value);
 	}
 
-	public InputStream asStream() throws UnsupportedEncodingException {
+	public InputStream asStream() throws IOException {
 		if (PType.Lob.name().equals(json.asString(Defined.Property.Type))) {
 			return rsession.workspace().inputStream(asString()) ;
 		} else {

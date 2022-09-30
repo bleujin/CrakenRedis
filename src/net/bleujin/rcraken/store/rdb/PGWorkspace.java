@@ -1,11 +1,13 @@
 package net.bleujin.rcraken.store.rdb;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
 
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
@@ -17,21 +19,25 @@ import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
-import net.bleujin.rcraken.store.MapWorkspace;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.bean.ResultSetHandler;
-import net.ion.framework.db.postgre.PostgreUserProcedure;
 import net.ion.framework.db.procedure.IParameterQueryable;
 import net.ion.framework.db.procedure.IUserProcedure;
+import net.ion.framework.util.Debug;
+import net.ion.framework.util.StringUtil;
 
 public class PGWorkspace extends Workspace {
 
 	
 	private DBController dc;
-	protected PGWorkspace(DBController dc, CrakenNode cnode, String wname) {
+	private PGConfig config;
+	private File wrootDir ;
+	protected PGWorkspace(DBController dc, PGConfig config, File wrootDir, CrakenNode cnode, String wname) {
 		super(cnode, wname);
 		this.dc = dc ;
+		this.config = config ;
+		this.wrootDir = wrootDir ;
 	}
 
 	@Override
@@ -86,13 +92,15 @@ public class PGWorkspace extends Workspace {
 	}
 
 	@Override
-	protected OutputStream outputStream(String path) {
-		throw new UnsupportedOperationException("current fn not supported in pg-store") ;
+	protected OutputStream outputStream(String path) throws FileNotFoundException {
+		File target = new File(workspaceRootDir(), StringUtil.replaceChars(path, '$', '.')) ;
+		return new FileOutputStream(target) ;
 	}
 
 	@Override
-	protected InputStream inputStream(String path) {
-		throw new UnsupportedOperationException("current fn not supported in pg-store") ;
+	protected InputStream inputStream(String path) throws FileNotFoundException {
+		File target = new File(workspaceRootDir(), StringUtil.replaceChars(path, '$', '.')) ;
+		return new FileInputStream(target) ;
 	}
 	
 	DBController dc() {
@@ -116,5 +124,7 @@ public class PGWorkspace extends Workspace {
 		return dc.execHandlerQuery(upt, handler) ;
 	}
 
-
+	File workspaceRootDir() {
+		return wrootDir ;
+	}
 }

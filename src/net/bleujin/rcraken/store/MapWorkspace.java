@@ -2,6 +2,10 @@ package net.bleujin.rcraken.store;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,6 +39,7 @@ import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.StringUtil;
 
 public class MapWorkspace extends Workspace{
 
@@ -44,9 +49,11 @@ public class MapWorkspace extends Workspace{
 	private DB db;
 	private ReadWriteLock rwlock;
 	private HTreeMap<String, byte[]> binaryData;
+	private File wrootDir;
 	
-	public MapWorkspace(CrakenNode cnode, String wname, MapNode mnode, DB db) {
+	public MapWorkspace(CrakenNode cnode, String wname, File wrootDir, MapNode mnode, DB db) {
 		super(cnode, wname) ;
+		this.wrootDir = wrootDir ;
 		this.db = db;
 		this.rwlock = mnode.rwLock(wname + ".rwlock");
 		this.binaryData = db.hashMap(lobMapName()).keySerializer(Serializer.STRING).valueSerializer(Serializer.BYTE_ARRAY).createOrOpen() ;
@@ -190,26 +197,42 @@ public class MapWorkspace extends Workspace{
 		return true;
 	}
 
-	protected OutputStream outputStream(String path) {
-		return new OutputStream() {
-			private ByteArrayOutputStream bout = new ByteArrayOutputStream() ;
-			public void write(int b) throws IOException {
-				bout.write(b);
-			}
-			public void close() throws IOException {
-				MapWorkspace.this.binaryData.put(path, bout.toByteArray()) ;
-			}
-		} ;
+	@Override
+	protected OutputStream outputStream(String path) throws FileNotFoundException {
+		File target = new File(workspaceRootDir(), StringUtil.replaceChars(path, '$', '.')) ;
+		return new FileOutputStream(target) ;
 	}
 
-	
-	protected InputStream inputStream(String path) { 
-		byte[] bytes = binaryData.get(path) ;
-		ByteArrayInputStream binput = new ByteArrayInputStream(bytes) ;
-		return new InputStream() {
-			public int read() throws IOException {
-				return binput.read();
-			}
-		} ;
+	@Override
+	protected InputStream inputStream(String path) throws FileNotFoundException {
+		File target = new File(workspaceRootDir(), StringUtil.replaceChars(path, '$', '.')) ;
+		return new FileInputStream(target) ;
 	}
+
+	File workspaceRootDir() {
+		return wrootDir ;
+	}
+	
+//	protected OutputStream outputStream(String path) {
+//		return new OutputStream() {
+//			private ByteArrayOutputStream bout = new ByteArrayOutputStream() ;
+//			public void write(int b) throws IOException {
+//				bout.write(b);
+//			}
+//			public void close() throws IOException {
+//				MapWorkspace.this.binaryData.put(path, bout.toByteArray()) ;
+//			}
+//		} ;
+//	}
+//
+//	
+//	protected InputStream inputStream(String path) { 
+//		byte[] bytes = binaryData.get(path) ;
+//		ByteArrayInputStream binput = new ByteArrayInputStream(bytes) ;
+//		return new InputStream() {
+//			public int read() throws IOException {
+//				return binput.read();
+//			}
+//		} ;
+//	}
 }

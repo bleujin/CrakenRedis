@@ -147,9 +147,9 @@ public abstract class Workspace {
 		return false;
 	};
 
-	protected abstract OutputStream outputStream(String path);
+	protected abstract OutputStream outputStream(String path) throws IOException;
 
-	protected abstract InputStream inputStream(String path);
+	protected abstract InputStream inputStream(String path) throws IOException ;
 
 	protected boolean hasIndexer() {
 		return listeners.containsKey(indexListenerId()) && central != null;
