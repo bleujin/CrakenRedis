@@ -28,7 +28,7 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	WriteNode(WriteSession wsession, Fqn fqn, JsonObject jsonData) {
 		this.wsession = wsession;
 		this.fqn = fqn;
-		this.jsonData = jsonData;
+		this.jsonData = JsonObject.fromObject(jsonData.toMap()) ; // clone new jsonObject
 	}
 
 	// property

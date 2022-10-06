@@ -49,6 +49,25 @@ AS $BODY$
 $BODY$;
 
 
+
+CREATE OR REPLACE FUNCTION public.craken$childDataBy(v_wsname varchar, v_fqn varchar)
+    RETURNS refcursor
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+	DECLARE 
+		rtn_cursor refcursor := 'rcursor';
+	BEGIN
+		OPEN rtn_cursor FOR
+		Select fqn, jdata from craken_tblc where wsname = v_wsname and parent = v_fqn  ;
+		
+		return rtn_cursor; 
+	END 
+$BODY$;
+
+
+
 select * from craken_tblc where wsname = 'testworkspace'
 
 
@@ -145,10 +164,10 @@ AS $BODY$
 	DECLARE
 		affectedRow integer ;
 	BEGIN
-		delete from craken_tblc where wsname = v_wsname and fqn like v_fqn || '/' ;
+		delete from craken_tblc where wsname = v_wsname and parent = v_fqn  ;
 		
 		GET DIAGNOSTICS affectedRow = row_count ;
-		return row_count; 
+		return affectedRow; 
 	END 
 $BODY$;
 

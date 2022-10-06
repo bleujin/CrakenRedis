@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.bleujin.rcraken.store.MapConfig;
 import net.bleujin.rcraken.store.RedisConfig;
+import net.bleujin.rcraken.store.rdb.PGConfig;
 
 public interface CrakenConfig {
 	public final static String DFT_WORKER_NAME = "craken.worker";
@@ -27,6 +28,10 @@ public interface CrakenConfig {
 
 	public static CrakenConfig mapFile(File file) {
 		return MapConfig.file(file) ;
+	}
+	
+	public static PGConfig pgDB(String jdbcURL, String userId, String userPwd, File lobRootDir) {
+		return new PGConfig().jdbcURL(jdbcURL).userId(userId).userPwd(userPwd).lobRootDir(lobRootDir) ;
 	}
 
 	public Craken build()  ;

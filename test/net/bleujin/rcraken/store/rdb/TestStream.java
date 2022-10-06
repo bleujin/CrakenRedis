@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,31 +16,21 @@ import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
+import net.bleujin.rcraken.WriteJobNoReturn;
+import net.bleujin.rcraken.WriteNode;
+import net.bleujin.rcraken.extend.CDDHandler;
+import net.bleujin.rcraken.extend.CDDModifiedEvent;
+import net.bleujin.rcraken.extend.CDDRemovedEvent;
+import net.bleujin.rcraken.extend.ModifyCDDHandler;
+import net.ion.framework.db.DBController;
 import net.ion.framework.db.bean.ResultSetHandler;
+import net.ion.framework.session.Session;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.IOUtil;
+import net.ion.framework.util.RandomUtil;
 
-public class TestStream {
+public class TestStream extends TestStdMethod{
 
-	protected static Craken c;
-	protected ReadSession rsession;
-	
-	@BeforeAll
-	static void init() throws Exception {
-		c = new PGConfig().testBuild() ;
-		c.start() ;
-		
-	}
-	
-	@AfterAll
-	static void done() throws Exception {
-		c.shutdown();
-	}
-	
-	@BeforeEach
-	void setUp(){
-		rsession = c.login("testworkspace") ;
-	}
 	
 	@Test
 	public void testOutput() throws Exception {
@@ -56,4 +47,6 @@ public class TestStream {
 		assertEquals(cat.length(), bout.size());
 		
 	}
+	
+
 }

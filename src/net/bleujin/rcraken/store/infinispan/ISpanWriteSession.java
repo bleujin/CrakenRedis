@@ -19,6 +19,7 @@ import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.WriteNode;
 import net.bleujin.rcraken.WriteSession;
+import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.IOUtil;
@@ -52,14 +53,14 @@ public class ISpanWriteSession extends WriteSession {
 		nmap.put(fqn.absPath(), data.toString());
 		
 		// handle lob
-		childJson(data).filter(p -> "Lob".equals(p.asString("type"))&& hasAttribute(p.asString("value"))).forEach(p -> {
-			if (attrs().get(p.asString("value")) instanceof InputStream) {
+		wnode.properties().filter(p -> PType.Lob.equals(p.type())&& hasAttribute(p.asString())).forEach(p ->{
+			if (attrs().get(p.asString()) instanceof InputStream) {
 		        try {
-		        	InputStream input = (InputStream) attrs().get(p.asString("value")) ;
-		        	OutputStream output = workspace().outputStream(p.asString("value"));
+		        	InputStream input = (InputStream) attrs().get(p.asString()) ;
+		        	OutputStream output = workspace().outputStream(p.asString());
 					IOUtil.copyNClose(input, output);
 				} catch (IOException ex) {
-					attrs().put(p.asString("value"), ex.getMessage()) ;
+					attrs().put(p.asString(), ex.getMessage()) ;
 				}
 			}
 		});
@@ -125,18 +126,6 @@ public class ISpanWriteSession extends WriteSession {
 			rs.add(childFqn.absPath()) ;
 			decendant(childFqn, rs);
 		}
-	}
-	
-	private Stream<JsonObject> childJson(final JsonObject parent){
-		Iterator<String> keyIter = parent.keySet().iterator() ;
-		return StreamSupport.stream(Spliterators.spliterator(new Iterator<JsonObject>() {
-			public boolean hasNext() {
-				return keyIter.hasNext();
-			}
-			public JsonObject next() {
-				return parent.asJsonObject(keyIter.next());
-			}
-		}, parent.keySet().size(), 0), false);
 	}
 
 	protected Set<String> readStruBy(Fqn fqn) {

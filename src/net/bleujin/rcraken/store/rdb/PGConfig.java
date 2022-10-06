@@ -48,25 +48,25 @@ public class PGConfig implements CrakenConfig {
 		return lobRootDir ;
 	}
 
-	public Craken testBuild() {
+	public PGCraken testBuild() {
 		this.jdbcURL = "jdbc:postgresql://127.0.0.1:5432/ics6" ;
 		this.userId = "postgres" ;
-		this.userPwd = "redf" ;
+		this.userPwd = "postgres" ;
 		this.lobRootDir = new File("./resource/lob") ;
 		
 		return this.build() ;
 	}
 	
 	@Override
-	public Craken build() {
+	public PGCraken build() {
 		return build(Collections.singletonMap(DFT_WORKER_NAME, 3)) ;
 	}
 
 	@Override
-	public Craken build(Map<String, Integer> workers) {
+	public PGCraken build(Map<String, Integer> workers) {
 		if (StringUtil.isBlank(jdbcURL) || StringUtil.isBlank(userId) || StringUtil.isBlank(userPwd) || lobRootDir == null) throw new IllegalStateException("not setted config info") ;
 		
-		DBManager dbm = new PostSqlDBManager("jdbc:postgresql://127.0.0.1:5432/ics6", "postgres", "redf") ;
+		DBManager dbm = new PostSqlDBManager(jdbcURL, userId, userPwd) ;
 		return new PGCraken(new DBController(dbm), this, workers);
 	}
 

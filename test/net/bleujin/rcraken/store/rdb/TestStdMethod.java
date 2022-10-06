@@ -10,6 +10,7 @@ import org.mapdb.DBMaker;
 import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
+import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.store.MapConfig;
 import net.ion.framework.util.Debug;

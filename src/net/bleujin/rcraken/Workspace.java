@@ -24,6 +24,7 @@ import net.bleujin.searcher.SearchController;
 import net.bleujin.searcher.common.WriteDocument;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
@@ -60,9 +61,10 @@ public abstract class Workspace {
 		JsonObject value = toJson(_value);
 		JsonObject oldValue = toJson(_oldValue);
 
-		for (NodeListener nodeListener : listeners.values()) {
+		for (NodeListener nodeListener : listeners.values()) { 
 			nodeListener.onChanged(etype, fqn, value, oldValue);
 		}
+		
 	};
 
 	public Fqn fqnBy(String path) {
@@ -119,6 +121,8 @@ public abstract class Workspace {
 					if (etype == EventType.REMOVED) {
 						referChain.set(cddHandler.deleted(resolveMap, CDDRemovedEvent.create(readSession(), fqn, ObjectUtil.coalesce(value, oldValue))));
 					} else if (etype == EventType.UPDATED) {
+						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue)));
+					} else if (etype == EventType.CREATED) {
 						referChain.set(cddHandler.modified(resolveMap, CDDModifiedEvent.create(readSession(), fqn, value, oldValue)));
 					}
 

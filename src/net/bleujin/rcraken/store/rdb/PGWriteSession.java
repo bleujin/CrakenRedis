@@ -18,6 +18,7 @@ import net.bleujin.rcraken.WriteNode;
 import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.Property.PType;
 import net.ion.framework.db.DBController;
+import net.ion.framework.db.Rows;
 import net.ion.framework.db.bean.ResultSetHandler;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
@@ -30,17 +31,20 @@ public class PGWriteSession extends WriteSession {
 	private PGWorkspace workspace;
 	private DBController dc;
 	private PGReadSession rsession;
+	private final long tranSeq ;
+	
 	public PGWriteSession(PGWorkspace workspace, ReadSession rsession) {
 		super(workspace, rsession) ;
 		this.workspace = workspace ;
 		this.dc = workspace.dc() ;
 		this.rsession = (PGReadSession) rsession ;
+		this.tranSeq = workspace.nextTranSeq() ;
 	}
 
 	@Override
 	protected void merge(WriteNode wnode, Fqn fqn, JsonObject data) {
 		workspace.execUpdate(dc.createUserProcedure("craken@dataWith(?,?,?,?)").addParam(workspace.name()).addParam(fqn.absPath()).addParam(data.toString()).addParam(fqn.getParent().absPath())) ;
-		
+		workspace.sessionMerge(this.tranSeq, fqn, data) ;
 		
 		// handle lob
 		wnode.properties().filter(p -> PType.Lob.equals(p.type())&& hasAttribute(p.asString())).forEach(p ->{
@@ -62,12 +66,24 @@ public class PGWriteSession extends WriteSession {
 
 	@Override
 	protected void removeChild(WriteNode wnode, Fqn fqn, JsonObject data) {
+		try {
+			Rows rows = workspace.execQuery(dc.createUserProcedure("craken@childDataBy(?,?)").addParam(workspace.name()).addParam(fqn.absPath())) ;
+			while(rows.next()) {
+				String absFqn = rows.getString("fqn") ;
+				String jdata = rows.getString("jdata") ;
+				workspace.sessionRemove(tranSeq, fqn, JsonObject.fromString(jdata));
+			}
+		} catch(SQLException ignore) {
+			ignore.printStackTrace(); 
+		}
+		
 		workspace.execUpdate(dc.createUserProcedure("craken@removeChildWith(?,?)").addParam(workspace.name()).addParam(fqn.absPath())) ;
 	}
 
 	@Override
 	protected void removeSelf(WriteNode wnode, Fqn fqn, JsonObject data) {
 		workspace.execUpdate(dc.createUserProcedure("craken@removeSelfWith(?,?)").addParam(workspace.name()).addParam(fqn.absPath())) ;
+		workspace.sessionRemove(this.tranSeq, fqn, data) ;
 	}
 
 	@Override
@@ -77,12 +93,20 @@ public class PGWriteSession extends WriteSession {
 
 	@Override
 	protected JsonObject readDataBy(Fqn fqn) {
-		return rsession.readDataBy(fqn) ;
+		JsonObject data = rsession.readDataBy(fqn) ;
+		workspace.sessionRead(this.tranSeq, fqn, data) ;
+		return data ;
 	}
 
 	@Override
 	public boolean exist(String fqn) {
 		return rsession.exist(fqn) ;
 	}
+	
+	public void endTran() {
+		super.endTran(); 
+		workspace.sessionEnd(this.tranSeq) ;
+	}
+
 
 }

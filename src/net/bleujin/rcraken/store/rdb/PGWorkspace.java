@@ -8,23 +8,35 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.mapdb.MapModificationListener;
+import org.mapdb.Serializer;
 
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
 import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ExceptionHandler;
+import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
+import net.bleujin.rcraken.extend.NodeListener.EventType;
+import net.bleujin.rcraken.store.MapWorkspace;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.bean.ResultSetHandler;
 import net.ion.framework.db.procedure.IParameterQueryable;
+import net.ion.framework.db.procedure.IQueryable;
 import net.ion.framework.db.procedure.IUserProcedure;
+import net.ion.framework.db.servant.AfterTask;
+import net.ion.framework.db.servant.IExtraServant;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.DoubleKeyHashMap;
 import net.ion.framework.util.StringUtil;
 
 public class PGWorkspace extends Workspace {
@@ -33,6 +45,8 @@ public class PGWorkspace extends Workspace {
 	private DBController dc;
 	private PGConfig config;
 	private File wrootDir ;
+	private AtomicLong tseq = new AtomicLong() ;
+	
 	protected PGWorkspace(DBController dc, PGConfig config, File wrootDir, CrakenNode cnode, String wname) {
 		super(cnode, wname);
 		this.dc = dc ;
@@ -53,6 +67,14 @@ public class PGWorkspace extends Workspace {
 	@Override
 	protected PGReadSession readSession() {
 		return new PGReadSession(this);
+	}
+	
+	public long nextTranSeq() {
+		return tseq.incrementAndGet() ;
+	}
+	
+	public PGWorkspace init() {
+		return this;
 	}
 
 	@Override
@@ -126,5 +148,46 @@ public class PGWorkspace extends Workspace {
 
 	File workspaceRootDir() {
 		return wrootDir ;
+	}
+
+	
+	
+	
+	private DoubleKeyHashMap<Long, Fqn, JsonObject> eventMap = new DoubleKeyHashMap<Long, Fqn, JsonObject>() ;
+	void sessionEnd(long tranSeq) {
+		eventMap.remove(tranSeq) ;
+	}
+
+	void sessionRead(long tranSeq, Fqn fqn, JsonObject data) {
+		eventMap.put(tranSeq, fqn, data) ;
+	}
+
+	void sessionRemove(long tranSeq, Fqn fqn, JsonObject oldData) {
+		eventMap.remove(tranSeq, fqn) ;
+		PGWorkspace.this.onMerged(EventType.REMOVED, fqn.absPath(), oldData.toString(), oldData.toString());
+	}
+
+	void sessionMerge(long tranSeq, Fqn fqn, JsonObject data) {
+		JsonObject old = eventMap.remove(tranSeq, fqn) ;
+		if ((old == null || old.keySet().size() == 0)) {
+			PGWorkspace.this.onMerged(EventType.CREATED, fqn.absPath(), data.toString(), "{}");
+		} else {
+			PGWorkspace.this.onMerged(EventType.UPDATED, fqn.absPath(), data.toString(), old.toString());
+		}
+	}
+
+	public DoubleKeyHashMap<Long, Fqn, JsonObject> eventMap() {
+		return eventMap ;
+	}
+}
+
+
+class NodeEvent {
+	final Fqn fqn;
+	final JsonObject data;
+
+	NodeEvent(Fqn fqn, JsonObject data){
+		this.fqn = fqn ;
+		this.data = data ;
 	}
 }

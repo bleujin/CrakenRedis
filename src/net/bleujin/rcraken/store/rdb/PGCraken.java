@@ -5,14 +5,19 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import net.bleujin.rcraken.Craken;
+import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.store.MapNode;
+import net.bleujin.rcraken.store.MapWorkspace;
+import net.bleujin.rcraken.store.cache.CacheMap;
 import net.ion.framework.db.DBController;
+import net.ion.framework.util.MapUtil;
 
 public class PGCraken extends Craken {
 
 	private DBController dc;
 	private Map<String, Integer> workers;
+	private CacheMap<String, PGWorkspace> wss = new CacheMap<String, PGWorkspace>(100) ;
 	private PGNode pgnode;
 	private PGConfig config;
 
@@ -37,14 +42,16 @@ public class PGCraken extends Craken {
 	}
 
 	@Override
-	protected Workspace findWorkspace(String wname) {
+	protected PGWorkspace findWorkspace(String wname) {
 		File wrootDir = new File(config.lobRootDir(), wname) ;
 		if (! wrootDir.exists()) {
 			boolean created = wrootDir.mkdirs() ;
 			if (! created) throw new IllegalStateException("workpace's rootDir cant created") ;
 		}
 		
-		return new PGWorkspace(dc, config, wrootDir, pgnode, wname);
+		return wss.get(wname, () -> {
+			return new PGWorkspace(dc, config, wrootDir, pgnode, wname).init() ;
+		}) ;
 	}
 
 	@Override
@@ -56,5 +63,20 @@ public class PGCraken extends Craken {
 	public void removeAll() {
 		
 	}
+
+	public CrakenNode wnode() {
+		return pgnode ;
+	}
+
+	
+
+	DBController dc() {
+		return dc ;
+	}
+
+	public Craken cached(int cachedSize) {
+		return new CacheCraken(this, cachedSize);
+	}
+	
 
 }
