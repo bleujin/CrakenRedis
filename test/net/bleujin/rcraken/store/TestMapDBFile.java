@@ -21,7 +21,7 @@ import net.ion.framework.util.Debug;
 import net.ion.framework.util.RandomUtil;
 
 public class TestMapDBFile {
-	protected static Craken c;
+	protected static MapCraken c;
 	protected ReadSession rsession;
 	
 	@BeforeAll

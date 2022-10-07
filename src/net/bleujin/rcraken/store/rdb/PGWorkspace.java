@@ -22,10 +22,12 @@ import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
+import net.bleujin.rcraken.extend.PGSequence;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.store.MapWorkspace;
+import net.bleujin.rcraken.store.cache.CacheMap;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.bean.ResultSetHandler;
@@ -35,6 +37,7 @@ import net.ion.framework.db.procedure.IUserProcedure;
 import net.ion.framework.db.servant.AfterTask;
 import net.ion.framework.db.servant.IExtraServant;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.DoubleKeyHashMap;
 import net.ion.framework.util.StringUtil;
@@ -46,6 +49,7 @@ public class PGWorkspace extends Workspace {
 	private PGConfig config;
 	private File wrootDir ;
 	private AtomicLong tseq = new AtomicLong() ;
+	private CacheMap<String, PGSequence> seqs = new CacheMap<>(1000) ;
 	
 	protected PGWorkspace(DBController dc, PGConfig config, File wrootDir, CrakenNode cnode, String wname) {
 		super(cnode, wname);
@@ -87,6 +91,7 @@ public class PGWorkspace extends Workspace {
 
 			try {
 				T result = tjob.handle(wsession);
+				wsession.pathBy("/__endtran").property("updated", DateUtil.currentDateString()).merge() ;
 				wsession.endTran();
 				return result;
 			} catch (Throwable ex) {
@@ -99,13 +104,28 @@ public class PGWorkspace extends Workspace {
 
 	@Override
 	protected <T> CompletableFuture<T> batch(BatchSession bsession, BatchJob<T> bjob, ExecutorService eservice, ExceptionHandler ehandler) {
-		// TODO Auto-generated method stub
-		return null;
+		if (eservice.isTerminated() || eservice.isShutdown()) return CompletableFuture.completedFuture(null) ;
+		
+		return CompletableFuture.supplyAsync(() -> {
+			bsession.attribute(BatchJob.class, bjob);
+			bsession.attribute(ExceptionHandler.class, ehandler);
+
+			try {
+				T result = bjob.handle(bsession);
+				bsession.pathBy("/__endtran").property("updated", DateUtil.currentDateString()).insert() ;
+				bsession.endTran();
+				return result;
+			} catch (Throwable ex) {
+				ehandler.handle(bsession, bjob, ex);
+				throw new IllegalStateException(ex) ; 
+			} finally {
+			}
+		}, eservice) ;
 	}
 
 	@Override
 	public Sequence sequence(String name) {
-		return new PGSequence(dc, name) ;
+		return seqs.get(name, () -> new PGSequence(dc, name)) ;
 	}
 
 	@Override
@@ -124,6 +144,8 @@ public class PGWorkspace extends Workspace {
 		File target = new File(workspaceRootDir(), StringUtil.replaceChars(path, '$', '.')) ;
 		return new FileInputStream(target) ;
 	}
+	
+	
 	
 	DBController dc() {
 		return dc ;
@@ -181,13 +203,3 @@ public class PGWorkspace extends Workspace {
 	}
 }
 
-
-class NodeEvent {
-	final Fqn fqn;
-	final JsonObject data;
-
-	NodeEvent(Fqn fqn, JsonObject data){
-		this.fqn = fqn ;
-		this.data = data ;
-	}
-}

@@ -201,5 +201,6 @@ select * from craken_tblc
 
 delete from craken_tblc
 	
-	
-	
+create SEQUENCE test_seq
+
+select nextval('test_seq')

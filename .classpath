@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="lib/common/cglib-nodep-2.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/common/common_apache_fat.jar"/>
 	<classpathentry kind="lib" path="lib/common/guava-jdk5-13.0.jar"/>
-	<classpathentry kind="lib" path="lib/common/iframework_2.7.jar"/>
 	<classpathentry kind="lib" path="lib/mapdb/eclipse-collections-api-9.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/mapdb/eclipse-collections-9.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/mapdb/mapdb_fat.jar"/>
@@ -19,6 +18,7 @@
 	<classpathentry kind="lib" path="lib/common/lucene811_fat.jar"/>
 	<classpathentry kind="lib" path="lib/common/searcher_8.11.jar"/>
 	<classpathentry kind="lib" path="lib/postgres/postgresql-42.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/common/iframework_2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="module" value="true"/>

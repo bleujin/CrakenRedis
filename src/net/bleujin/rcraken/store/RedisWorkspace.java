@@ -34,6 +34,7 @@ import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.RedisSequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ObjectId;
 
 public class RedisWorkspace extends Workspace{
@@ -137,7 +138,7 @@ public class RedisWorkspace extends Workspace{
 				wlock.tryLock(10, TimeUnit.MINUTES); // 
 				T result = tjob.handle(wsession);
 				
-				RedisWorkspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
+				RedisWorkspace.this.dataMap.put("__endtran_", new JsonObject().accumulate("updated", DateUtil.currentDateString()).toString(), 3, TimeUnit.SECONDS);
 				wsession.endTran();
 				return result;
 			} catch (Throwable ex) {
@@ -171,7 +172,7 @@ public class RedisWorkspace extends Workspace{
 				batch.retryAttempts(4); // Attempts amount to re-send Redis commands batch if it hasn't been sent already
 				batch.execute();
 				
-				RedisWorkspace.this.dataMap.put("__endtran_" + new ObjectId().toString(), "{}", 3, TimeUnit.SECONDS);
+				RedisWorkspace.this.dataMap.put("__endtran_", new JsonObject().accumulate("updated", DateUtil.currentDateString()).toString(), 3, TimeUnit.SECONDS);
 				
 				bsession.endTran();
 				return result ;

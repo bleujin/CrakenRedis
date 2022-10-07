@@ -16,7 +16,7 @@ public class MapConfig implements CrakenConfig {
 
 	
 	private Maker maker;
-	private File lobRootDir ;
+	private File lobRootDir = new File("./resource/lob") ;
 	
 
 	public MapConfig(Maker maker) {
@@ -53,12 +53,12 @@ public class MapConfig implements CrakenConfig {
 	}
 	
 	@Override
-	public Craken build() {
+	public MapCraken build() {
 		return build(Collections.singletonMap(DFT_WORKER_NAME, 3));
 	}
 
 	@Override
-	public Craken build(Map<String, Integer> workers) {
+	public MapCraken build(Map<String, Integer> workers) {
 		if (maker == null || lobRootDir == null) throw new IllegalStateException("not setted config info") ;
 		return new MapCraken(maker, this, workers);
 	}

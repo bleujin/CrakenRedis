@@ -1,28 +1,26 @@
-package net.bleujin.rcraken.wservice;
+package net.bleujin.rcraken.store;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.extend.Sequence;
-import net.bleujin.rcraken.redis.TestBaseRedis;
-import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 
-public class SequenceTest extends TestBaseRCraken {
+public class TestSequence extends TestMapDBFile {
 
+	
 	@Test
 	public void createSeq() throws Exception {
 		Sequence seq = rsession.workspace().sequence("seq") ;
+		seq.delete();
 		assertEquals(0, seq.get()) ;
 		assertEquals(1, seq.incrementAndGet()) ;
 		assertEquals(2, seq.incrementAndGet()) ;
 		assertEquals(4, seq.addAndGet(2)) ;
 		
 		seq.delete();
-		seq = rsession.workspace().sequence("seq") ;
 		assertEquals(0, seq.get()) ;
 	}
 	
@@ -31,10 +29,10 @@ public class SequenceTest extends TestBaseRCraken {
 		Sequence seq1 = rsession.workspace().sequence("seq") ;
 		Sequence seq2 = rsession.workspace().sequence("seq") ;
 
-		assertEquals(0, seq1.get()) ;
-		assertEquals(1, seq1.incrementAndGet()) ;
+		Debug.debug(seq1.get()) ;
+		long val = seq1.incrementAndGet() ;
 
-		assertEquals(1, seq2.get()) ;
+		assertEquals(val, seq2.get()) ;
 		
 		assertTrue(seq1 == seq2 );
 	}
@@ -44,7 +42,7 @@ public class SequenceTest extends TestBaseRCraken {
 		Sequence seq = rsession.workspace().sequence("seq") ;
 
 		Debug.line(seq.get()) ;
+		Debug.line(seq.incrementAndGet()) ;
+		Debug.line(c.db().getStore()) ;
 	}
-
-	
 }

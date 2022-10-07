@@ -50,7 +50,7 @@ public class MapCraken extends Craken {
 		File wrootDir = new File(config.lobRootDir(), wname) ;
 		if (! wrootDir.exists()) {
 			boolean created = wrootDir.mkdirs() ;
-			if (! created) throw new IllegalStateException("workpace's rootDir cant created") ;
+			if (! created) throw new IllegalStateException("workpace's rootDir can't created") ;
 		}
 		
 		wss.putIfAbsent(wname, (MapWorkspace)new MapWorkspace(node(), wname, wrootDir, mnode, db).init());
@@ -59,7 +59,6 @@ public class MapCraken extends Craken {
 
 	public void shutdown() {
 		if (cnode != null) cnode.shutdown();
-		
 		db.close();
 	}
 	

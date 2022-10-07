@@ -10,6 +10,7 @@ public class MapSequence  implements Sequence{
 	MapSequence(Long value, String name) {
 		this.value = value;
 		this.name = name;
+		
 	}
 
 	public static MapSequence create(Long value, String name) {

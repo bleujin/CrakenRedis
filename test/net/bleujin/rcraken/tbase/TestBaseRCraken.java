@@ -30,9 +30,9 @@ public class TestBaseRCraken {
 	
 	@BeforeAll
 	static void init() throws Exception {
-		c = CrakenConfig.mapMemory().build() ;
+//		c = CrakenConfig.mapMemory().build() ;
 //		c = CrakenConfig.redisSingle().build() ;
-//		c = CrakenConfig.mapFile(new File("./resource/map.db")).build() ;
+		c = CrakenConfig.mapFile(new File("./resource/map.db")).build() ;
 		
 		
 		c.start() ;

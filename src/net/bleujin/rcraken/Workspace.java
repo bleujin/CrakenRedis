@@ -173,7 +173,7 @@ public abstract class Workspace {
 			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {
 				if (fqn.absPath().startsWith("/__endtran")) {
 					List<IndexEvent> ies = Workspace.this.ievents;
-					Workspace.this.ievents = ListUtil.newList();
+					Workspace.this.ievents = ListUtil.newList(); // reset
 
 					try {
 						central.index(isession -> {

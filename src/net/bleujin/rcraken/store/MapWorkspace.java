@@ -22,6 +22,7 @@ import org.mapdb.DB;
 import org.mapdb.HTreeMap;
 import org.mapdb.MapModificationListener;
 import org.mapdb.Serializer;
+import org.mapdb.Store;
 
 import com.google.common.util.concurrent.Futures;
 
@@ -34,10 +35,13 @@ import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.MapSequence;
+import net.bleujin.rcraken.extend.PGSequence;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
+import net.bleujin.rcraken.store.cache.CacheMap;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.StringUtil;
 
@@ -50,6 +54,7 @@ public class MapWorkspace extends Workspace{
 	private ReadWriteLock rwlock;
 	private HTreeMap<String, byte[]> binaryData;
 	private File wrootDir;
+	private CacheMap<String, MapSequence> seqs = new CacheMap<>(1000) ;
 	
 	public MapWorkspace(CrakenNode cnode, String wname, File wrootDir, MapNode mnode, DB db) {
 		super(cnode, wname) ;
@@ -127,7 +132,7 @@ public class MapWorkspace extends Workspace{
 				wlock.tryLock(10, TimeUnit.MINUTES); //
 				T result = tjob.handle(wsession);
 				
-				MapWorkspace.this.dataMap.put("__endtran_", "{}");
+				MapWorkspace.this.dataMap.put("__endtran_", new JsonObject().accumulate("updated", DateUtil.currentDateString()).toString() );
 				db.commit();
 				wsession.endTran();
 				return result;
@@ -135,7 +140,7 @@ public class MapWorkspace extends Workspace{
 				ehandler.handle(wsession, tjob, ex);
 				db.rollback();
 				throw new IllegalStateException(ex) ; 
-			} finally {
+			} finally { 
 				wlock.unlock(); 
 			}
 		}, eservice) ;
@@ -156,7 +161,7 @@ public class MapWorkspace extends Workspace{
 				wlock.tryLock(10, TimeUnit.MINUTES); //
 				T result = bjob.handle(bsession);
 
-				MapWorkspace.this.dataMap.put("__endtran_", "{}");
+				MapWorkspace.this.dataMap.put("__endtran_", new JsonObject().accumulate("updated", DateUtil.currentDateString()).toString());
 				db.commit(); 
 				bsession.endTran();
 				return result ;
@@ -173,7 +178,7 @@ public class MapWorkspace extends Workspace{
 
 	public Sequence sequence(String name) {
 		String seqName = seqPrefix() + name;
-		return MapSequence.create(db.atomicLong(seqName).createOrOpen(), seqName) ;
+		return seqs.get(seqName, () -> MapSequence.create(db.atomicLong(seqName).createOrOpen(), seqName)) ;
 	}
 
 	public <T> Topic<T> topic(String name) { 
