@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
+import org.omg.CORBA.WStringSeqHelper;
 
 import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
@@ -128,11 +129,14 @@ public class PropertyTest extends TestBaseRCraken {
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").merge() ;
 			wsession.pathBy("/emp/hero").property("name", "bleujin").merge() ;
 			wsession.pathBy("/emp/jin").property("name", "bleujin").merge() ;
-			wsession.pathBy("/dept/dev").refTo("account", "/emp/bleujin", "/emp/hero", "/emp/jin", "/notfound").merge() ;
+			wsession.pathBy("/dept/dev").refTos("account", "/emp/bleujin", "/emp/hero", "/emp/jin", "/notfound").merge() ;
 			return null ;
 		}).thenAccept(nil -> {
-			rsession.pathBy("/dept/dev").ref("account").debugPrint(); 
-			rsession.pathBy("/dept/dev").refs("account").debugPrint();
+			Debug.debug(rsession.pathBy("/dept/dev").property("account")) ;
+			
+			rsession.pathBy("/dept/dev").ref("account").debugPrint(); // bleujin
+			
+			rsession.pathBy("/dept/dev").refs("account").debugPrint(); // all
 		}) ;
 		
 	}
@@ -150,4 +154,16 @@ public class PropertyTest extends TestBaseRCraken {
 
 	}
 
+	
+	@Test
+	public void changeProperty() throws Exception { // 
+		// rsession.tran(SAMPLE) ;
+		rsession.tran(wsession ->{
+			wsession.pathBy("/emp/bleujin").changeValue("name", "bleujin2").merge() ;
+			wsession.pathBy("/dept/dev").changeValue("account", "/emp/bleujin, /emp/hero").merge() ;
+			
+			wsession.pathBy("/dept/dev").refs("account").debugPrint() ;
+		}) ;
+	}
+	
 }

@@ -85,7 +85,7 @@ public class Property implements Comparable{
 		this.rsession = rsession ;
 		this.fqn = fqn;
 		this.name = name;
-		this.json = json;
+		this.json = JsonObject.fromString(json.toString()) ; // copy property
 	}
 
 	public static Property create(ReadSession rsession, Fqn fqn, String name, JsonObject json) {
@@ -210,6 +210,7 @@ public class Property implements Comparable{
 		}
 		return Integer.MIN_VALUE ;
 	}
+
 
 
 

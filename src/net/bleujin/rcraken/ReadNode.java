@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -18,6 +20,8 @@ import net.bleujin.rcraken.convert.FieldDefinition;
 import net.bleujin.rcraken.convert.ToBeanStrategy;
 import net.bleujin.rcraken.def.Defined;
 import net.bleujin.rcraken.extend.ChildQueryRequest;
+import net.bleujin.rcraken.template.PropertyId;
+import net.bleujin.rcraken.template.PropertyValue;
 import net.bleujin.searcher.SearchController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.parse.gson.JsonObject;
@@ -158,6 +162,11 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 		return ref(refName).exist();
 	};
 
+	public boolean hasRef(String refName, Fqn target) {
+		ReadNode refNode = ref(refName);
+		return refNode.exist() && refNode.fqn().equals(target);
+	};
+	
 	public boolean isMatch(String key, String value) {
 		return this.property(key).defaultValue("").equals(session().encrypt(value)) ;
 	}
@@ -167,7 +176,7 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 	}
 
 	public String toString() {
-		return "ReadNode:[fqn:" + fqn + ", props:" + data + "]";
+		return "ReadNode:[path:" + fqn + ", property:" + data + "]";
 	}
 
 	
@@ -259,5 +268,11 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 
 	public <F> F transformer(Function<ReadNode, F> fn) {
 		return fn.apply(this);
+	}
+	
+	public Map<PropertyId, Object> toMap() {
+		return data.toMap().entrySet().stream().collect(Collectors.toMap(
+				entry-> PropertyId.create(entry),  
+				entry -> PropertyValue.create(entry.getValue()))) ;
 	}
 }

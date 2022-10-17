@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.print.attribute.standard.NumberUp;
+
 import org.redisson.api.RSemaphore;
 
 import net.bleujin.rcraken.Property.PType;
@@ -14,10 +16,14 @@ import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonElement;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.ArrayUtil;
+import net.ion.framework.util.CalendarUtils;
+import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
+import net.ion.framework.util.NumberUtil;
 import net.ion.framework.util.ObjectUtil;
 import net.ion.framework.util.SetUtil;
+import net.ion.framework.util.StringUtil;
 
 public class WriteNode implements CommonNode, Comparable<WriteNode> {
 
@@ -56,6 +62,9 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		JsonObject jvalue = new JsonObject().put("type", PType.Double.toString()).put("value", value);
 		return property(name, jvalue);
 	}
+	
+	
+	
 
 
 	public WriteNode property(String name, InputStream value) {
@@ -65,20 +74,28 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 		return property(name, jvalue);
 	}
 
-	public WriteNode refTo(String refName, String fqn, String... fqns) {
+	public WriteNode refTos(String refName, String refTarget, String... refTargets) { 
 		if (hasProperty(refName)) {
 			JsonObject jvalue = jsonData.asJsonObject(refName) ;
 			JsonArray jarray = jvalue.has("values") ? jvalue.asJsonArray("values") : new JsonArray() ;
-			jarray.adds(fqn) ; jarray.adds(fqns) ;
+			jarray.adds(refTarget) ; 
 			jvalue.add("values", jarray);
 		} else {
-			JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", fqn);
+			JsonObject jvalue = new JsonObject().put("type", PType.Ref.toString()).put("value", refTarget);
 			jvalue.add("values", new JsonArray());
-			for (String fv : fqns) {
+			jvalue.accumulate("values", refTarget) ;
+			for (String fv : refTargets) {
 				jvalue.accumulate("values", fv) ;	
 			}
 			property(refName, jvalue);
 		}
+		return this ;
+	}
+	
+	public WriteNode refTo(String refName, String refTarget, String... refTargets) { // refTo accumulate
+		this.unset(refName) ;
+		refTo(refName, refTarget, refTargets) ;
+		
 		return this ;
 	}
 	
@@ -302,6 +319,24 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 
 	public ReadNode toReadNode() {
 		return wsession.readSession().pathBy(fqn);
+	}
+
+	public WriteNode changeValue(String pid, String stringValue) {
+		if (property(pid).type() == PType.String) {
+			property(pid, stringValue) ;
+		} else if (property(pid).type() == PType.Long) {
+			property(pid, NumberUtil.toLong(stringValue)) ;
+		} else if (property(pid).type() == PType.Date) {
+			property(pid, DateUtil.stringToCalendar(stringValue)) ;
+		} else if (property(pid).type() == PType.Boolean) {
+			property(pid, Boolean.getBoolean(stringValue)) ;
+		} else if (property(pid).type() == PType.Ref && StringUtil.split(stringValue, ", ").length > 0) {
+			String[] values = StringUtil.split(stringValue, ", ") ;
+			refTo(pid, values[0], values.length > 1 ? (String[])ArrayUtil.subarray(values, 1, values.length) : new String[0]) ;
+		} else {
+			throw new IllegalArgumentException("known property type") ;
+		}
+		return this;
 	}
 
 

@@ -197,7 +197,7 @@ from (select unnest(string_to_array('/a/b/a/d', '/')) ele) b
 	) b
 where not exists(select 1 from craken_tblc where fqn = b.fqn)
 	
-select * from craken_tblc
+select * from craken_tblc where parent like '/dscripts%'
 
 delete from craken_tblc
 	

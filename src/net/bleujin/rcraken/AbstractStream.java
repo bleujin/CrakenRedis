@@ -127,6 +127,7 @@ public abstract class AbstractStream<T extends CommonNode, RT> implements Iterab
 		return (RT) this ;
 	}
 
+
 	public RT peek(Consumer<? super T> action) {
 		stream = stream.peek(action);
 		return (RT) this;

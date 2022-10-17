@@ -18,5 +18,8 @@ public class UserProcedureTest extends TestBaseFnManager{
 		Rows rows = dc.createUserProcedure("dummy@findPersonBy(?)").addParam("hero").execQuery() ;
 		assertEquals("hero", rows.firstRow().getString("name")) ;
 		assertEquals(20, rows.firstRow().getInt("age")) ;
+		
+		rows.beforeFirst();
+		rows.debugPrint();
 	}
 }

@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.Craken;
+import net.bleujin.searcher.SearchController;
+import net.bleujin.searcher.SearchControllerConfig;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.procedure.IParameterQueryable;
 import net.ion.framework.db.servant.AfterTask;
@@ -65,4 +67,22 @@ public class TestCache extends TestStdMethod{
 		assertEquals(ai.get(), 6 + 2);
 	}
 
+	@Test
+	public void testSearch() throws Exception {
+		Craken craken = ((PGCraken)c).cached(1000) ;
+		
+		rsession = craken.login("testworkspace") ;
+		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build()) ;
+		
+		rsession.tran(wsession -> {
+			wsession.pathBy("/emp/bleujin").property("name", "new bleujin").merge() ;
+			wsession.pathBy("/emp/jin").property("name", "new jin").merge() ;
+			wsession.pathBy("/emp/hero").property("name", "new hero").merge() ;
+		}) ;
+		
+		rsession.pathBy("/emp").childQuery("").find().debugPrint() ;
+		
+	}
 }
+
+

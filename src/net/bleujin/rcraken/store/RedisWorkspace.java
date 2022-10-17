@@ -33,6 +33,7 @@ import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.RedisSequence;
 import net.bleujin.rcraken.extend.Topic;
+import net.bleujin.rcraken.store.cache.CacheMap;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.DateUtil;
 import net.ion.framework.util.ObjectId;
@@ -44,6 +45,7 @@ public class RedisWorkspace extends Workspace{
 	private AtomicBoolean inited = new AtomicBoolean(false) ;
 	private RReadWriteLock rwlock ;
 	private RMapCache<Object, Object> dataMap;
+	private CacheMap<String, Topic> topics = new CacheMap<>(10) ;
 
 	protected RedisWorkspace(CrakenNode cnode, String wname, RedissonClient rclient) {
 		super(cnode, wname) ;
@@ -191,7 +193,7 @@ public class RedisWorkspace extends Workspace{
 	}
 
 	public <T> Topic<T> topic(String name) {
-		return new Topic<T>(name, rclient.getTopic(topicPrefix() + name));
+		return topics.get(name, () -> new Topic<T>(name, rclient.getTopic(topicPrefix() + name)));
 	}
 
 	

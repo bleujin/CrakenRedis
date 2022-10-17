@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
+import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
 
 public class WriteNodeTest extends TestBaseRCraken {
@@ -23,6 +24,29 @@ public class WriteNodeTest extends TestBaseRCraken {
 		}) ;
 	}
 
+	
+	@Test
+	public void testReadFrom() throws Exception {
+		rsession.tran(wsession -> {
+			wsession.pathBy("/emp/bleujin").property("name", "bleujin").refTo("friend", "/emp/hero", "/emp/bleujin").merge();
+			wsession.pathBy("/emp/hero").property("name", "hero").merge();
+			return null;
+		}) ;
+		
+		JsonObject jsonNode = rsession.pathBy("/emp/bleujin").toJson() ;
+		jsonNode.asJsonObject("property").asJsonObject("name").put("value", "bleujin2") ;
+		
+		
+		Debug.line(jsonNode.toString()) ;
+		
+		rsession.tran(wsessiono ->{
+			wsessiono.readFrom(jsonNode).merge() ;
+		}) ;
+		
+		rsession.pathBy("/emp/bleujin").debugPrint() ;
+	}
+	
+	
 	@Test
 	public void testSpeed() throws Exception {
 		for (int i = 0; i < 5 ; i++) {

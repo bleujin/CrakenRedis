@@ -126,5 +126,9 @@ public abstract class WriteSession {
 		}
 	}
 
+	public WriteNode readFrom(JsonObject nodeJson) {
+		return new WriteNode(this, Fqn.from(nodeJson.asString("path")), nodeJson.asJsonObject("property")) ;
+	};
+
 
 }
