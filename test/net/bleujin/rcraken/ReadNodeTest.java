@@ -49,7 +49,7 @@ public class ReadNodeTest extends TestBaseRCraken{
 	@Test
 	public void whenNotExist() throws Exception {
 		rsession.tran(SAMPLE).thenAccept(nil -> {
-			rsession.pathBy("/notexist").children().debugPrint();
+			rsession.pathBy("/notexist").children().stream().skip(0).limit(10).debugPrint();
 			assertNull(rsession.pathBy("/notexist").property("name").asString()) ;
 		}) ;
 		

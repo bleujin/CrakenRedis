@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import net.ion.framework.util.MapUtil;
+import net.ion.framework.util.StringUtil;
+
 public class ParamMap {
 	private Map<String, List<String>> params = null ;
 
@@ -14,6 +17,8 @@ public class ParamMap {
 	}
 
 	public static ParamMap create(String query) {
+		if (StringUtil.isBlank(query)) return new ParamMap(MapUtil.EMPTY) ;
+		
 		Map<String, List<String>> params  = Pattern.compile("&")
 			.splitAsStream(query)
 			.map(s -> Arrays.copyOf(s.split("="), 2))

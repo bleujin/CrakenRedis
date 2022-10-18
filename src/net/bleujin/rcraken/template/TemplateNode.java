@@ -20,7 +20,7 @@ public class TemplateNode {
 	private final String tplName;
 	
 	private ParamMap params = new ParamMap(MapUtil.EMPTY);
-	private final static String DftTemplatePropertyName = "template";
+	public final static String DftTemplatePropertyName = "template";
 
 	TemplateNode(TemplateFac tfac, ReadSession rsession, Fqn fqn, String templateName) {
 		this.tfac = tfac ;

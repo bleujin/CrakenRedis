@@ -56,7 +56,7 @@ public class PGReadSession extends ReadSession{
 	public boolean exist(String fqn) {
 		try {
 			if ("/".equals(fqn)) return true ;
-			return workspace.execQuery(dc.createUserProcedure("craken@existBy(?,?)").addParam(workspace.name()).addParam(fqn)).next();
+			return workspace.execQuery(dc.createUserProcedure("craken@existBy(?,?)").addParam(workspace.name()).addParam(fqn)).first();
 		} catch (SQLException ex) {
 			return false ;
 		}

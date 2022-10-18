@@ -22,7 +22,7 @@ public class CacheReadSession extends ReadSession{
 
 	@Override
 	public boolean exist(String path) {
-		return cachedData.containsKey(Fqn.from(path)) || ireadsession.exist(path);
+		return (cachedData.containsKey(Fqn.from(path)) && cachedData.get(Fqn.from(path)).entrySet().size() > 0)|| ireadsession.exist(path);
 	}
 
 	@Override
