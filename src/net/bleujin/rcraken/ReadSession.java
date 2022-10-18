@@ -213,7 +213,7 @@ public abstract class ReadSession {
 
 	public TemplateNode templateBy(String path) {
 		String absPath = StringUtil.defaultIfEmpty(StringUtil.substringBeforeLast(path, "."), path) ;
-		String templateName = StringUtil.substringAfterLast(path, ".") ;
+		String templateName = StringUtil.defaultIfEmpty(StringUtil.substringAfterLast(path, "."), "json") ;
 		return workspace().templateFac().newNode(this, Fqn.from(absPath), templateName);
 	}
 

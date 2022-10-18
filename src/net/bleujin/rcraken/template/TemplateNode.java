@@ -17,7 +17,7 @@ public class TemplateNode {
 	private final TemplateFac tfac;
 	private final ReadSession rsession;
 	private final Fqn fqn;
-	private final String templateName;
+	private final String tplName;
 	
 	private ParamMap params = new ParamMap(MapUtil.EMPTY);
 	private final static String DftTemplatePropertyName = "template";
@@ -26,7 +26,7 @@ public class TemplateNode {
 		this.tfac = tfac ;
 		this.rsession = rsession ;
 		this.fqn = fqn ;
-		this.templateName = StringUtil.defaultString(templateName, "") ;
+		this.tplName = StringUtil.defaultString(templateName, "") ;
 	}
 
 	public TemplateNode parameters(String query) {
@@ -39,7 +39,7 @@ public class TemplateNode {
 	}
 
 	public String templateName() {
-		return templateName;
+		return tplName;
 	}
 	
 	public ParamMap params() {
@@ -61,16 +61,18 @@ public class TemplateNode {
 	private String findTemplate() {
 		ReadNode current = targetNode() ;
 		while(! current.isRoot()) {
-			if (current.hasProperty(templateName)) {
-				return current.asString(templateName) ;
-			} else if (templateName.isEmpty() && current.hasProperty(DftTemplatePropertyName)) {
-				return current.asString(DftTemplatePropertyName) ;
-			} if (current.hasRef(templateName) && current.ref(templateName).hasProperty(DftTemplatePropertyName)) {
-				return current.ref(templateName).asString(DftTemplatePropertyName) ;
-			}
+			if (current.hasRef(tplName)) {
+				for(ReadNode rnode : current.refs(tplName).stream()) {
+					if (rnode.hasProperty(tplName)) {
+						return rnode.asString(tplName) ;
+					}
+				};
+			} else if (current.hasProperty(tplName)) {
+				return current.asString(tplName) ;
+			} 
 			current = current.parent() ;
 		}
-		return tfac.findTemplate(StringUtil.defaultIfEmpty(templateName, DftTemplatePropertyName)) ;
+		return tfac.findTemplate(StringUtil.defaultIfEmpty(tplName, DftTemplatePropertyName)) ;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.io.OutputStreamWriter;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadNode;
+import net.bleujin.rcraken.WriteNode;
 import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.bleujin.rcraken.template.TemplateNode;
@@ -35,15 +36,26 @@ public class NodeAsTemplate extends TestBaseRCraken {
 
 		OutputStreamWriter writer = new OutputStreamWriter(System.out);
 		TemplateNode tnode = rsession.templateBy("/emp.children").parameters("pageNo=1&listNum=10&format=json") ;
+		
 		assertEquals("/emp", tnode.targetNode().fqn().absPath()) ;
 		assertEquals("children", tnode.templateName()) ;
 		
 		tnode.transform(writer);
+		
+		rsession.tran(wsession ->{
+			WriteNode bnode = wsession.pathBy("/emp/bleujin");
+			bnode.unset("json") ;
+			bnode.merge();
+		}) ;
+		
 		rsession.templateBy("/emp/bleujin.json").parameters("detail=yes").transform(writer); ;
 
+		Debug.line() ;
 		rsession.tran(wsession ->{
-			wsession.pathBy("/emp/bleujin").property("json", "Hello ${self.asString(name)}, p : ${params.asString(detail)}").merge();
+			wsession.pathBy("/emp").property("json", "Hello ${self.asString(name)}, p : ${params.asString(detail)}").merge();
 		}) ;
+		
+		
 		rsession.templateBy("/emp/bleujin.json").parameters("detail=yes").transform(writer); ;
 		rsession.templateBy("/emp/hero.json").parameters("detail=yes").transform(writer); ;
 		

@@ -133,7 +133,8 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	
 	public JsonObject unset(String name) {
 		JsonElement removed = jsonData.remove(name) ;
-		return removed.getAsJsonObject();
+		
+		return removed == null ? JsonObject.create() : removed.getAsJsonObject();
 	}
 
 	public WriteNode unsetWith(String name) {
