@@ -33,6 +33,8 @@ public class ReadNodeTest extends TestBaseRCraken{
 	@Test
 	public void root() throws Exception {
 		assertEquals("/", rsession.pathBy("/").fqn().absPath()) ;
+		assertEquals(true, rsession.pathBy("/").fqn().getParent().isRoot()) ;
+		assertEquals("/", rsession.pathBy("/").fqn().getParent().absPath()) ;
 	}
 	
 

@@ -244,6 +244,7 @@ public class Fqn implements Serializable {
 	public Fqn getParent() {
 		switch (elements.length) {
 		case 0:
+			return root();
 		case 1:
 			return root();
 		default:

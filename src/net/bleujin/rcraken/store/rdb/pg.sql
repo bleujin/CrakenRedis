@@ -128,7 +128,7 @@ AS $BODY$
 		where not exists(select * from upset) ;
 		
 		insert into craken_tblc(wsname, fqn, jdata, parent)
-		select v_wsname, fqn, '{}'::jsonb, COALESCE(lead(fqn) over(), '*') as parent
+		select v_wsname, fqn, '{}'::jsonb, COALESCE(lead(fqn) over(), '/') as parent
 		from (
 		SELECT util$nvl(array_to_string(trim_array(string_to_array(v_fqn, '/'), (row_number() over())::integer - 1), '/'), '/') fqn
 		from (select unnest(string_to_array(v_fqn, '/')) ele) b
@@ -185,6 +185,14 @@ select craken$struby('testworkspace', '/') ;
 fetch all from rcursor ;
 
 select craken$dataWith('my', '/', '{}')
+
+
+select craken$existby('datas', '/boards') ;
+fetch all from rcursor ;
+
+select * from craken_tblc where fqn = '/boards'
+
+update craken_tblc set parent = '/' where parent = '/boards'
 
 
 select craken$existby('my', '/') ;

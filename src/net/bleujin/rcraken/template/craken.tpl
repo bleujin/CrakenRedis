@@ -15,7 +15,7 @@
 	<ul>
 	${foreach self.toMap() entry }
 		<li>${entry.getKey().idString()} : ${entry.getValue().asString()}</li>
-		${if entry.getValue().isBlob()} <a href='/admin/craken${self.fqn()}.${entry.getKey().idString()}'>view blob</a> ${end}
+		${if entry.getValue().isBlob()} <a href='/open/datas${self.fqn()}.${entry.getKey().idString()}'>view blob</a> ${end}
 	${end}
 	</ul>
 
