@@ -16,6 +16,7 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
+import mjson.Json;
 import net.bleujin.rcraken.convert.FieldDefinition;
 import net.bleujin.rcraken.convert.ToBeanStrategy;
 import net.bleujin.rcraken.def.Defined;
@@ -260,6 +261,14 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 		json.put("property", this.data) ;
 		return json ;
 	}
+	
+	public JsonObject toFlatJson() {
+		JsonObject json = new JsonObject() ;
+		this.data.entrySet().forEach(entry ->{
+			json.add(entry.getKey(), entry.getValue().getAsJsonObject().has("values") ? entry.getValue().getAsJsonObject().get("values") : entry.getValue().getAsJsonObject().get("value")) ;
+		});
+		return json ;
+	}
 
 	@Override
 	public int compareTo(ReadNode o) {
@@ -270,7 +279,7 @@ public class ReadNode implements CommonNode, Comparable<ReadNode> {
 		return fn.apply(this);
 	}
 	
-	public Map<PropertyId, Object> toMap() {
+	public Map<PropertyId, PropertyValue> toMap() {
 		return data.toMap().entrySet().stream().collect(Collectors.toMap(
 				entry-> PropertyId.create(entry),  
 				entry -> PropertyValue.create(entry.getValue()))) ;

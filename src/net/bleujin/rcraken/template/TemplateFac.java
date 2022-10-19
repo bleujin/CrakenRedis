@@ -16,7 +16,7 @@ public class TemplateFac {
 	public TemplateFac() {
 		dftTemplate.put(TemplateNode.DftTemplatePropertyName, defaultTemplate()) ;
 		dftTemplate.put("children", "[${foreach self.children() child ,}${child.toJson()}${end}]") ;
-		dftTemplate.put("json", "${self.toJson()}") ;
+		dftTemplate.put("json", "${self.toFlatJson()}") ;
 	}
 	
 	public TemplateNode newNode(ReadSession rsession, Fqn fqn, String templateName) {
