@@ -192,6 +192,11 @@ public class Property implements Comparable{
 		this.type().indexTo(wdoc, this);
 	}
 
+	public JsonObject toJson() {
+		return json ;
+	}
+	
+	
 	@Override
 	public int compareTo(Object o) {
 		if (o == null) return Integer.MIN_VALUE ;

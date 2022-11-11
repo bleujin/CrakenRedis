@@ -8,8 +8,11 @@ import net.bleujin.rcraken.Fqn;
 import net.bleujin.rcraken.Property;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
+import net.ion.framework.parse.gson.JsonArray;
 import net.ion.framework.parse.gson.JsonObject;
+import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
+import protostream.com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory;
 
 public class CDDModifiedEvent {
 	private Fqn key;
@@ -24,6 +27,9 @@ public class CDDModifiedEvent {
 	}
 
 	public final static CDDModifiedEvent create(ReadSession rsession, Fqn dataKey, JsonObject newData, JsonObject oldData){
+		
+		Debug.line(dataKey, newData, oldData);
+		
 		return new CDDModifiedEvent(dataKey, newData.keySet().stream().collect(Collectors.toMap(k -> k, k ->  Property.create(rsession, dataKey, k, newData.asJsonObject(k)))), 
 				oldData.keySet().stream().collect(Collectors.toMap(k -> k, k ->  Property.create(rsession, dataKey, k, oldData.asJsonObject(k)))))  ;
 	}
@@ -53,5 +59,6 @@ public class CDDModifiedEvent {
 	public EventType etype(){
 		return etype ;
 	}
+	
 
 }

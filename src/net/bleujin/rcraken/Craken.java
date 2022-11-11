@@ -1,5 +1,7 @@
 package net.bleujin.rcraken;
 
+import net.bleujin.rcraken.backup.BackupStrategyBuilder;
+
 public abstract class Craken {
 
 	public Craken start() {
@@ -19,5 +21,9 @@ public abstract class Craken {
 	
 	@Deprecated // test only
 	public abstract void removeAll() ;
+
+	public BackupStrategyBuilder backupStrategyBuilder(String... wsNames) {
+		return new BackupStrategyBuilder(this, wsNames) ;
+	}
 
 }

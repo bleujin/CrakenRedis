@@ -92,6 +92,7 @@ public class MapWriteSession extends WriteSession {
 			});
 		});
 		Set<String> childSet = struMap.get(fqn.absPath()) ;
+		if (childSet == null) return ; // not exist path
 		childSet.removeAll(cnames) ;
 		struMap.put(fqn.absPath(), childSet) ;
 	}
