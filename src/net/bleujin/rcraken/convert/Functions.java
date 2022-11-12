@@ -1,6 +1,5 @@
 package net.bleujin.rcraken.convert;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;

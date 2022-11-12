@@ -1,13 +1,11 @@
 package net.bleujin.rcraken.wservice;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.extend.Sequence;
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 

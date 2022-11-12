@@ -1,6 +1,5 @@
 package net.bleujin.rcraken.store.rdb;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.jupiter.api.Test;

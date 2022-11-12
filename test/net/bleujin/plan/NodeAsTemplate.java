@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.ReadNode;
 import net.bleujin.rcraken.WriteNode;
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.bleujin.rcraken.template.TemplateNode;
 import net.ion.framework.mte.Engine;

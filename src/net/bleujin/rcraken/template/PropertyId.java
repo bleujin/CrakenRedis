@@ -3,7 +3,6 @@ package net.bleujin.rcraken.template;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.StringUtil;
 
 public class PropertyId {

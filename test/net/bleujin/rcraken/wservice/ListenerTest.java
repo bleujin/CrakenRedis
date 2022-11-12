@@ -10,7 +10,6 @@ import net.bleujin.rcraken.extend.CDDHandler;
 import net.bleujin.rcraken.extend.CDDModifiedEvent;
 import net.bleujin.rcraken.extend.CDDRemovedEvent;
 import net.bleujin.rcraken.extend.NodeListener;
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;

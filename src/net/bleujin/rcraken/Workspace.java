@@ -24,7 +24,6 @@ import net.bleujin.searcher.SearchController;
 import net.bleujin.searcher.common.WriteDocument;
 import net.ion.framework.mte.Engine;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;

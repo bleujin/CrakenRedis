@@ -1,14 +1,11 @@
 package net.bleujin.rcraken.store.infinispan;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.transaction.TransactionMode;
-import org.mapdb.DBMaker;
-import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;

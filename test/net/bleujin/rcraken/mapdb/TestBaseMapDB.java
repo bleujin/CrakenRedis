@@ -11,7 +11,6 @@ import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.WriteJob;
-import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.redis.TestBaseRedis;
 
 public class TestBaseMapDB {

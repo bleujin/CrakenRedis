@@ -3,30 +3,22 @@ package net.bleujin.rcraken.redis;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.CronSchedule;
-import org.redisson.api.RExecutorService;
 import org.redisson.api.RScheduledExecutorService;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.annotation.RInject;
-import org.redisson.api.annotation.RRemoteAsync;
 
-import junit.framework.TestCase;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.store.RedisConfig;
 import net.bleujin.rcraken.store.RedisCraken;
-import net.ion.framework.util.Debug;
-import net.ion.framework.util.InfinityThread;
 import net.ion.framework.util.MapUtil;
 
 public class ExecutorTest {

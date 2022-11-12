@@ -1,24 +1,17 @@
 package net.bleujin.rcraken.redis;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
-import org.redisson.Redisson;
-import org.redisson.RedissonNode;
 import org.redisson.api.RMap;
-import org.redisson.api.RedissonClient;
 import org.redisson.api.mapreduce.RCollator;
 import org.redisson.api.mapreduce.RCollector;
 import org.redisson.api.mapreduce.RMapReduce;
 import org.redisson.api.mapreduce.RMapper;
 import org.redisson.api.mapreduce.RReducer;
-import org.redisson.config.Config;
-import org.redisson.config.RedissonNodeConfig;
 
-import junit.framework.TestCase;
 import net.bleujin.rcraken.store.RedisNode;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;

@@ -9,15 +9,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.Craken;
-import net.bleujin.rcraken.CrakenConfig;
-import net.bleujin.rcraken.ReadSession;
-import net.bleujin.rcraken.mapdb.TestBaseMapDB;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.procedure.IUserProcedureBatch;
-import net.ion.framework.db.servant.StdOutServant;
 import net.ion.framework.util.Debug;
 
 public class CrakenScriptManagerTest extends TestBaseRCraken {

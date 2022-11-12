@@ -7,12 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.Craken;
-import net.bleujin.searcher.SearchController;
 import net.bleujin.searcher.SearchControllerConfig;
 import net.ion.framework.db.DBController;
-import net.ion.framework.db.procedure.IParameterQueryable;
-import net.ion.framework.db.servant.AfterTask;
-import net.ion.framework.db.servant.IExtraServant;
 import net.ion.framework.util.Debug;
 
 public class TestCache extends TestStdMethod{

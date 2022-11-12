@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.Test;
-import org.redisson.api.RTopic;
 import org.redisson.api.listener.MessageListener;
 
 import net.bleujin.rcraken.extend.Topic;

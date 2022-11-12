@@ -3,21 +3,15 @@ package net.bleujin.rcraken.backup;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.lucene.util.NamedThreadFactory;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 import net.ion.framework.promise.Deferred;
-import net.ion.framework.promise.impl.DeferredObject;
 import net.ion.framework.util.DateUtil;
-import net.ion.framework.util.Debug;
 
 public class FileFullBackup {
 
@@ -29,13 +23,12 @@ public class FileFullBackup {
 	private ScheduleInfo sinfo;
 	private int maxFileCount = 3 ;
 
-	FileFullBackup(Craken fromCraken, ScheduledExecutorService exePool, File backupDir, Deferred<String, String, String> deferred, String[] wsNames, ScheduleInfo sinfo) {
+	FileFullBackup(Craken fromCraken, ScheduledExecutorService exePool, File backupDir, Deferred<String, String, String> deferred, String[] wsNames) {
 		this.fromCraken = fromCraken ;
 		this.exePool = exePool ;
 		this.backupDir = backupDir ;
 		this.deferred = deferred ;
 		this.wsNames = wsNames ;
-		this.sinfo = sinfo ;
 	}
 	
 	
@@ -48,6 +41,13 @@ public class FileFullBackup {
 		this.maxFileCount = Math.max(2, maxFileCount) ;
 		return this ;
 	}
+
+	public FileFullBackup schedule(int unitCount, TimeUnit tunit) {
+		this.sinfo = new ScheduleInfo(unitCount, tunit);
+		return this;
+	}
+
+
 	
 	public void backup() {
 		
@@ -60,7 +60,7 @@ public class FileFullBackup {
 				toCraken.login(wsName).tran(new WriteJob<Void>() {
 					@Override
 					public Void handle(WriteSession wsession) throws Exception {
-						fromCraken.login("testworkspace").root().walkDepth(true, 100).stream().forEach(rnode -> wsession.readFrom(rnode.toJson()).merge());
+						fromCraken.login(wsName).root().walkDepth(true, 100).stream().forEach(rnode -> wsession.readFrom(rnode.toJson()).merge());
 						deferred.notify(wsName + " backuped");
 						return null;
 					}

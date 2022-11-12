@@ -1,12 +1,8 @@
 package net.bleujin.rcraken.store.rdb;
 
-import java.util.Map;
-
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.store.cache.CacheMap;
-import net.bleujin.rcraken.store.cache.FutureValue;
-import net.ion.framework.util.MapUtil;
 
 public class CacheCraken extends Craken {
 

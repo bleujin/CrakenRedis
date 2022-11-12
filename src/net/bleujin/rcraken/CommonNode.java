@@ -1,7 +1,5 @@
 package net.bleujin.rcraken;
 
-import net.ion.framework.util.ObjectUtil;
-
 public interface CommonNode  {
 
 	public Property property(String key);

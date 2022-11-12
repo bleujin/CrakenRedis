@@ -6,12 +6,8 @@ import java.util.Map;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenNode;
-import net.bleujin.rcraken.Workspace;
-import net.bleujin.rcraken.store.MapNode;
-import net.bleujin.rcraken.store.MapWorkspace;
 import net.bleujin.rcraken.store.cache.CacheMap;
 import net.ion.framework.db.DBController;
-import net.ion.framework.util.MapUtil;
 
 public class PGCraken extends Craken {
 
@@ -70,7 +66,7 @@ public class PGCraken extends Craken {
 
 	
 
-	DBController dc() {
+	public DBController dc() {
 		return dc ;
 	}
 
@@ -78,5 +74,8 @@ public class PGCraken extends Craken {
 		return new CacheCraken(this, cachedSize);
 	}
 	
+	public boolean storedLOBProperty() {
+		return false ;
+	}
 
 }

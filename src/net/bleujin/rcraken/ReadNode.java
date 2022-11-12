@@ -16,7 +16,6 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
-import mjson.Json;
 import net.bleujin.rcraken.convert.FieldDefinition;
 import net.bleujin.rcraken.convert.ToBeanStrategy;
 import net.bleujin.rcraken.def.Defined;

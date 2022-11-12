@@ -4,13 +4,10 @@ import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 
-import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
-import net.bleujin.rcraken.store.MapCraken;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.manager.DBManager;
 import net.ion.framework.db.manager.PostSqlDBManager;
-import net.ion.framework.db.procedure.PostgreSqlRepositoryService;
 import net.ion.framework.util.StringUtil;
 
 public class PGConfig implements CrakenConfig {

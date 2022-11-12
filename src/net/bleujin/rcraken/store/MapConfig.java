@@ -7,10 +7,7 @@ import java.util.Map;
 import org.mapdb.DBMaker;
 import org.mapdb.DBMaker.Maker;
 
-import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
-import net.bleujin.rcraken.store.rdb.PGConfig;
-import net.ion.framework.util.StringUtil;
 
 public class MapConfig implements CrakenConfig {
 

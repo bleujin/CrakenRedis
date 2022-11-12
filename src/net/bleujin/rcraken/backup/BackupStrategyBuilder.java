@@ -1,6 +1,7 @@
 package net.bleujin.rcraken.backup;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -9,6 +10,7 @@ import org.apache.lucene.util.NamedThreadFactory;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenConfig;
+import net.bleujin.rcraken.store.rdb.PGCraken;
 import net.ion.framework.promise.Deferred;
 import net.ion.framework.promise.impl.DeferredObject;
 import net.ion.framework.util.Debug;
@@ -18,7 +20,6 @@ public class BackupStrategyBuilder {
 	private Craken fromCraken;
 	private String[] wsNames;
 	private ScheduledExecutorService exePool;
-	private ScheduleInfo sinfo;
 	
 	public BackupStrategyBuilder(Craken craken, String[] wsNames) {
 		this(craken, wsNames, Executors.newScheduledThreadPool(3, new NamedThreadFactory("backup-pool"))) ;
@@ -30,35 +31,37 @@ public class BackupStrategyBuilder {
 		this.exePool = exePool ;
 	}
 
-	public BackupStrategyBuilder schedule(int unitCount, TimeUnit tunit) {
-		this.sinfo = new ScheduleInfo(unitCount, tunit);
-		return this;
-	}
-
 	public FileFullBackup fullBackup(File backupDir) {
 		if (!backupDir.exists())
 			backupDir.mkdirs();
 		
-		FileFullBackup bstrategy = new FileFullBackup(fromCraken, exePool, backupDir, newDeferred(), wsNames, sinfo) ;
+		FileFullBackup bstrategy = new FileFullBackup(fromCraken, exePool, backupDir, newDeferred(), wsNames) ;
 		
 		return bstrategy ;
 	}
 
-	public IncrementBackup incrementBackup(File backupFile) {
+	public IncrementBackup incrementBackup(File backupFile, boolean initFullBackup) {
 		if (!backupFile.getParentFile().exists())
 			backupFile.getParentFile().mkdirs();
-		if (backupFile.exists()) backupFile.delete() ; // remove
+		if (backupFile.exists() && initFullBackup) backupFile.delete() ; // remove
 		
 		Craken toCraken = CrakenConfig.mapFile(backupFile).build().start();
 
-		IncrementBackup bstrategy = new IncrementBackup(fromCraken, exePool, newDeferred(), wsNames, toCraken) ;
+		IncrementBackup bstrategy = new IncrementBackup(fromCraken, exePool, newDeferred(), wsNames, toCraken, initFullBackup) ;
 		return bstrategy;
 	}
 
-	public IncrementBackup incrementBackup(String jdbcURL, String userId, String userPwd, File lobRootDir) {
-		Craken toCraken = CrakenConfig.pgDB(jdbcURL, userId, userPwd, lobRootDir).build() ;
+	public IncrementBackup incrementBackup(String jdbcURL, String userId, String userPwd, File lobRootDir, boolean initFullBackup) throws SQLException {
 
-		IncrementBackup bstrategy = new IncrementBackup(fromCraken, exePool, newDeferred(), wsNames, toCraken) ;
+		PGCraken toCraken = CrakenConfig.pgDB(jdbcURL, userId, userPwd, lobRootDir).build() ;
+		
+		if (initFullBackup) {
+			for(String wsName : wsNames) {
+				toCraken.dc().createUserCommand("delete from craken_tblc where wsname = ?").addParam(wsName).execUpdate() ;
+			}
+		}
+		
+		IncrementBackup bstrategy = new IncrementBackup(fromCraken, exePool, newDeferred(), wsNames, toCraken, initFullBackup) ;
 		return bstrategy;
 	}
 

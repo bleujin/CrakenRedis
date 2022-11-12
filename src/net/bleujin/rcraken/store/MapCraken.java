@@ -9,7 +9,6 @@ import org.mapdb.DBMaker.Maker;
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ReadSession;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 public class MapCraken extends Craken {

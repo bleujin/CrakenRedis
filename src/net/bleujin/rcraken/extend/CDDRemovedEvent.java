@@ -9,7 +9,6 @@ import net.bleujin.rcraken.Property;
 import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.ObjectUtil;
 
 public class CDDRemovedEvent {

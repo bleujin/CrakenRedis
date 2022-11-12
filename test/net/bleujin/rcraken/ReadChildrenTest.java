@@ -1,14 +1,11 @@
 package net.bleujin.rcraken;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.util.Debug;
 

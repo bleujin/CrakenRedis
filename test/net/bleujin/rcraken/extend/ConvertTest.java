@@ -4,14 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.junit.jupiter.api.Test;
 
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
-import net.ion.framework.util.Debug;
 
 public class ConvertTest extends TestBaseRCraken{
 

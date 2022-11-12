@@ -24,7 +24,6 @@ import net.bleujin.rcraken.expression.Expression;
 import net.bleujin.rcraken.expression.ExpressionParser;
 import net.bleujin.rcraken.expression.TerminalParser;
 import net.bleujin.rosetta.Parser;
-import net.bleujin.searcher.search.SearchConfig;
 import net.bleujin.searcher.search.filter.FilterUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.ObjectUtil;

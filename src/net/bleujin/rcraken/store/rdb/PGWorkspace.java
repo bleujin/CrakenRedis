@@ -10,9 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.mapdb.MapModificationListener;
-import org.mapdb.Serializer;
-
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
 import net.bleujin.rcraken.CrakenNode;
@@ -22,23 +19,18 @@ import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
+import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.PGSequence;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
-import net.bleujin.rcraken.extend.NodeListener.EventType;
-import net.bleujin.rcraken.store.MapWorkspace;
 import net.bleujin.rcraken.store.cache.CacheMap;
 import net.ion.framework.db.DBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.bean.ResultSetHandler;
 import net.ion.framework.db.procedure.IParameterQueryable;
-import net.ion.framework.db.procedure.IQueryable;
 import net.ion.framework.db.procedure.IUserProcedure;
-import net.ion.framework.db.servant.AfterTask;
-import net.ion.framework.db.servant.IExtraServant;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.DateUtil;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.DoubleKeyHashMap;
 import net.ion.framework.util.StringUtil;
 
@@ -168,7 +160,7 @@ public class PGWorkspace extends Workspace {
 		return dc.execHandlerQuery(upt, handler) ;
 	}
 
-	File workspaceRootDir() {
+	public File workspaceRootDir() {
 		return wrootDir ;
 	}
 

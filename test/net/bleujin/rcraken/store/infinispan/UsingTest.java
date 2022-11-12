@@ -2,9 +2,7 @@ package net.bleujin.rcraken.store.infinispan;
 
 import javax.transaction.TransactionManager;
 
-import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
-import org.infinispan.commons.dataconversion.IdentityEncoder;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.transaction.TransactionMode;

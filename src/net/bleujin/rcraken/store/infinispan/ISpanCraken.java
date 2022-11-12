@@ -3,13 +3,10 @@ package net.bleujin.rcraken.store.infinispan;
 import java.util.Map;
 
 import org.infinispan.manager.DefaultCacheManager;
-import org.mapdb.DB;
-import org.mapdb.DBMaker.Maker;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.CrakenNode;
 import net.bleujin.rcraken.ReadSession;
-import net.ion.framework.util.Debug;
 import net.ion.framework.util.MapUtil;
 
 public class ISpanCraken extends Craken {

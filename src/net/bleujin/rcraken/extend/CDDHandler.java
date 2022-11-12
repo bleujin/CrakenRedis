@@ -2,7 +2,6 @@ package net.bleujin.rcraken.extend;
 
 import java.util.Map;
 
-import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteJobNoReturn;
 
 

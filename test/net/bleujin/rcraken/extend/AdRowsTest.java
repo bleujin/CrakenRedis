@@ -5,7 +5,6 @@ import java.util.Calendar;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.convert.FieldDefinition;
-import net.bleujin.rcraken.redis.TestBaseRedis;
 import net.bleujin.rcraken.tbase.TestBaseRCraken;
 import net.ion.framework.db.Rows;
 

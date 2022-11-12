@@ -7,18 +7,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
-import org.apache.ecs.html.Map;
 import org.infinispan.Cache;
 import org.infinispan.filter.KeyFilter;
-import org.infinispan.metadata.Metadata;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryCreated;
 import org.infinispan.notifications.cachelistener.annotation.CacheEntryModified;
@@ -27,14 +22,7 @@ import org.infinispan.notifications.cachelistener.event.CacheEntryCreatedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryModifiedEvent;
 import org.infinispan.notifications.cachelistener.event.CacheEntryRemovedEvent;
 import org.infinispan.notifications.cachelistener.event.impl.EventImpl;
-import org.infinispan.notifications.cachelistener.filter.CacheEventFilter;
-import org.mapdb.Atomic;
-import org.mapdb.DB;
 import org.mapdb.HTreeMap;
-import org.mapdb.MapModificationListener;
-import org.mapdb.Serializer;
-
-import com.google.common.util.concurrent.Futures;
 
 import net.bleujin.rcraken.BatchJob;
 import net.bleujin.rcraken.BatchSession;
@@ -45,12 +33,10 @@ import net.bleujin.rcraken.Workspace;
 import net.bleujin.rcraken.WriteJob;
 import net.bleujin.rcraken.WriteSession;
 import net.bleujin.rcraken.extend.ISpanSequence;
-import net.bleujin.rcraken.extend.MapSequence;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.bleujin.rcraken.extend.Sequence;
 import net.bleujin.rcraken.extend.Topic;
 import net.ion.framework.parse.gson.JsonObject;
-import net.ion.framework.util.Debug;
 
 public class ISpanWorkspace extends Workspace{
 

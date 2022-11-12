@@ -1,7 +1,5 @@
 package net.bleujin.rcraken.db;
 
-import java.sql.SQLException;
-
 import org.junit.jupiter.api.Test;
 
 import net.ion.framework.db.Rows;

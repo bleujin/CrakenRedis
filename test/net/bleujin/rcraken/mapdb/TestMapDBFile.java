@@ -2,13 +2,11 @@ package net.bleujin.rcraken.mapdb;
 
 import org.junit.jupiter.api.Test;
 import org.mapdb.DB;
-import org.mapdb.DB.HashMapMaker;
-
-import net.ion.framework.util.Debug;
-
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
 import org.mapdb.Serializer;
+
+import net.ion.framework.util.Debug;
 
 public class TestMapDBFile {
 
