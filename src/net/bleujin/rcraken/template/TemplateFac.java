@@ -35,7 +35,7 @@ public class TemplateFac {
 	private String defaultTemplate() {
 		try {
 			return IOUtil.toStringWithClose(getClass().getResourceAsStream("./craken.tpl")) ;
-		} catch (IOException ex) {
+		} catch (NullPointerException | IOException ex) {
 			return "${self}" ;
 		}
 	}
