@@ -46,9 +46,9 @@ public class PGConfig implements CrakenConfig {
 	}
 
 	public PGCraken testBuild() {
-		this.jdbcURL = "jdbc:postgresql://127.0.0.1:5432/ics6" ;
+		this.jdbcURL = "jdbc:postgresql://127.0.0.1:5432/bleujin" ;
 		this.userId = "postgres" ;
-		this.userPwd = "postgres" ;
+		this.userPwd = "redf" ;
 		this.lobRootDir = new File("./resource/lob") ;
 		
 		return this.build() ;

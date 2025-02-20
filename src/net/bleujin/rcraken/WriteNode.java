@@ -89,7 +89,7 @@ public class WriteNode implements CommonNode, Comparable<WriteNode> {
 	
 	public WriteNode refTo(String refName, String refTarget, String... refTargets) { // refTo accumulate
 		this.unset(refName) ;
-		refTo(refName, refTarget, refTargets) ;
+		refTos(refName, refTarget, refTargets) ;
 		
 		return this ;
 	}

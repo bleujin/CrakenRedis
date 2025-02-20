@@ -12,7 +12,7 @@ public class TestMapDBFile {
 
 	@Test
 	public void testSpeed() throws Exception {
-		DB db = DBMaker.fileDB("./resource/mapdb/file.db").make() ;
+		DB db = DBMaker.fileDB("./resource/file.db").make() ;
 		HTreeMap<String, String> map = db.hashMap("stest", Serializer.STRING, Serializer.STRING).makeOrGet() ;
 
 		
@@ -24,6 +24,7 @@ public class TestMapDBFile {
 			db.commit();
 			Debug.line(System.currentTimeMillis() - start);
 		}
+		db.close() ;
 		
 	}
 	

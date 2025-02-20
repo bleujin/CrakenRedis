@@ -10,6 +10,7 @@ import net.bleujin.rcraken.ReadSession;
 import net.bleujin.rcraken.extend.NodeListener.EventType;
 import net.ion.framework.parse.gson.JsonObject;
 import net.ion.framework.util.Debug;
+import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.ObjectUtil;
 
 public class CDDModifiedEvent {
@@ -21,15 +22,13 @@ public class CDDModifiedEvent {
 	public CDDModifiedEvent(Fqn dataKey, Map<String, Property> newProperties, Map<String, Property> oldProperties) {
 		this.key = dataKey ;
 		this.newProperties = newProperties ;
-		this.oldProperties = oldProperties ;
+		this.oldProperties = ObjectUtil.coalesce(oldProperties, MapUtil.EMPTY) ;
 	}
 
 	public final static CDDModifiedEvent create(ReadSession rsession, Fqn dataKey, JsonObject newData, JsonObject oldData){
 		
-		Debug.line(dataKey, newData, oldData);
-		
 		return new CDDModifiedEvent(dataKey, newData.keySet().stream().collect(Collectors.toMap(k -> k, k ->  Property.create(rsession, dataKey, k, newData.asJsonObject(k)))), 
-				oldData.keySet().stream().collect(Collectors.toMap(k -> k, k ->  Property.create(rsession, dataKey, k, oldData.asJsonObject(k)))))  ;
+				oldData == null ? null : oldData.keySet().stream().collect(Collectors.toMap(k -> k, k ->  Property.create(rsession, dataKey, k, oldData.asJsonObject(k)))))  ;
 	}
 	
 	public Fqn getKey(){

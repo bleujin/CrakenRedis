@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.lucene.index.CorruptIndexException;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 
 import net.bleujin.rcraken.Craken;
 import net.bleujin.rcraken.ReadSession;
@@ -18,8 +20,6 @@ import net.ion.framework.util.ArrayUtil;
 import net.ion.framework.util.ListUtil;
 import net.ion.framework.util.MapUtil;
 import net.ion.framework.util.StringUtil;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 public class CrakenFnManager extends CrakenManager {
 
@@ -135,16 +135,6 @@ public class CrakenFnManager extends CrakenManager {
 		packages.put(packageName, queryPackage);
 		
 		return this;
-	}
-
-}
-
-class ConnectionMock implements MethodInterceptor {
-
-	@Override
-	public Object intercept(Object proxy, Method method, Object[] args, MethodProxy arg3) throws Throwable {
-		return null;
-		// throw new IllegalStateException("this is fake object") ;
 	}
 
 }

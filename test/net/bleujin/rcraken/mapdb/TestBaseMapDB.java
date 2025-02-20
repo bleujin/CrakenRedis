@@ -39,7 +39,7 @@ public class TestBaseMapDB {
 	}
 
 	@AfterEach
-	void tearDown() throws IOException {
+	void tearDown() throws IOException, InterruptedException {
 		rsession.workspace().removeSelf() ;
 	}
 	

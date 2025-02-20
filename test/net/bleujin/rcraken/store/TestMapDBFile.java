@@ -25,7 +25,7 @@ public class TestMapDBFile {
 	
 	@BeforeAll
 	static void init() throws Exception {
-		Maker maker = DBMaker.fileDB(new File("./resource/mapdb/map.db")).fileMmapEnableIfSupported() ;
+		Maker maker = DBMaker.fileDB(new File("./resource/map.db")).fileMmapEnableIfSupported() ;
 		c = MapConfig.fromMaker(maker).lobRootDir(new File("./resource/lob")).build() ;
 		c.start() ;
 		

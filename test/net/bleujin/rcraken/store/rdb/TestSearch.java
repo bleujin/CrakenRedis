@@ -12,7 +12,7 @@ public class TestSearch extends TestStdMethod {
 	public void testQuery() throws Exception {
 
 		SearchController central = SearchControllerConfig.newRam().build() ;
-		rsession.workspace().indexCntral(central) ;
+		rsession.workspace().indexCentral(central) ;
 		
 		rsession.tran(wsession ->{
 			wsession.pathBy("/emp/bleujin").property("name", "bleujin").property("age", 20).merge() ;

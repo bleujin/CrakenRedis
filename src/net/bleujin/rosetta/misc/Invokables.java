@@ -1,7 +1,7 @@
 package net.bleujin.rosetta.misc;
 
-import net.sf.cglib.reflect.FastConstructor;
-import net.sf.cglib.reflect.FastMethod;
+import org.springframework.cglib.reflect.FastConstructor;
+import org.springframework.cglib.reflect.FastMethod;
 
 /**
  * Implementations of {@Link Invokable}.

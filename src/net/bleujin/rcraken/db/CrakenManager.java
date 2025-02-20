@@ -1,13 +1,20 @@
 package net.bleujin.rcraken.db;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import org.apache.commons.dbcp.PoolingConnection;
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
 
 import net.ion.framework.db.IDBController;
 import net.ion.framework.db.Rows;
 import net.ion.framework.db.manager.DBManager;
 import net.ion.framework.db.procedure.RepositoryService;
-import net.sf.cglib.proxy.Enhancer;
 
 public abstract class CrakenManager extends DBManager {
 
@@ -58,13 +65,38 @@ public abstract class CrakenManager extends DBManager {
 
 	@Override
 	protected void myInitPool() throws SQLException {
-		Enhancer e = new Enhancer();
-		e.setSuperclass(Connection.class);
-		e.setCallback(new ConnectionMock());
 
-		this.fake = (Connection) e.create();
+//		this.fake = (Connection)Enhancer.create(Connection.class, new ConnectionMock()) ;
+
+//		Enhancer e = new Enhancer();
+//		e.setSuperclass(Connection.class);
+//		e.setCallback(new ConnectionMock());
+//		this.fake = (Connection) e.create();
+		
+		this.fake  = (Connection)Proxy.newProxyInstance(this.getClass().getClassLoader(), PoolingConnection.class.getInterfaces(), new ConnectionProxy());
 	}
 
 	
 	
 }
+
+
+class ConnectionMock implements MethodInterceptor {
+
+	@Override
+	public Object intercept(Object proxy, Method method, Object[] args, MethodProxy arg3) throws Throwable {
+		return null;
+		// throw new IllegalStateException("this is fake object") ;
+	}
+}
+
+
+class ConnectionProxy implements InvocationHandler {
+
+	@Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		return null;
+	}
+	
+}
+

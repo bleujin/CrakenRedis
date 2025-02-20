@@ -30,11 +30,12 @@ public class TestCache extends TestStdMethod{
 			wsession.pathBy("/emp/hero").property("name", "hero").merge() ;
 		}) ;
 		
+		assertEquals( 6 + 1 + 1 - 1, ai.get());
+		
 		rsession.pathBy("/emp/bleujin").debugPrint() ;
 		rsession.pathBy("/emp/hero").debugPrint() ;
 		rsession.pathBy("/emp").children().debugPrint() ;
 		
-		assertEquals(ai.get(), 6 + 1 + 1 + 2 + 3);
 	}
 
 	@Test
@@ -56,11 +57,12 @@ public class TestCache extends TestStdMethod{
 			wsession.pathBy("/emp/hero").property("name", "new hero").merge() ;
 		}) ;
 		
+		
+		assertEquals(ai.get(), 6 + 2);
+		
 		rsession.pathBy("/emp/bleujin").debugPrint() ;
 		rsession.pathBy("/emp/hero").debugPrint() ;
 		rsession.pathBy("/emp").children().debugPrint() ; // /emp
-		
-		assertEquals(ai.get(), 6 + 2);
 	}
 
 	@Test
@@ -68,7 +70,7 @@ public class TestCache extends TestStdMethod{
 		Craken craken = ((PGCraken)c).cached(1000) ;
 		
 		rsession = craken.login("testworkspace") ;
-		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build()) ;
+		rsession.workspace().indexCentral(SearchControllerConfig.newRam().build()) ;
 		
 		rsession.tran(wsession -> {
 			wsession.pathBy("/emp/bleujin").property("name", "new bleujin").merge() ;

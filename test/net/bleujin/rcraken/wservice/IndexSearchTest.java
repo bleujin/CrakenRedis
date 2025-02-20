@@ -12,7 +12,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	@Test
 	public void indexWithEachCraken() throws Exception {
 		SearchController central = SearchControllerConfig.newRam().build() ;
-		rsession.workspace().indexCntral(central) ;
+		rsession.workspace().indexCentral(central) ;
 		
 		rsession.tran(SAMPLE) ;
 
@@ -25,7 +25,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	public void indexWhenSettingCentral() throws Exception {
 		SearchController central = SearchControllerConfig.newRam().build() ;
 
-		rsession.workspace().indexCntral(central) ;
+		rsession.workspace().indexCentral(central) ;
 		for (int i = 0; i < 10; i++) {
 			rsession.tran(SAMPLE) ;
 		}
@@ -42,7 +42,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 	@Test
 	public void searchInWriteSession() throws Exception {
 		SearchController central = SearchControllerConfig.newRam().build() ;
-		rsession.workspace().indexCntral(central) ;
+		rsession.workspace().indexCentral(central) ;
 		rsession.tran(SAMPLE) ;
 		
 		Thread.sleep(500);
@@ -61,7 +61,7 @@ public class IndexSearchTest extends TestBaseRCraken {
 		rsession.tran(SAMPLE) ;
 		
 		SearchController central = SearchControllerConfig.newRam().build() ;
-		rsession.workspace().indexCntral(central).reindex(true) ;
+		rsession.workspace().indexCentral(central).reindex(true) ;
 		
 		rsession.pathBy("/emp").childQuery("age:[25 TO 30]").find().debugPrint();
 	}

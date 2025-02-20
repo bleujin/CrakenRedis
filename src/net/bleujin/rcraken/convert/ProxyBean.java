@@ -3,10 +3,11 @@ package net.bleujin.rcraken.convert;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
+import org.springframework.cglib.proxy.Enhancer;
+import org.springframework.cglib.proxy.MethodInterceptor;
+import org.springframework.cglib.proxy.MethodProxy;
+
 import net.bleujin.rcraken.ReadNode;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 public class ProxyBean implements MethodInterceptor{
 

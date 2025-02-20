@@ -40,10 +40,11 @@ public class TestMapDB extends TestBaseMapDB {
 
 	@Test
 	public void indexData() throws Exception {
-		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build(OpenMode.CREATE_OR_APPEND));
+		rsession.workspace().indexCentral(SearchControllerConfig.newRam().build(OpenMode.CREATE_OR_APPEND));
 		rsession.tran(TestBaseRedis.SAMPLE).get();
 
 		rsession.pathBy("/").childQuery("", true).find().debugPrint();
+		rsession.workspace().indexCentral(null) ;
 	}
 
 	@Test
@@ -65,7 +66,7 @@ public class TestMapDB extends TestBaseMapDB {
 		rsession.pathBy("/emp").children().debugPrint(); 
 	}
 	
-	
+
 	@Test
 	public void directTransform() throws Exception {
 		rsession.tran(SAMPLE).thenAccept(nil -> {

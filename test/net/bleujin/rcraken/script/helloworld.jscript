@@ -14,4 +14,4 @@ new function(){
 		return myobj.sayHello(name);
 	}
 
-} ;
+} 

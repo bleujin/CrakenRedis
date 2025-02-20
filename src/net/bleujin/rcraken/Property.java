@@ -173,7 +173,9 @@ public class Property implements Comparable{
 	}
 
 	public PType type() {
-		return PType.valueOf(json.asString(Defined.Property.Type));
+		String ptvalue = json.asString(Defined.Property.Type);
+		if (ptvalue == null) return PType.Unknown ;
+		return PType.valueOf(ptvalue);
 	}
 	
 	public boolean equals(Object o) {

@@ -25,6 +25,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.cglib.reflect.FastClass;
+import org.springframework.cglib.reflect.FastMethod;
+
 import net.bleujin.rosetta.Parser;
 import net.bleujin.rosetta.Parsers;
 import net.bleujin.rosetta.functors.Binary;
@@ -32,8 +35,6 @@ import net.bleujin.rosetta.functors.Map;
 import net.bleujin.rosetta.functors.Unary;
 import net.bleujin.rosetta.util.Checks;
 import net.bleujin.rosetta.util.Lists;
-import net.sf.cglib.reflect.FastClass;
-import net.sf.cglib.reflect.FastMethod;
 
 
 /**

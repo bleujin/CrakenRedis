@@ -5,12 +5,13 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.cglib.reflect.FastClass;
+
 import net.bleujin.rosetta.Parser;
 import net.bleujin.rosetta.annotations.Private;
 import net.bleujin.rosetta.functors.Binary;
 import net.bleujin.rosetta.functors.Unary;
 import net.bleujin.rosetta.util.Checks;
-import net.sf.cglib.reflect.FastClass;
 
 
 /**

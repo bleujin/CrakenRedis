@@ -50,7 +50,7 @@ public class JScriptEngine extends Scripter {
 
 	private JScriptEngine(ClassLoader cloader) {
 		this.manager = new ScriptEngineManager();
-		this.sengine = manager.getEngineByName("JavaScript");
+		this.sengine = manager.getEngineByName("Nashorn");
 		Bindings bindings = new SimpleBindings();
 		bindings.put("dirloader", cloader);
 		sengine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);

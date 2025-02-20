@@ -10,7 +10,7 @@ public class BatchTran extends TestBaseRCraken {
 
 	@Test
 	public void batchTran() throws Exception {
-		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build()) ;
+		rsession.workspace().indexCentral(SearchControllerConfig.newRam().build()) ;
 		rsession.batch(bsession ->{
 			for (int i = 0; i < 5; i++) {
 				bsession.pathBy("/emp/" + i).property("index", i).property("type", "batch").insert(); 
@@ -25,7 +25,7 @@ public class BatchTran extends TestBaseRCraken {
 
 	@Test
 	public void testBatchIndex() throws Exception {
-		rsession.workspace().indexCntral(SearchControllerConfig.newRam().build()) ;
+		rsession.workspace().indexCentral(SearchControllerConfig.newRam().build()) ;
 		rsession.batch(bsession ->{
 			for (int i = 0; i < 10; i++) {
 				bsession.pathBy("/emp/" + i).property("index", i).property("type", "batch").insert(); 

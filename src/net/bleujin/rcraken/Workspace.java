@@ -166,7 +166,7 @@ public abstract class Workspace {
 		return Optional.ofNullable(central).orElseThrow(() -> new IllegalStateException("central is blank. set central in workspace"));
 	}
 
-	public Workspace indexCntral(SearchController central) {
+	public Workspace indexCentral(SearchController central) {
 		this.central = central;
 		this.addListener(new NodeListener() {
 			public void onChanged(EventType etype, Fqn fqn, JsonObject jvalue, JsonObject oldValue) {

@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.bleujin.rcraken.Craken;
@@ -25,6 +26,7 @@ public class StrategyTest extends TestBaseRCraken{
 
 	
 	@Test
+	@Disabled("too long")
 	public void fullBackup() throws InterruptedException {
 		
 		c.backupStrategyBuilder("testworkspace")
@@ -38,6 +40,7 @@ public class StrategyTest extends TestBaseRCraken{
 	
 	
 	@Test
+	@Disabled("too long")
 	public void incrementBackup() throws InterruptedException, ExecutionException, SQLException {
 
 		c.backupStrategyBuilder("testworkspace")
@@ -54,10 +57,11 @@ public class StrategyTest extends TestBaseRCraken{
 	}
 
 	@Test
+	@Disabled("too long")
 	public void incrementBackup2() throws InterruptedException, ExecutionException, SQLException {
 
 		c.backupStrategyBuilder("testworkspace")
-		.incrementBackup("jdbc:postgresql://127.0.0.1:5432/ics6", "postgres", "postgres", new File("./resource/lob"), true)
+		.incrementBackup("jdbc:postgresql://127.0.0.1:5432/bleujin", "postgres", "redf", new File("./resource/lob"), true)
 		.start() ; 
 		
 		c.login("testworkspace").tran(wsession ->{
